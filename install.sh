@@ -46,7 +46,7 @@ esac
 
 # Print header
 echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Hyber Orbit Dotfiles Auto-Install     ║${NC}"
+echo -e "${BLUE}║      Hyber Alias Auto-Install          ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
 echo ""
 echo "🔍 Auto-detected:"
@@ -68,7 +68,7 @@ echo ""
 echo -e "${YELLOW}🔗 Configuring shell...${NC}"
 if ! grep -q "/.alias/load.sh" "$SHELL_RC" 2>/dev/null; then
     echo "" >> "$SHELL_RC"
-    echo "# Hyber Orbit Aliases" >> "$SHELL_RC"
+    echo "# Hyber Alias" >> "$SHELL_RC"
     echo "source ~/.alias/load.sh" >> "$SHELL_RC"
     echo -e "${GREEN}✓ Added to $SHELL_RC${NC}"
 else

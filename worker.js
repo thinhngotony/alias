@@ -13,7 +13,7 @@ export default {
     };
 
     if (path === '/') {
-      return new Response(`Hyber Orbit Aliases API
+      return new Response(`Hyber Alias API
 
 Install:
   Linux/Mac:  bash <(curl -s https://alias.hyberorbit.com/install)

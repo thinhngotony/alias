@@ -1,5 +1,5 @@
 #!/bin/bash
-# Hyber Orbit Aliases Loader
+# Hyber Alias Loader
 
 REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 ALIAS_HOME="${HOME}/.alias"

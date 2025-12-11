@@ -1,4 +1,4 @@
-# Hyber Orbit Dotfiles Loader for PowerShell
+# Hyber Alias Loader for PowerShell
 
 $AliasHome = "$env:USERPROFILE\.alias"
 

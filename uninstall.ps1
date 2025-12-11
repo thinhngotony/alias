@@ -1,7 +1,7 @@
-# Hyber Orbit Aliases Uninstaller for Windows PowerShell
+# Hyber Alias Uninstaller for Windows PowerShell
 
 Write-Host ""
-Write-Host "Uninstalling Hyber Orbit Aliases..." -ForegroundColor Yellow
+Write-Host "Uninstalling Hyber Alias..." -ForegroundColor Yellow
 Write-Host ""
 
 # Remove alias directory
@@ -18,7 +18,7 @@ if (Test-Path $PROFILE) {
     $content = Get-Content $PROFILE -Raw
     if ($content -match '\.alias') {
         $newContent = (Get-Content $PROFILE) | Where-Object {
-            $_ -notmatch '# Hyber Orbit' -and $_ -notmatch '\.alias\\load\.ps1'
+            $_ -notmatch '# Hyber' -and $_ -notmatch '\.alias\\load\.ps1'
         }
         $newContent | Set-Content $PROFILE
         Write-Host "[OK] Removed from $PROFILE" -ForegroundColor Green

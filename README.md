@@ -5,7 +5,7 @@
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs Welcome">
 </p>
 
-<h1 align="center">Hyber Orbit Dotfiles</h1>
+<h1 align="center">Hyber Alias</h1>
 
 <p align="center">
   <strong>One command. All your shell aliases. Everywhere.</strong>
@@ -36,7 +36,7 @@ iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 
 ---
 
-## Why Hyber Orbit?
+## Why Hyber Alias?
 
 | Feature | Description |
 |---------|-------------|
@@ -290,3 +290,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 <p align="center">
   <sub>Built with care by <a href="https://hyberorbit.com">Hyber Orbit</a></sub>
 </p>
+

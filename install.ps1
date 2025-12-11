@@ -1,10 +1,10 @@
-# Hyber Orbit Aliases Auto-Install for Windows PowerShell
+# Hyber Alias Auto-Install for Windows PowerShell
 $ErrorActionPreference = "Stop"
 
 # Print header
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Hyber Orbit Aliases Auto-Install     " -ForegroundColor Cyan
+Write-Host "      Hyber Alias Auto-Install         " -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Auto-detected:"
@@ -65,7 +65,7 @@ if (!(Test-Path $PROFILE)) {
 
 $ProfileContent = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
 if ($null -eq $ProfileContent -or $ProfileContent -notmatch "\.alias\\load\.ps1") {
-    Add-Content -Path $PROFILE -Value "`n# Hyber Orbit Aliases"
+    Add-Content -Path $PROFILE -Value "`n# Hyber Alias"
     Add-Content -Path $PROFILE -Value ". `"$AliasHome\load.ps1`""
     Write-Host "[OK] Added to $PROFILE" -ForegroundColor Green
 } else {

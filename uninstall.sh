@@ -1,5 +1,5 @@
 #!/bin/bash
-# Hyber Orbit Aliases Uninstaller
+# Hyber Alias Uninstaller
 
 set -e
 
@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo ""
-echo -e "${YELLOW}Uninstalling Hyber Orbit Aliases...${NC}"
+echo -e "${YELLOW}Uninstalling Hyber Alias...${NC}"
 echo ""
 
 # Remove alias directory
@@ -24,7 +24,7 @@ fi
 # Remove from .bashrc
 if [ -f "$HOME/.bashrc" ]; then
     if grep -q "\.alias/load\.sh" "$HOME/.bashrc" 2>/dev/null; then
-        sed -i '/# Hyber Orbit/d' "$HOME/.bashrc"
+        sed -i '/# Hyber/d' "$HOME/.bashrc"
         sed -i '/\.alias\/load\.sh/d' "$HOME/.bashrc"
         echo -e "${GREEN}✓ Removed from ~/.bashrc${NC}"
     fi
@@ -33,7 +33,7 @@ fi
 # Remove from .zshrc
 if [ -f "$HOME/.zshrc" ]; then
     if grep -q "\.alias/load\.sh" "$HOME/.zshrc" 2>/dev/null; then
-        sed -i '/# Hyber Orbit/d' "$HOME/.zshrc"
+        sed -i '/# Hyber/d' "$HOME/.zshrc"
         sed -i '/\.alias\/load\.sh/d' "$HOME/.zshrc"
         echo -e "${GREEN}✓ Removed from ~/.zshrc${NC}"
     fi
