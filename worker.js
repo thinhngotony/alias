@@ -33,7 +33,7 @@ Uninstall:
     }
 
     const response = await fetch(targetUrl, {
-      cf: { cacheTtl: 60 }  // Cache for only 60 seconds
+      cf: { cacheTtl: 0, cacheEverything: false }  // No caching - always fetch fresh from GitHub
     });
     return new Response(response.body, {
       status: response.status,

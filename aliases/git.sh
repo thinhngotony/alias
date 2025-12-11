@@ -1,6 +1,6 @@
 #!/bin/bash
 alias ga='git add .'
-alias gauto='ga && gc Backup && git push origin HEAD'
+alias gauto='git add . && git commit -m "Backup" && git push origin HEAD'
 alias gb='git branch'
 alias gc='git commit -m'
 alias gph='git push origin'

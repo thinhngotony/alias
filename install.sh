@@ -67,9 +67,11 @@ echo ""
 # Add to shell RC if not already there
 echo -e "${YELLOW}🔗 Configuring shell...${NC}"
 if ! grep -q "/.alias/load.sh" "$SHELL_RC" 2>/dev/null; then
-    echo "" >> "$SHELL_RC"
-    echo "# Hyber Alias" >> "$SHELL_RC"
-    echo "source ~/.alias/load.sh" >> "$SHELL_RC"
+    {
+        echo ""
+        echo "# Hyber Alias"
+        echo "source ~/.alias/load.sh"
+    } >> "$SHELL_RC"
     echo -e "${GREEN}✓ Added to $SHELL_RC${NC}"
 else
     echo -e "${GREEN}✓ Already configured${NC}"
@@ -86,6 +88,7 @@ echo ""
 
 # Auto-reload shell
 echo -e "${YELLOW}🔄 Reloading shell...${NC}"
+# shellcheck source=/dev/null
 source "$SHELL_RC" 2>/dev/null || true
 echo -e "${GREEN}✓ Shell reloaded${NC}"
 echo ""

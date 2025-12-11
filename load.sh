@@ -5,6 +5,7 @@ REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 ALIAS_HOME="${HOME}/.alias"
 
 # Source environment
+# shellcheck source=/dev/null
 [ -f "$ALIAS_HOME/env.sh" ] && source "$ALIAS_HOME/env.sh"
 
 # Download and cache aliases if online, then source from cache
@@ -21,6 +22,7 @@ _alias_download() {
     fi
 
     # Source from cache if exists
+    # shellcheck source=/dev/null
     [ -f "$cache" ] && source "$cache"
 }
 
@@ -32,6 +34,7 @@ _alias_download "system"
 # Source user custom aliases
 if [ -d "$ALIAS_HOME/custom" ]; then
     for file in "$ALIAS_HOME/custom"/*; do
+        # shellcheck source=/dev/null
         [ -f "$file" ] && source "$file" 2>/dev/null
     done
 fi

@@ -57,7 +57,7 @@ iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 |:------|:--------|:------------|
 | `ga` | `git add .` | Stage all changes |
 | `gb` | `git branch` | List branches |
-| `gc <msg>` | `git commit -m <msg>` | Commit with message |
+| `gc <msg>` | `git commit -m <msg>` | Commit with message (use `gcm` on PowerShell) |
 | `gd` | `git diff` | Show unstaged changes |
 | `glog` | `git log --oneline -n 20` | Recent commits |
 | `gph <branch>` | `git push origin <branch>` | Push to remote |
