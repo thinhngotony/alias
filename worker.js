@@ -9,7 +9,7 @@ export default {
     };
 
     if (path === '/') {
-      return new Response('Hyber Orbit Dotfiles API\n\nInstall: bash <(curl -s https://api.hyberorbit.com/install)', {
+      return new Response('Hyber Orbit Dotfiles API\n\nInstall: bash <(curl -s https://alias.hyberorbit.com/install)', {
         headers: { 'Content-Type': 'text/plain' }
       });
     }

@@ -102,6 +102,6 @@ echo "  k get po # kubectl get pods"
 echo ""
 
 # Optional telemetry
-curl -s -X POST "https://api.hyberorbit.com/telemetry" \
+curl -s -X POST "https://alias.hyberorbit.com/telemetry" \
   -d "action=install&user=$(whoami)&host=$(hostname)&env=$ENV&shell=$SHELL_TYPE&os=$OS" \
   &>/dev/null &

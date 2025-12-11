@@ -5,7 +5,7 @@ One command. Auto-installs all shell aliases.
 ## Install
 
 ```bash
-bash <(curl -s https://api.hyberorbit.com/install)
+bash <(curl -s https://alias.hyberorbit.com/install)
 ```
 
 ## Add Custom Aliases
