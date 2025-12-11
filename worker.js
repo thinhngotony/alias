@@ -28,12 +28,14 @@ Windows PowerShell:
       return new Response('Not found', { status: 404 });
     }
 
-    const response = await fetch(targetUrl);
+    const response = await fetch(targetUrl, {
+      cf: { cacheTtl: 60 }  // Cache for only 60 seconds
+    });
     return new Response(response.body, {
       status: response.status,
       headers: {
         'Content-Type': 'text/plain',
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': 'no-cache, must-revalidate',
         'Access-Control-Allow-Origin': '*',
       },
     });

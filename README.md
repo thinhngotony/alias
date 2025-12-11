@@ -164,34 +164,82 @@ Remove-Item -Recurse -Force ~\.hyberorbit
 notepad $PROFILE
 ```
 
-## Troubleshooting
+## Troubleshooting & FAQ
 
-### Aliases not working after install
+### Windows: "Running scripts is disabled on this system"
 
-```bash
-# Linux/macOS - Reload shell
-source ~/.bashrc  # or ~/.zshrc
+PowerShell blocks scripts by default. Run this first:
 
-# Windows - Reload profile
-. $PROFILE
+```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 ```
 
-### Check installation
+Then reinstall:
+
+```powershell
+iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
+```
+
+### Windows: Aliases not working after install
+
+The installer should load aliases immediately. If not, open a **new PowerShell window** or run:
+
+```powershell
+. ~\.hyberorbit\load.ps1
+```
+
+### Windows: Garbled characters / broken symbols
+
+Your PowerShell may not support UTF-8. This is cosmetic only - the install still works. The latest version uses ASCII-only output to avoid this.
+
+### Linux/macOS: Aliases not working after install
+
+Reload your shell:
+
+```bash
+source ~/.bashrc  # or ~/.zshrc for Zsh
+```
+
+Or open a new terminal window.
+
+### Check if installation succeeded
 
 ```bash
 # Linux/macOS
 cat ~/.hyberorbit/load.sh
 grep hyberorbit ~/.bashrc
 
-# Windows
+# Windows PowerShell
 Get-Content ~\.hyberorbit\load.ps1
 Get-Content $PROFILE | Select-String hyberorbit
 ```
 
 ### Custom aliases not loading
 
-- **Linux/macOS**: Files in `~/.hyberorbit/custom/` should have no extension
-- **Windows**: Files must have `.ps1` extension
+- **Linux/macOS**: Files in `~/.hyberorbit/custom/` should have **no extension**
+- **Windows**: Files **must** have `.ps1` extension
+
+### Clean reinstall
+
+If something is broken, do a clean reinstall:
+
+```bash
+# Linux/macOS
+rm -rf ~/.hyberorbit
+sed -i '/hyberorbit/d' ~/.bashrc  # or ~/.zshrc
+bash <(curl -s https://alias.hyberorbit.com/install)
+```
+
+```powershell
+# Windows PowerShell
+Remove-Item -Recurse -Force ~\.hyberorbit -ErrorAction SilentlyContinue
+(Get-Content $PROFILE) | Where-Object { $_ -notmatch 'hyberorbit' } | Set-Content $PROFILE
+iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
+```
+
+### Conflict with existing aliases
+
+Some aliases like `gc` conflict with PowerShell built-ins (e.g., `Get-Content`). Our aliases take precedence after installation. If you need the original command, use its full name (e.g., `Get-Content` instead of `gc`).
 
 ## Requirements
 
