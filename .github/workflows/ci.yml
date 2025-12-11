@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint Shell Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Lint Bash scripts
+        run: |
+          shellcheck install.sh
+          shellcheck uninstall.sh
+          shellcheck load.sh
+          shellcheck aliases/*.sh
+
+  syntax-check:
+    name: Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Bash syntax
+        run: |
+          bash -n install.sh
+          bash -n uninstall.sh
+          bash -n load.sh
+          bash -n aliases/git.sh
+          bash -n aliases/k8s.sh
+          bash -n aliases/system.sh
+
+      - name: Check PowerShell syntax
+        shell: pwsh
+        run: |
+          $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/install.ps1", [ref]$null, [ref]$errors)
+          if ($errors.Count -gt 0) { throw "install.ps1 has syntax errors" }
+
+          $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/uninstall.ps1", [ref]$null, [ref]$errors)
+          if ($errors.Count -gt 0) { throw "uninstall.ps1 has syntax errors" }
+
+          $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/load.ps1", [ref]$null, [ref]$errors)
+          if ($errors.Count -gt 0) { throw "load.ps1 has syntax errors" }
+
+  test-install:
+    name: Test Installation
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test install (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          bash install.sh
+          test -f ~/.alias/load.sh
+          grep -q "\.alias/load\.sh" ~/.bashrc || grep -q "\.alias/load\.sh" ~/.zshrc
+
+      - name: Test install (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          . .\install.ps1
+          Test-Path ~\.alias\load.ps1
+
+  release:
+    name: Create Release
+    needs: [lint, syntax-check, test-install]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
