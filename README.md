@@ -175,25 +175,17 @@ source ~/.alias/load.sh
 
 ## Uninstall
 
-<details>
-<summary><strong>Linux / macOS</strong></summary>
+**Linux / macOS**
 
 ```bash
-rm -rf ~/.alias
-# Then remove "Hyber Orbit" lines from ~/.bashrc or ~/.zshrc
+bash <(curl -s https://alias.hyberorbit.com/uninstall)
 ```
 
-</details>
-
-<details>
-<summary><strong>Windows PowerShell</strong></summary>
+**Windows PowerShell**
 
 ```powershell
-Remove-Item -Recurse -Force ~\.alias
-notepad $PROFILE  # Remove "Hyber Orbit" lines
+iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
 ```
-
-</details>
 
 ---
 
@@ -246,15 +238,13 @@ Or open a new terminal.
 
 **Linux/macOS:**
 ```bash
-rm -rf ~/.alias
-sed -i '/\.alias/d' ~/.bashrc
+bash <(curl -s https://alias.hyberorbit.com/uninstall)
 bash <(curl -s https://alias.hyberorbit.com/install)
 ```
 
 **Windows:**
 ```powershell
-Remove-Item -Recurse -Force ~\.alias -ErrorAction SilentlyContinue
-(Get-Content $PROFILE) | Where-Object { $_ -notmatch '\.alias' } | Set-Content $PROFILE
+iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
