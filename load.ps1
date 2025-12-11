@@ -1,10 +1,10 @@
 # Hyber Orbit Dotfiles Loader for PowerShell
 
-$HyberHome = "$env:USERPROFILE\.hyberorbit"
+$AliasHome = "$env:USERPROFILE\.alias"
 
 # Source environment
-if (Test-Path "$HyberHome\env.ps1") {
-    . "$HyberHome\env.ps1"
+if (Test-Path "$AliasHome\env.ps1") {
+    . "$AliasHome\env.ps1"
 }
 
 # Git aliases - Global scope so they persist
@@ -41,8 +41,8 @@ function global:.. { Set-Location .. }
 function global:... { Set-Location ..\.. }
 
 # Source user custom aliases
-if (Test-Path "$HyberHome\custom") {
-    Get-ChildItem "$HyberHome\custom\*.ps1" -ErrorAction SilentlyContinue | ForEach-Object {
+if (Test-Path "$AliasHome\custom") {
+    Get-ChildItem "$AliasHome\custom\*.ps1" -ErrorAction SilentlyContinue | ForEach-Object {
         . $_.FullName
     }
 }

@@ -54,29 +54,29 @@ echo "   OS: $OS | Shell: $SHELL_TYPE | Env: $ENV"
 echo ""
 
 # Create directories
-mkdir -p ~/.hyberorbit/custom
+mkdir -p ~/.alias/custom
 
 # Download loader
 echo -e "${YELLOW}⬇️  Downloading...${NC}"
 REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
-curl -s "$REPO/load.sh" -o ~/.hyberorbit/load.sh 2>/dev/null
-chmod +x ~/.hyberorbit/load.sh
+curl -s "$REPO/load.sh" -o ~/.alias/load.sh 2>/dev/null
+chmod +x ~/.alias/load.sh
 echo -e "${GREEN}✓ Downloaded${NC}"
 echo ""
 
 # Add to shell RC if not already there
 echo -e "${YELLOW}🔗 Configuring shell...${NC}"
-if ! grep -q "hyberorbit" "$SHELL_RC" 2>/dev/null; then
+if ! grep -q "/.alias/load.sh" "$SHELL_RC" 2>/dev/null; then
     echo "" >> "$SHELL_RC"
-    echo "# Hyber Orbit Dotfiles" >> "$SHELL_RC"
-    echo "source ~/.hyberorbit/load.sh" >> "$SHELL_RC"
+    echo "# Hyber Orbit Aliases" >> "$SHELL_RC"
+    echo "source ~/.alias/load.sh" >> "$SHELL_RC"
     echo -e "${GREEN}✓ Added to $SHELL_RC${NC}"
 else
     echo -e "${GREEN}✓ Already configured${NC}"
 fi
 
 # Save environment
-cat > ~/.hyberorbit/env.sh << EOF
+cat > ~/.alias/env.sh << EOF
 export HYBER_ENV="$ENV"
 export HYBER_SHELL="$SHELL_TYPE"
 export HYBER_OS="$OS"

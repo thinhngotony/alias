@@ -1,10 +1,10 @@
-# Hyber Orbit Dotfiles Auto-Install for Windows PowerShell
+# Hyber Orbit Aliases Auto-Install for Windows PowerShell
 $ErrorActionPreference = "Stop"
 
 # Print header
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Hyber Orbit Dotfiles Auto-Install    " -ForegroundColor Cyan
+Write-Host "  Hyber Orbit Aliases Auto-Install     " -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Auto-detected:"
@@ -29,16 +29,16 @@ if ($currentPolicy -eq "Restricted" -or $currentPolicy -eq "Undefined") {
 }
 
 # Create directories
-$HyberHome = "$env:USERPROFILE\.hyberorbit"
-$CustomDir = "$HyberHome\custom"
-New-Item -ItemType Directory -Force -Path $HyberHome | Out-Null
+$AliasHome = "$env:USERPROFILE\.alias"
+$CustomDir = "$AliasHome\custom"
+New-Item -ItemType Directory -Force -Path $AliasHome | Out-Null
 New-Item -ItemType Directory -Force -Path $CustomDir | Out-Null
 
 # Download loader
 Write-Host "[..] Downloading..." -ForegroundColor Yellow
 $Repo = "https://raw.githubusercontent.com/thinhngotony/alias/main"
 try {
-    Invoke-WebRequest -Uri "$Repo/load.ps1" -OutFile "$HyberHome\load.ps1" -UseBasicParsing
+    Invoke-WebRequest -Uri "$Repo/load.ps1" -OutFile "$AliasHome\load.ps1" -UseBasicParsing
     Write-Host "[OK] Downloaded" -ForegroundColor Green
 } catch {
     Write-Host "[ERROR] Failed to download loader: $_" -ForegroundColor Red
@@ -48,10 +48,10 @@ Write-Host ""
 
 # Save environment
 @"
-`$env:HYBER_ENV = "dev"
-`$env:HYBER_SHELL = "powershell"
-`$env:HYBER_OS = "windows"
-"@ | Out-File -FilePath "$HyberHome\env.ps1" -Encoding UTF8
+`$env:ALIAS_ENV = "dev"
+`$env:ALIAS_SHELL = "powershell"
+`$env:ALIAS_OS = "windows"
+"@ | Out-File -FilePath "$AliasHome\env.ps1" -Encoding UTF8
 
 # Add to PowerShell profile if not already there
 Write-Host "[..] Configuring shell..." -ForegroundColor Yellow
@@ -64,9 +64,9 @@ if (!(Test-Path $PROFILE)) {
 }
 
 $ProfileContent = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
-if ($null -eq $ProfileContent -or $ProfileContent -notmatch "hyberorbit") {
-    Add-Content -Path $PROFILE -Value "`n# Hyber Orbit Dotfiles"
-    Add-Content -Path $PROFILE -Value ". `"$HyberHome\load.ps1`""
+if ($null -eq $ProfileContent -or $ProfileContent -notmatch "\.alias\\load\.ps1") {
+    Add-Content -Path $PROFILE -Value "`n# Hyber Orbit Aliases"
+    Add-Content -Path $PROFILE -Value ". `"$AliasHome\load.ps1`""
     Write-Host "[OK] Added to $PROFILE" -ForegroundColor Green
 } else {
     Write-Host "[OK] Already configured" -ForegroundColor Green
@@ -76,7 +76,7 @@ Write-Host ""
 # Reload profile
 Write-Host "[..] Loading aliases..." -ForegroundColor Yellow
 try {
-    . "$HyberHome\load.ps1"
+    . "$AliasHome\load.ps1"
     Write-Host "[OK] Aliases loaded" -ForegroundColor Green
 } catch {
     Write-Host "[WARN] Could not load aliases: $_" -ForegroundColor Yellow
@@ -95,5 +95,5 @@ Write-Host "  gb       # git branch"
 Write-Host "  gs       # git status"
 Write-Host "  k get po # kubectl get pods"
 Write-Host ""
-Write-Host "Add custom aliases in: $HyberHome\custom\"
+Write-Host "Add custom aliases in: $AliasHome\custom\"
 Write-Host ""

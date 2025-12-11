@@ -98,7 +98,7 @@ iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 
 ## Custom Aliases
 
-Add your own aliases in `~/.hyberorbit/custom/`. They persist across updates.
+Add your own aliases in `~/.alias/custom/`. They persist across updates.
 
 <details>
 <summary><strong>Linux / macOS</strong></summary>
@@ -106,7 +106,7 @@ Add your own aliases in `~/.hyberorbit/custom/`. They persist across updates.
 Create a file (no extension):
 
 ```bash
-cat > ~/.hyberorbit/custom/docker << 'EOF'
+cat > ~/.alias/custom/docker << 'EOF'
 alias dc='docker-compose'
 alias dcu='docker-compose up -d'
 alias dcd='docker-compose down'
@@ -127,7 +127,7 @@ function dc { docker-compose $args }
 function dcu { docker-compose up -d $args }
 function dcd { docker-compose down $args }
 function dps { docker ps $args }
-'@ | Out-File ~\.hyberorbit\custom\docker.ps1
+'@ | Out-File ~\.alias\custom\docker.ps1
 ```
 
 </details>
@@ -137,18 +137,18 @@ function dps { docker ps $args }
 ## How It Works
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  1. Install script downloads loader to ~/.hyberorbit/       │
-│  2. Adds source line to shell config (.bashrc / $PROFILE)   │
-│  3. Loader fetches latest aliases on each shell start       │
-│  4. Custom aliases in ~/.hyberorbit/custom/ are loaded last │
-└─────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────┐
+│  1. Install script downloads loader to ~/.alias/          │
+│  2. Adds source line to shell config (.bashrc / $PROFILE) │
+│  3. Loader fetches latest aliases on each shell start     │
+│  4. Custom aliases in ~/.alias/custom/ are loaded last    │
+└───────────────────────────────────────────────────────────┘
 ```
 
 **Directory structure after install:**
 
 ```
-~/.hyberorbit/
+~/.alias/
 ├── load.sh       # Loader (Linux/macOS)
 ├── load.ps1      # Loader (Windows)
 ├── env.sh        # Environment config
@@ -165,10 +165,10 @@ Aliases auto-update on each new shell session.
 
 ```bash
 # Linux/macOS
-source ~/.hyberorbit/load.sh
+source ~/.alias/load.sh
 
 # Windows
-. ~\.hyberorbit\load.ps1
+. ~\.alias\load.ps1
 ```
 
 ---
@@ -179,7 +179,7 @@ source ~/.hyberorbit/load.sh
 <summary><strong>Linux / macOS</strong></summary>
 
 ```bash
-rm -rf ~/.hyberorbit
+rm -rf ~/.alias
 # Then remove "Hyber Orbit" lines from ~/.bashrc or ~/.zshrc
 ```
 
@@ -189,7 +189,7 @@ rm -rf ~/.hyberorbit
 <summary><strong>Windows PowerShell</strong></summary>
 
 ```powershell
-Remove-Item -Recurse -Force ~\.hyberorbit
+Remove-Item -Recurse -Force ~\.alias
 notepad $PROFILE  # Remove "Hyber Orbit" lines
 ```
 
@@ -218,7 +218,7 @@ Then reinstall.
 Open a new PowerShell window, or run:
 
 ```powershell
-. ~\.hyberorbit\load.ps1
+. ~\.alias\load.ps1
 ```
 
 </details>
@@ -246,15 +246,15 @@ Or open a new terminal.
 
 **Linux/macOS:**
 ```bash
-rm -rf ~/.hyberorbit
-sed -i '/hyberorbit/d' ~/.bashrc
+rm -rf ~/.alias
+sed -i '/\.alias/d' ~/.bashrc
 bash <(curl -s https://alias.hyberorbit.com/install)
 ```
 
 **Windows:**
 ```powershell
-Remove-Item -Recurse -Force ~\.hyberorbit -ErrorAction SilentlyContinue
-(Get-Content $PROFILE) | Where-Object { $_ -notmatch 'hyberorbit' } | Set-Content $PROFILE
+Remove-Item -Recurse -Force ~\.alias -ErrorAction SilentlyContinue
+(Get-Content $PROFILE) | Where-Object { $_ -notmatch '\.alias' } | Set-Content $PROFILE
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
