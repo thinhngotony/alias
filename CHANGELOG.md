@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-12-11
+
+### Changed
+- Renamed `gc` to `gcm` on PowerShell to avoid conflict with `Get-Content` built-in alias
+- Made `reload` alias dynamic (detects zsh vs bash)
+- Disabled Cloudflare edge caching for instant updates
+
+### Fixed
+- Fixed `gauto` alias to not depend on alias expansion
+- Fixed PowerShell functions to pass-through additional arguments
+- Fixed loader to handle download failures gracefully
+- Fixed CI pipeline (PowerShell syntax check, cross-platform tests)
+
+### Added
+- GitHub Actions CI/CD pipeline with cross-platform testing
+- Issue templates (bug report, feature request)
+- Pull request template
+- CONTRIBUTING.md with development guidelines
+- SECURITY.md with vulnerability reporting policy
+
 ## [1.0.0-rc.1] - 2024-12-11
 
 ### Added
@@ -38,5 +58,6 @@ bash <(curl -s https://alias.hyberorbit.com/install)
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.0.0-rc.1...HEAD
+[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/thinhngotony/alias/compare/v1.0.0-rc.1...v1.0.0
 [1.0.0-rc.1]: https://github.com/thinhngotony/alias/releases/tag/v1.0.0-rc.1
