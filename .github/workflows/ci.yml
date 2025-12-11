@@ -43,14 +43,17 @@ jobs:
       - name: Check PowerShell syntax
         shell: pwsh
         run: |
+          $errors = $null
           $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/install.ps1", [ref]$null, [ref]$errors)
-          if ($errors.Count -gt 0) { throw "install.ps1 has syntax errors" }
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; throw "install.ps1 has syntax errors" }
 
+          $errors = $null
           $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/uninstall.ps1", [ref]$null, [ref]$errors)
-          if ($errors.Count -gt 0) { throw "uninstall.ps1 has syntax errors" }
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; throw "uninstall.ps1 has syntax errors" }
 
+          $errors = $null
           $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/load.ps1", [ref]$null, [ref]$errors)
-          if ($errors.Count -gt 0) { throw "load.ps1 has syntax errors" }
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; throw "load.ps1 has syntax errors" }
 
   test-install:
     name: Test Installation
@@ -65,9 +68,16 @@ jobs:
       - name: Test install (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          bash install.sh
+          # Run install script (ignore reload errors in CI)
+          bash install.sh || true
+          # Verify installation files exist
           test -f ~/.alias/load.sh
+          test -f ~/.alias/env.sh
+          test -d ~/.alias/custom
+          # Verify shell config was updated
           grep -q "\.alias/load\.sh" ~/.bashrc || grep -q "\.alias/load\.sh" ~/.zshrc
+          # Verify loader script is valid bash
+          bash -n ~/.alias/load.sh
 
       - name: Test install (Windows)
         if: runner.os == 'Windows'

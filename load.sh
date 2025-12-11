@@ -17,8 +17,10 @@ _alias_download() {
     mkdir -p "$ALIAS_HOME/cache"
 
     # Try to download (with 2 second timeout)
-    if curl -s --connect-timeout 2 --max-time 2 "$url" -o "$cache.tmp" 2>/dev/null; then
-        mv "$cache.tmp" "$cache"
+    if curl -s --connect-timeout 2 --max-time 2 "$url" -o "$cache.tmp" 2>/dev/null && [ -s "$cache.tmp" ]; then
+        mv "$cache.tmp" "$cache" 2>/dev/null || true
+    else
+        rm -f "$cache.tmp" 2>/dev/null || true
     fi
 
     # Source from cache if exists
