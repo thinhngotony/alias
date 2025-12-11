@@ -1,19 +1,32 @@
 # Hyber Orbit Dotfiles Auto-Install for Windows PowerShell
 $ErrorActionPreference = "Stop"
 
-# Colors
-function Write-Color($Text, $Color) {
-    Write-Host $Text -ForegroundColor $Color
-}
-
 # Print header
-Write-Color "╔════════════════════════════════════════╗" Cyan
-Write-Color "║  Hyber Orbit Dotfiles Auto-Install     ║" Cyan
-Write-Color "╚════════════════════════════════════════╝" Cyan
 Write-Host ""
-Write-Host "🔍 Auto-detected:"
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "  Hyber Orbit Dotfiles Auto-Install    " -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Auto-detected:"
 Write-Host "   OS: Windows | Shell: PowerShell | Env: dev"
 Write-Host ""
+
+# Check execution policy
+$currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
+if ($currentPolicy -eq "Restricted" -or $currentPolicy -eq "Undefined") {
+    Write-Host "[!] PowerShell execution policy is restricted." -ForegroundColor Yellow
+    Write-Host "    Running: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser" -ForegroundColor Yellow
+    Write-Host ""
+    try {
+        Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+        Write-Host "[OK] Execution policy updated" -ForegroundColor Green
+    } catch {
+        Write-Host "[ERROR] Could not set execution policy. Run PowerShell as Administrator and execute:" -ForegroundColor Red
+        Write-Host "        Set-ExecutionPolicy RemoteSigned -Scope CurrentUser" -ForegroundColor Red
+        Write-Host ""
+        exit 1
+    }
+}
 
 # Create directories
 $HyberHome = "$env:USERPROFILE\.hyberorbit"
@@ -22,10 +35,15 @@ New-Item -ItemType Directory -Force -Path $HyberHome | Out-Null
 New-Item -ItemType Directory -Force -Path $CustomDir | Out-Null
 
 # Download loader
-Write-Color "⬇️  Downloading..." Yellow
+Write-Host "[..] Downloading..." -ForegroundColor Yellow
 $Repo = "https://raw.githubusercontent.com/thinhngotony/alias/main"
-Invoke-WebRequest -Uri "$Repo/load.ps1" -OutFile "$HyberHome\load.ps1" -UseBasicParsing
-Write-Color "✓ Downloaded" Green
+try {
+    Invoke-WebRequest -Uri "$Repo/load.ps1" -OutFile "$HyberHome\load.ps1" -UseBasicParsing
+    Write-Host "[OK] Downloaded" -ForegroundColor Green
+} catch {
+    Write-Host "[ERROR] Failed to download loader: $_" -ForegroundColor Red
+    exit 1
+}
 Write-Host ""
 
 # Save environment
@@ -36,7 +54,7 @@ Write-Host ""
 "@ | Out-File -FilePath "$HyberHome\env.ps1" -Encoding UTF8
 
 # Add to PowerShell profile if not already there
-Write-Color "🔗 Configuring shell..." Yellow
+Write-Host "[..] Configuring shell..." -ForegroundColor Yellow
 $ProfileDir = Split-Path $PROFILE -Parent
 if (!(Test-Path $ProfileDir)) {
     New-Item -ItemType Directory -Force -Path $ProfileDir | Out-Null
@@ -46,28 +64,36 @@ if (!(Test-Path $PROFILE)) {
 }
 
 $ProfileContent = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
-if ($ProfileContent -notmatch "hyberorbit") {
+if ($null -eq $ProfileContent -or $ProfileContent -notmatch "hyberorbit") {
     Add-Content -Path $PROFILE -Value "`n# Hyber Orbit Dotfiles"
     Add-Content -Path $PROFILE -Value ". `"$HyberHome\load.ps1`""
-    Write-Color "✓ Added to $PROFILE" Green
+    Write-Host "[OK] Added to $PROFILE" -ForegroundColor Green
 } else {
-    Write-Color "✓ Already configured" Green
+    Write-Host "[OK] Already configured" -ForegroundColor Green
 }
 Write-Host ""
 
 # Reload profile
-Write-Color "🔄 Reloading shell..." Yellow
-. $PROFILE
-Write-Color "✓ Shell reloaded" Green
+Write-Host "[..] Loading aliases..." -ForegroundColor Yellow
+try {
+    . "$HyberHome\load.ps1"
+    Write-Host "[OK] Aliases loaded" -ForegroundColor Green
+} catch {
+    Write-Host "[WARN] Could not load aliases: $_" -ForegroundColor Yellow
+    Write-Host "       Open a new PowerShell window to use aliases." -ForegroundColor Yellow
+}
 Write-Host ""
 
 # Done
-Write-Color "╔════════════════════════════════════════╗" Cyan
-Write-Color "║         ✨ Installation Complete!       ║" Cyan
-Write-Color "╚════════════════════════════════════════╝" Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "       Installation Complete!          " -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Try it:"
+Write-Host "Try these commands:"
 Write-Host "  ga       # git add ."
 Write-Host "  gb       # git branch"
+Write-Host "  gs       # git status"
 Write-Host "  k get po # kubectl get pods"
+Write-Host ""
+Write-Host "Add custom aliases in: $HyberHome\custom\"
 Write-Host ""
