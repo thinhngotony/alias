@@ -83,9 +83,17 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          # Set execution policy for this process
           Set-ExecutionPolicy Bypass -Scope Process -Force
+          # Set environment variable to skip policy check in install script
+          $env:SKIP_POLICY_CHECK = "1"
+          # Run install script
           . .\install.ps1
-          Test-Path ~\.alias\load.ps1
+          # Verify installation
+          if (-not (Test-Path ~\.alias\load.ps1)) { throw "load.ps1 not found" }
+          if (-not (Test-Path ~\.alias\env.ps1)) { throw "env.ps1 not found" }
+          if (-not (Test-Path ~\.alias\custom)) { throw "custom directory not found" }
+          Write-Host "Windows installation verified successfully" -ForegroundColor Green
 
   release:
     name: Create Release

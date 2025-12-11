@@ -11,20 +11,22 @@ Write-Host "Auto-detected:"
 Write-Host "   OS: Windows | Shell: PowerShell | Env: dev"
 Write-Host ""
 
-# Check execution policy
-$currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
-if ($currentPolicy -eq "Restricted" -or $currentPolicy -eq "Undefined") {
-    Write-Host "[!] PowerShell execution policy is restricted." -ForegroundColor Yellow
-    Write-Host "    Running: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser" -ForegroundColor Yellow
-    Write-Host ""
-    try {
-        Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-        Write-Host "[OK] Execution policy updated" -ForegroundColor Green
-    } catch {
-        Write-Host "[ERROR] Could not set execution policy. Run PowerShell as Administrator and execute:" -ForegroundColor Red
-        Write-Host "        Set-ExecutionPolicy RemoteSigned -Scope CurrentUser" -ForegroundColor Red
+# Check execution policy (skip in CI environments)
+if (-not $env:SKIP_POLICY_CHECK) {
+    $currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
+    if ($currentPolicy -eq "Restricted" -or $currentPolicy -eq "Undefined") {
+        Write-Host "[!] PowerShell execution policy is restricted." -ForegroundColor Yellow
+        Write-Host "    Running: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser" -ForegroundColor Yellow
         Write-Host ""
-        exit 1
+        try {
+            Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+            Write-Host "[OK] Execution policy updated" -ForegroundColor Green
+        } catch {
+            Write-Host "[ERROR] Could not set execution policy. Run PowerShell as Administrator and execute:" -ForegroundColor Red
+            Write-Host "        Set-ExecutionPolicy RemoteSigned -Scope CurrentUser" -ForegroundColor Red
+            Write-Host ""
+            exit 1
+        }
     }
 }
 
