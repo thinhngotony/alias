@@ -1,0 +1,11 @@
+#!/bin/bash
+alias ga='git add .'
+alias gauto='ga && gc Backup && git push origin HEAD'
+alias gb='git branch'
+alias gc='git commit -m'
+alias gph='git push origin'
+alias gpl='git pull origin'
+alias gs='git status'
+alias gsw='git switch'
+alias gd='git diff'
+alias glog='git log --oneline -n 20'

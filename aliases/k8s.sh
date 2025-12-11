@@ -1,0 +1,12 @@
+#!/bin/bash
+alias k='kubectl'
+alias ka='kubectl apply -f'
+alias kd='kubectl delete'
+alias kdesc='kubectl describe'
+alias kg='kubectl get'
+alias kgp='kubectl get pods'
+alias kgs='kubectl get services'
+alias kl='kubectl logs'
+alias ke='kubectl exec -it'
+alias kctx='kubectl config current-context'
+alias kns='kubectl config set-context --current --namespace'
