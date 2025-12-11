@@ -5,11 +5,20 @@ export default {
 
     const routes = {
       '/install': 'https://raw.githubusercontent.com/thinhngotony/alias/main/install.sh',
+      '/install.ps1': 'https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1',
       '/load.sh': 'https://raw.githubusercontent.com/thinhngotony/alias/main/load.sh',
+      '/load.ps1': 'https://raw.githubusercontent.com/thinhngotony/alias/main/load.ps1',
     };
 
     if (path === '/') {
-      return new Response('Hyber Orbit Dotfiles API\n\nInstall: bash <(curl -s https://alias.hyberorbit.com/install)', {
+      return new Response(`Hyber Orbit Dotfiles API
+
+Linux/Mac:
+  bash <(curl -s https://alias.hyberorbit.com/install)
+
+Windows PowerShell:
+  iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
+`, {
         headers: { 'Content-Type': 'text/plain' }
       });
     }
