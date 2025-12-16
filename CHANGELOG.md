@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-12-16
+
+### Fixed
+- Fixed shell detection to use user's login shell (`$SHELL`) instead of current script shell
+- Fixed zsh glob pattern error when `~/.alias/custom/` directory is empty
+- Installation now correctly detects zsh on macOS when run via `bash <(curl ...)`
+
 ## [1.0.0] - 2025-12-11
 
 ### Changed
@@ -58,6 +65,7 @@ bash <(curl -s https://alias.hyberorbit.com/install)
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/thinhngotony/alias/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/thinhngotony/alias/compare/v1.0.0-rc.1...v1.0.0
 [1.0.0-rc.1]: https://github.com/thinhngotony/alias/releases/tag/v1.0.0-rc.1

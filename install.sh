@@ -16,16 +16,13 @@ else
     OS="linux"
 fi
 
-# Auto-detect shell
-if [ -n "$BASH_VERSION" ]; then
-    SHELL_TYPE="bash"
-elif [ -n "$ZSH_VERSION" ]; then
-    SHELL_TYPE="zsh"
-elif [ -n "$FISH_VERSION" ]; then
-    SHELL_TYPE="fish"
-else
-    SHELL_TYPE="bash"
-fi
+# Auto-detect shell (use login shell, not current shell running this script)
+case "$SHELL" in
+    */zsh) SHELL_TYPE="zsh" ;;
+    */bash) SHELL_TYPE="bash" ;;
+    */fish) SHELL_TYPE="fish" ;;
+    *) SHELL_TYPE="bash" ;;
+esac
 
 # Auto-detect environment
 if [ -f "/.dockerenv" ] || [ -f "/run/secrets" ] || [ -n "$KUBERNETES_SERVICE_HOST" ]; then

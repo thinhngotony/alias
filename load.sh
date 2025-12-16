@@ -33,8 +33,8 @@ _alias_download "git"
 _alias_download "k8s"
 _alias_download "system"
 
-# Source user custom aliases
-if [ -d "$ALIAS_HOME/custom" ]; then
+# Source user custom aliases (handle empty directory for zsh compatibility)
+if [ -d "$ALIAS_HOME/custom" ] && [ -n "$(ls -A "$ALIAS_HOME/custom" 2>/dev/null)" ]; then
     for file in "$ALIAS_HOME/custom"/*; do
         # shellcheck source=/dev/null
         [ -f "$file" ] && source "$file" 2>/dev/null
