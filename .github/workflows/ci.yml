@@ -108,9 +108,58 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog for version
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          # Extract the section for this version from CHANGELOG.md
+          # Matches from "## [x.y.z]" until the next "## [" or end of relevant content
+          CHANGELOG=$(awk "/^## \[${VERSION#v}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md | head -50)
+          
+          # Handle multiline output
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "CONTENT<<$EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          generate_release_notes: true
+          name: Hyber Alias ${{ steps.version.outputs.VERSION }}
+          body: |
+            ## Release ${{ steps.version.outputs.VERSION }} 🚀
+
+            ${{ steps.changelog.outputs.CONTENT }}
+
+            ---
+
+            ### Installation
+
+            **Linux / macOS**
+            ```bash
+            bash <(curl -s https://alias.hyberorbit.com/install)
+            ```
+
+            **Windows PowerShell**
+            ```powershell
+            iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
+            ```
+
+            ### Features
+            - One-command install/uninstall
+            - Git aliases: `ga`, `gb`, `gc`/`gcm`, `gd`, `gs`, `gph`, `gpl`, `gsw`, `glog`, `gauto`
+            - Kubernetes aliases: `k`, `ka`, `kd`, `kg`, `kgp`, `kgs`, `kl`, `ke`, `kctx`, `kns`
+            - System aliases: `ll`, `la`, `cls`, `reload`, `home`, `..`, `...`
+            - Custom alias support via `~/.alias/custom/`
+            - Auto-update on shell start
+            - Offline fallback with local cache
+            - Cross-platform (Linux, macOS, Windows, WSL, Docker)
+            - Bash, Zsh, and PowerShell support
+
+            **Full Changelog**: https://github.com/thinhngotony/alias/compare/v1.0.0...${{ steps.version.outputs.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

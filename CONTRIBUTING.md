@@ -10,6 +10,7 @@ Thank you for your interest in contributing to Hyber Alias! This document provid
 - [Development Setup](#development-setup)
 - [Coding Guidelines](#coding-guidelines)
 - [Commit Messages](#commit-messages)
+- [Release Process](#release-process)
 - [Pull Request Process](#pull-request-process)
 
 ## Code of Conduct
@@ -146,6 +147,68 @@ feat(aliases): add docker aliases
 fix(install): handle spaces in path
 docs(readme): add troubleshooting section
 ```
+
+## Release Process
+
+### Creating a Release
+
+Releases are automated via GitHub Actions when a tag is pushed. Follow these steps:
+
+1. **Update CHANGELOG.md** with the new version section:
+   ```markdown
+   ## [x.y.z] - YYYY-MM-DD
+
+   ### Added
+   - New feature descriptions
+
+   ### Changed
+   - Changed behavior descriptions
+
+   ### Fixed
+   - Bug fix descriptions
+   ```
+
+2. **Update version links** at the bottom of CHANGELOG.md:
+   ```markdown
+   [Unreleased]: https://github.com/thinhngotony/alias/compare/vX.Y.Z...HEAD
+   [X.Y.Z]: https://github.com/thinhngotony/alias/compare/vPREV...vX.Y.Z
+   ```
+
+3. **Commit and push** the changes:
+   ```bash
+   git add CHANGELOG.md
+   git commit -m "chore: prepare release vX.Y.Z"
+   git push origin main
+   ```
+
+4. **Create and push the tag**:
+   ```bash
+   git tag -a vX.Y.Z -m "vX.Y.Z - Brief description"
+   git push origin vX.Y.Z
+   ```
+
+5. **CI automatically**:
+   - Runs all tests (lint, syntax-check, install tests)
+   - Extracts changelog for the version from CHANGELOG.md
+   - Creates a GitHub Release with:
+     - Title: "Hyber Alias vX.Y.Z"
+     - Body: Changelog + Installation instructions + Features list
+   - Publishes the release
+
+### Version Numbering
+
+Follow [Semantic Versioning](https://semver.org/):
+- **MAJOR** (x.0.0): Breaking changes
+- **MINOR** (0.x.0): New features, backward compatible
+- **PATCH** (0.0.x): Bug fixes, backward compatible
+
+### Release Checklist
+
+- [ ] CHANGELOG.md updated with version section
+- [ ] Version links updated in CHANGELOG.md
+- [ ] All CI tests passing on main
+- [ ] Tag follows `vX.Y.Z` format
+- [ ] Tag message is descriptive
 
 ## Pull Request Process
 
