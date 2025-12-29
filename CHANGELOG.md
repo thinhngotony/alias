@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2025-12-29
+
+### Fixed
+- Fixed installation failing due to Cloudflare bot protection blocking curl requests
+- Changed default installation URLs from Cloudflare worker to GitHub raw URLs for reliability
+
 ## [1.0.1] - 2025-12-16
 
 ### Fixed
@@ -65,7 +71,8 @@ bash <(curl -s https://alias.hyberorbit.com/install)
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/thinhngotony/alias/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/thinhngotony/alias/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/thinhngotony/alias/compare/v1.0.0-rc.1...v1.0.0
 [1.0.0-rc.1]: https://github.com/thinhngotony/alias/releases/tag/v1.0.0-rc.1
