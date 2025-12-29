@@ -34,6 +34,12 @@ iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 
 > Aliases are immediately available. No restart required.
 
+**Verify installation:**
+```bash
+alias | grep -E "^g|^k"
+```
+You should see aliases like `ga`, `gb`, `gs`, `k`, `kgp`, etc.
+
 <details>
 <summary><strong>Alternative URL (if the above doesn't work)</strong></summary>
 
