@@ -23,16 +23,29 @@
 **Linux / macOS**
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/thinhngotony/alias/main/install.sh)
+bash <(curl -s https://alias.hyberorbit.com/install)
 ```
 
 **Windows PowerShell**
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1 | iex
+iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
 > Aliases are immediately available. No restart required.
+
+<details>
+<summary><strong>Alternative URL (if the above doesn't work)</strong></summary>
+
+```bash
+# Linux/macOS
+bash <(curl -s https://raw.githubusercontent.com/thinhngotony/alias/main/install.sh)
+
+# Windows PowerShell
+iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1 | iex
+```
+
+</details>
 
 ---
 
@@ -178,13 +191,13 @@ source ~/.alias/load.sh
 **Linux / macOS**
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.sh)
+bash <(curl -s https://alias.hyberorbit.com/uninstall)
 ```
 
 **Windows PowerShell**
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.ps1 | iex
+iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
 ```
 
 ---
@@ -238,14 +251,14 @@ Or open a new terminal.
 
 **Linux/macOS:**
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.sh)
-bash <(curl -s https://raw.githubusercontent.com/thinhngotony/alias/main/install.sh)
+bash <(curl -s https://alias.hyberorbit.com/uninstall)
+bash <(curl -s https://alias.hyberorbit.com/install)
 ```
 
 **Windows:**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.ps1 | iex
-iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1 | iex
+iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
+iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
 </details>

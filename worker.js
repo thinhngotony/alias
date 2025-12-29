@@ -16,12 +16,12 @@ export default {
       return new Response(`Hyber Alias API
 
 Install:
-  Linux/Mac:  bash <(curl -s https://raw.githubusercontent.com/thinhngotony/alias/main/install.sh)
-  Windows:    iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1 | iex
+  Linux/Mac:  bash <(curl -s https://alias.hyberorbit.com/install)
+  Windows:    iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 
 Uninstall:
-  Linux/Mac:  bash <(curl -s https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.sh)
-  Windows:    iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.ps1 | iex
+  Linux/Mac:  bash <(curl -s https://alias.hyberorbit.com/uninstall)
+  Windows:    iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
 `, {
         headers: { 'Content-Type': 'text/plain' }
       });
