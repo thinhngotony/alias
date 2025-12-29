@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2025-12-29
+
+### Fixed
+- Fixed aliases not loading on first shell open after installation
+- Install script now pre-downloads aliases to cache during installation
+- Increased download timeout from 2s to 5s for slower connections
+
 ## [1.0.2] - 2025-12-29
 
 ### Fixed
@@ -71,7 +78,8 @@ bash <(curl -s https://alias.hyberorbit.com/install)
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/thinhngotony/alias/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/thinhngotony/alias/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/thinhngotony/alias/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/thinhngotony/alias/compare/v1.0.0-rc.1...v1.0.0

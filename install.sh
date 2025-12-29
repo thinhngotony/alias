@@ -53,11 +53,20 @@ echo ""
 # Create directories
 mkdir -p ~/.alias/custom
 
-# Download loader
+# Download loader and aliases
 echo -e "${YELLOW}⬇️  Downloading...${NC}"
 REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
+mkdir -p ~/.alias/cache
+
+# Download loader
 curl -s "$REPO/load.sh" -o ~/.alias/load.sh 2>/dev/null
 chmod +x ~/.alias/load.sh
+
+# Pre-download aliases to cache (so first shell load is instant)
+curl -s "$REPO/aliases/git.sh" -o ~/.alias/cache/git.sh 2>/dev/null
+curl -s "$REPO/aliases/k8s.sh" -o ~/.alias/cache/k8s.sh 2>/dev/null
+curl -s "$REPO/aliases/system.sh" -o ~/.alias/cache/system.sh 2>/dev/null
+
 echo -e "${GREEN}✓ Downloaded${NC}"
 echo ""
 
