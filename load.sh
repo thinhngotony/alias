@@ -40,3 +40,25 @@ if [ -d "$ALIAS_HOME/custom" ] && [ -n "$(ls -A "$ALIAS_HOME/custom" 2>/dev/null
         [ -f "$file" ] && source "$file" 2>/dev/null
     done
 fi
+
+# =============================================================================
+# Master Help Function
+# =============================================================================
+
+alias-help() {
+    cat << 'EOF'
+Hyber Alias
+═══════════════════════════════════════════════════════════════════════════════
+
+Available Categories (type alias-<category> for details):
+
+  alias-git      Git commands (ga, gc, gs, gph, gpl...)
+  alias-k8s      Kubernetes commands (k, ka, kgp, kgs...)
+  alias-system   System commands (ll, la, cls, reload...)
+  alias-help     Show this help
+
+Tip: Type 'alias-' then press TAB for autocomplete
+
+═══════════════════════════════════════════════════════════════════════════════
+EOF
+}

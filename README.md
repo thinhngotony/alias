@@ -65,6 +65,20 @@ iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1 
 | **Always Fresh** | Auto-updates on each shell start |
 | **Customizable** | Add your own aliases that persist across updates |
 | **Offline Ready** | Works without internet after first install |
+| **Discoverable** | Type `alias-` + TAB for category autocomplete |
+
+---
+
+## Quick Reference
+
+Type `alias-` then press **TAB** for autocomplete:
+
+```bash
+alias-help      # Show all categories
+alias-git       # Git aliases
+alias-k8s       # Kubernetes aliases
+alias-system    # System aliases
+```
 
 ---
 
