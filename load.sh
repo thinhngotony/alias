@@ -9,23 +9,24 @@ export ALIAS_VERSION="1.1.0"
 # shellcheck source=/dev/null
 [ -f "$ALIAS_HOME/env.sh" ] && source "$ALIAS_HOME/env.sh"
 
-# Self-update loader (runs in background, silently)
+# Self-update loader (runs in background, completely silent)
 _alias_self_update() {
-    {
-        local loader_url="$REPO/load.sh"
-        local loader_tmp="$ALIAS_HOME/load.sh.tmp"
-        if curl -s --connect-timeout 3 --max-time 5 "$loader_url" -o "$loader_tmp" 2>/dev/null && [ -s "$loader_tmp" ]; then
-            # Only update if content is different
+    # Use nohup with full redirection to avoid any job control messages
+    (nohup sh -c '
+        REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
+        ALIAS_HOME="$HOME/.alias"
+        loader_tmp="$ALIAS_HOME/load.sh.tmp"
+        if curl -s --connect-timeout 3 --max-time 5 "$REPO/load.sh" -o "$loader_tmp" 2>/dev/null && [ -s "$loader_tmp" ]; then
             if ! cmp -s "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null; then
-                mv "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null && chmod +x "$ALIAS_HOME/load.sh"
+                mv "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null
+                chmod +x "$ALIAS_HOME/load.sh" 2>/dev/null
             else
                 rm -f "$loader_tmp" 2>/dev/null
             fi
         else
             rm -f "$loader_tmp" 2>/dev/null
         fi
-    } &>/dev/null &
-    disown 2>/dev/null || true
+    ' >/dev/null 2>&1 &)
 }
 
 # Run self-update in background
