@@ -9,9 +9,9 @@ export ALIAS_VERSION="1.1.0"
 # shellcheck source=/dev/null
 [ -f "$ALIAS_HOME/env.sh" ] && source "$ALIAS_HOME/env.sh"
 
-# Self-update loader (runs in background to not slow down shell startup)
+# Self-update loader (runs in background, silently)
 _alias_self_update() {
-    (
+    {
         local loader_url="$REPO/load.sh"
         local loader_tmp="$ALIAS_HOME/load.sh.tmp"
         if curl -s --connect-timeout 3 --max-time 5 "$loader_url" -o "$loader_tmp" 2>/dev/null && [ -s "$loader_tmp" ]; then
@@ -24,7 +24,8 @@ _alias_self_update() {
         else
             rm -f "$loader_tmp" 2>/dev/null
         fi
-    ) &
+    } &>/dev/null &
+    disown 2>/dev/null || true
 }
 
 # Run self-update in background
