@@ -78,6 +78,9 @@ alias-help      # Show all categories
 alias-git       # Git aliases
 alias-k8s       # Kubernetes aliases
 alias-system    # System aliases
+alias-add       # Add custom alias to category
+alias-remove    # Remove custom alias
+alias-list      # List custom categories
 ```
 
 ---
@@ -132,6 +135,27 @@ alias-system    # System aliases
 ## Custom Aliases
 
 Add your own aliases in `~/.alias/custom/`. They persist across updates.
+
+### Using alias-add (Recommended)
+
+Create organized custom categories with the built-in commands:
+
+```bash
+# Add alias to a category
+alias-add ai claudex "claude --dangerously-skip-permissions"
+alias-add ai gpt "chatgpt --model gpt-4"
+
+# View category aliases
+alias-ai
+
+# List all custom categories
+alias-list
+
+# Remove an alias
+alias-remove ai gpt
+```
+
+### Manual Creation
 
 <details>
 <summary><strong>Linux / macOS</strong></summary>

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-01-20
+
+### Added
+- Custom category management: `alias-add`, `alias-remove`, `alias-list`
+- Users can now create custom alias categories (e.g., `alias-ai` with `claudex`, `gpt`)
+- Self-update mechanism for loader script (auto-updates on shell start)
+- Version tracking in loader scripts
+
+### Fixed
+- Fixed `alias-help` not available for users who installed older versions
+- Loader script now auto-updates to get new features without reinstalling
+
+### Example
+```bash
+# Add custom AI aliases
+alias-add ai claudex "claude --dangerously-skip-permissions"
+alias-add ai gpt "chatgpt --model gpt-4"
+alias-ai  # Show all AI aliases
+```
+
 ## [1.0.3] - 2025-12-29
 
 ### Fixed
@@ -78,7 +98,8 @@ bash <(curl -s https://alias.hyberorbit.com/install)
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/thinhngotony/alias/compare/v1.0.3...v1.1.0
 [1.0.3]: https://github.com/thinhngotony/alias/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/thinhngotony/alias/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/thinhngotony/alias/compare/v1.0.0...v1.0.1
