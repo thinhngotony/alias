@@ -4,7 +4,8 @@ export default {
     const path = url.pathname;
 
     const routes = {
-      '/install': 'https://raw.githubusercontent.com/thinhngotony/alias/main/install.sh',
+      '/install': 'https://raw.githubusercontent.com/thinhngotony/alias/main/install-universal.sh',
+      '/install.sh': 'https://raw.githubusercontent.com/thinhngotony/alias/main/install.sh',
       '/install.ps1': 'https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1',
       '/install.fish': 'https://raw.githubusercontent.com/thinhngotony/alias/main/install.fish',
       '/uninstall': 'https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.sh',
@@ -17,13 +18,14 @@ export default {
       return new Response(`Hyber Alias API v1.1.0
 
 Install:
-  Bash/Zsh:   bash <(curl -s https://alias.hyberorbit.com/install)
-  Fish:       curl -s https://alias.hyberorbit.com/install.fish | fish
-  PowerShell: iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
+  Linux/Mac:  curl -sfS https://alias.hyberorbit.com/install | sh
+  Windows:    iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 
 Uninstall:
-  Bash/Zsh:   bash <(curl -s https://alias.hyberorbit.com/uninstall)
-  PowerShell: iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
+  Linux/Mac:  bash <(curl -s https://alias.hyberorbit.com/uninstall)
+  Windows:    iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
+
+Auto-detects: Bash, Zsh, Fish shells
 
 Documentation: https://github.com/thinhngotony/alias
 `, {
