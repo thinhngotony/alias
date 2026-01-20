@@ -92,22 +92,21 @@ EOF
 
 echo ""
 
-# Auto-reload shell
-echo -e "${YELLOW}🔄 Reloading shell...${NC}"
-# shellcheck source=/dev/null
-source "$SHELL_RC" 2>/dev/null || true
-echo -e "${GREEN}✓ Shell reloaded${NC}"
-echo ""
-
 # Done
 echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║         ✨ Installation Complete!       ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
 echo ""
+echo -e "${YELLOW}To activate aliases, run:${NC}"
+echo ""
+echo "  source $SHELL_RC"
+echo ""
+echo "Or open a new terminal window."
+echo ""
 echo "Try it:"
-echo "  ga .     # git add ."
-echo "  gb       # git branch"
-echo "  k get po # kubectl get pods"
+echo "  alias-help  # Show all categories"
+echo "  ga .        # git add ."
+echo "  k get po    # kubectl get pods"
 echo ""
 
 # Optional telemetry

@@ -81,8 +81,7 @@ try {
     . "$AliasHome\load.ps1"
     Write-Host "[OK] Aliases loaded" -ForegroundColor Green
 } catch {
-    Write-Host "[WARN] Could not load aliases: $_" -ForegroundColor Yellow
-    Write-Host "       Open a new PowerShell window to use aliases." -ForegroundColor Yellow
+    Write-Host "[WARN] Could not load aliases in this session" -ForegroundColor Yellow
 }
 Write-Host ""
 
@@ -91,11 +90,14 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "       Installation Complete!          " -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Try these commands:"
-Write-Host "  ga       # git add ."
-Write-Host "  gb       # git branch"
-Write-Host "  gs       # git status"
-Write-Host "  k get po # kubectl get pods"
+Write-Host "To activate aliases, run:" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Add custom aliases in: $AliasHome\custom\"
+Write-Host "  . $PROFILE"
+Write-Host ""
+Write-Host "Or open a new PowerShell window."
+Write-Host ""
+Write-Host "Try it:"
+Write-Host "  alias-help  # Show all categories"
+Write-Host "  ga          # git add ."
+Write-Host "  k get po    # kubectl get pods"
 Write-Host ""
