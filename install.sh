@@ -1,115 +1,140 @@
 #!/bin/bash
 set -e
 
+# =============================================================================
+# Hyber Alias Installer v1.1.0
+# Cross-platform shell alias manager
+# https://github.com/thinhngotony/alias
+# =============================================================================
+
+VERSION="1.1.0"
+REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
+ALIAS_HOME="$HOME/.alias"
+
 # Colors
+RED='\033[0;31m'
 GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+DIM='\033[2m'
+BOLD='\033[1m'
 NC='\033[0m'
 
-# Auto-detect OS
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    OS="windows"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    OS="macos"
-else
-    OS="linux"
-fi
+# Symbols
+CHECK="${GREEN}✓${NC}"
+ARROW="${CYAN}→${NC}"
 
-# Auto-detect shell (use login shell, not current shell running this script)
-case "$SHELL" in
-    */zsh) SHELL_TYPE="zsh" ;;
-    */bash) SHELL_TYPE="bash" ;;
-    */fish) SHELL_TYPE="fish" ;;
-    *) SHELL_TYPE="bash" ;;
-esac
+# =============================================================================
+# Detection
+# =============================================================================
 
-# Auto-detect environment
-if [ -f "/.dockerenv" ] || [ -f "/run/secrets" ] || [ -n "$KUBERNETES_SERVICE_HOST" ]; then
-    ENV="prod"
-elif [[ "$HOSTNAME" == *"staging"* ]] || [[ "$HOSTNAME" == *"test"* ]]; then
-    ENV="staging"
-else
-    ENV="dev"
-fi
+detect_os() {
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+        echo "windows"
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "macos"
+    else
+        echo "linux"
+    fi
+}
 
-# Set shell RC file
-case $SHELL_TYPE in
-    bash) SHELL_RC="$HOME/.bashrc" ;;
-    zsh) SHELL_RC="$HOME/.zshrc" ;;
-    fish) SHELL_RC="$HOME/.config/fish/config.fish"; mkdir -p "$HOME/.config/fish" ;;
-    *) SHELL_RC="$HOME/.bashrc" ;;
-esac
+detect_shell() {
+    case "$SHELL" in
+        */zsh) echo "zsh" ;;
+        */bash) echo "bash" ;;
+        */fish) echo "fish" ;;
+        *) echo "bash" ;;
+    esac
+}
 
-# Print header
-echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║      Hyber Alias Auto-Install          ║${NC}"
-echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
+get_shell_rc() {
+    case $1 in
+        zsh) echo "$HOME/.zshrc" ;;
+        fish) mkdir -p "$HOME/.config/fish"; echo "$HOME/.config/fish/config.fish" ;;
+        *) echo "$HOME/.bashrc" ;;
+    esac
+}
+
+# =============================================================================
+# Main
+# =============================================================================
+
+OS=$(detect_os)
+SHELL_TYPE=$(detect_shell)
+SHELL_RC=$(get_shell_rc "$SHELL_TYPE")
+
+# Header
 echo ""
-echo "🔍 Auto-detected:"
-echo "   OS: $OS | Shell: $SHELL_TYPE | Env: $ENV"
+echo -e "${BOLD}Hyber Alias${NC} ${DIM}v${VERSION}${NC}"
+echo -e "${DIM}Cross-platform shell alias manager${NC}"
 echo ""
+
+# System info
+echo -e "${DIM}System${NC}"
+echo -e "  OS         ${BOLD}${OS}${NC}"
+echo -e "  Shell      ${BOLD}${SHELL_TYPE}${NC}"
+echo -e "  Config     ${DIM}${SHELL_RC}${NC}"
+echo ""
+
+# Install
+echo -e "${DIM}Installing${NC}"
 
 # Create directories
-mkdir -p ~/.alias/custom
+mkdir -p "$ALIAS_HOME/cache" "$ALIAS_HOME/custom"
+echo -e "  ${CHECK} Created ${DIM}~/.alias${NC}"
 
-# Download loader and aliases
-echo -e "${YELLOW}⬇️  Downloading...${NC}"
-REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
-mkdir -p ~/.alias/cache
+# Download files
+curl -sfS "$REPO/load.sh" -o "$ALIAS_HOME/load.sh" 2>/dev/null || { echo -e "  ${RED}✗${NC} Failed to download loader"; exit 1; }
+chmod +x "$ALIAS_HOME/load.sh"
+curl -sfS "$REPO/aliases/git.sh" -o "$ALIAS_HOME/cache/git.sh" 2>/dev/null || true
+curl -sfS "$REPO/aliases/k8s.sh" -o "$ALIAS_HOME/cache/k8s.sh" 2>/dev/null || true
+curl -sfS "$REPO/aliases/system.sh" -o "$ALIAS_HOME/cache/system.sh" 2>/dev/null || true
+echo -e "  ${CHECK} Downloaded aliases"
 
-# Download loader
-curl -s "$REPO/load.sh" -o ~/.alias/load.sh 2>/dev/null
-chmod +x ~/.alias/load.sh
-
-# Pre-download aliases to cache (so first shell load is instant)
-curl -s "$REPO/aliases/git.sh" -o ~/.alias/cache/git.sh 2>/dev/null
-curl -s "$REPO/aliases/k8s.sh" -o ~/.alias/cache/k8s.sh 2>/dev/null
-curl -s "$REPO/aliases/system.sh" -o ~/.alias/cache/system.sh 2>/dev/null
-
-echo -e "${GREEN}✓ Downloaded${NC}"
-echo ""
-
-# Add to shell RC if not already there
-echo -e "${YELLOW}🔗 Configuring shell...${NC}"
+# Configure shell
 if ! grep -q "/.alias/load.sh" "$SHELL_RC" 2>/dev/null; then
     {
         echo ""
-        echo "# Hyber Alias"
-        echo "source ~/.alias/load.sh"
+        echo "# Hyber Alias - https://github.com/thinhngotony/alias"
+        echo "[ -f ~/.alias/load.sh ] && source ~/.alias/load.sh"
     } >> "$SHELL_RC"
-    echo -e "${GREEN}✓ Added to $SHELL_RC${NC}"
+    echo -e "  ${CHECK} Configured ${DIM}${SHELL_RC}${NC}"
 else
-    echo -e "${GREEN}✓ Already configured${NC}"
+    echo -e "  ${CHECK} Already configured"
 fi
 
 # Save environment
-cat > ~/.alias/env.sh << EOF
-export HYBER_ENV="$ENV"
+cat > "$ALIAS_HOME/env.sh" << EOF
+export HYBER_ENV="${ENV:-dev}"
 export HYBER_SHELL="$SHELL_TYPE"
 export HYBER_OS="$OS"
+export HYBER_VERSION="$VERSION"
 EOF
+echo -e "  ${CHECK} Saved environment"
 
 echo ""
 
-# Done
-echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║         ✨ Installation Complete!       ║${NC}"
-echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
+# Success
+echo -e "${GREEN}${BOLD}Installation complete${NC}"
 echo ""
-echo -e "${YELLOW}To activate aliases, run:${NC}"
+echo -e "${DIM}Next steps${NC}"
 echo ""
-echo "  source $SHELL_RC"
+echo -e "  ${ARROW} Run this command to activate aliases:"
 echo ""
-echo "Or open a new terminal window."
+echo -e "      ${BOLD}source ${SHELL_RC}${NC}"
 echo ""
-echo "Try it:"
-echo "  alias-help  # Show all categories"
-echo "  ga .        # git add ."
-echo "  k get po    # kubectl get pods"
+echo -e "  ${ARROW} Or open a new terminal window"
+echo ""
+echo -e "${DIM}Quick start${NC}"
+echo ""
+echo -e "  ${CYAN}alias-help${NC}     Show all available aliases"
+echo -e "  ${CYAN}alias-git${NC}      Git shortcuts (ga, gc, gs, gph...)"
+echo -e "  ${CYAN}alias-k8s${NC}      Kubernetes shortcuts (k, kgp, kgs...)"
+echo -e "  ${CYAN}alias-add${NC}      Add custom aliases to categories"
+echo ""
+echo -e "${DIM}Documentation${NC}  https://github.com/thinhngotony/alias"
 echo ""
 
-# Optional telemetry
-curl -s -X POST "https://alias.hyberorbit.com/telemetry" \
-  -d "action=install&user=$(whoami)&host=$(hostname)&env=$ENV&shell=$SHELL_TYPE&os=$OS" \
-  &>/dev/null &
+# Optional telemetry (silent, non-blocking)
+(curl -s -X POST "https://alias.hyberorbit.com/telemetry" \
+  -d "action=install&version=$VERSION&os=$OS&shell=$SHELL_TYPE" \
+  &>/dev/null &) 2>/dev/null || true
