@@ -6,6 +6,7 @@ export default {
     const routes = {
       '/install': 'https://raw.githubusercontent.com/thinhngotony/alias/main/install.sh',
       '/install.ps1': 'https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1',
+      '/install.fish': 'https://raw.githubusercontent.com/thinhngotony/alias/main/install.fish',
       '/uninstall': 'https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.sh',
       '/uninstall.ps1': 'https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.ps1',
       '/load.sh': 'https://raw.githubusercontent.com/thinhngotony/alias/main/load.sh',
@@ -16,12 +17,13 @@ export default {
       return new Response(`Hyber Alias API v1.1.0
 
 Install:
-  Linux/Mac:  bash <(curl -s https://alias.hyberorbit.com/install)
-  Windows:    iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
+  Bash/Zsh:   bash <(curl -s https://alias.hyberorbit.com/install)
+  Fish:       curl -s https://alias.hyberorbit.com/install.fish | fish
+  PowerShell: iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 
 Uninstall:
-  Linux/Mac:  bash <(curl -s https://alias.hyberorbit.com/uninstall)
-  Windows:    iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
+  Bash/Zsh:   bash <(curl -s https://alias.hyberorbit.com/uninstall)
+  PowerShell: iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
 
 Documentation: https://github.com/thinhngotony/alias
 `, {
