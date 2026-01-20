@@ -12,6 +12,7 @@ export ALIAS_VERSION="1.1.0"
 # Self-update loader (runs in background, completely silent)
 _alias_self_update() {
     # Use nohup with full redirection to avoid any job control messages
+    # shellcheck disable=SC2016
     (nohup sh -c '
         REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
         ALIAS_HOME="$HOME/.alias"
