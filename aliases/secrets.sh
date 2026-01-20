@@ -105,15 +105,9 @@ alias-token() {
     alias-secret-get "cloudflare-token"
 }
 
-# Command not found handler - shows suggestions
+# Command not found handler - shows help directly
 alias-secret() {
-    echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-secret\033[0m' not found. Did you mean:\n"
-    echo -e "      \033[0;36malias-secret-add\033[0m     \033[2mStore a secret\033[0m"
-    echo -e "      \033[0;36malias-secret-get\033[0m     \033[2mRetrieve a secret\033[0m"
-    echo -e "      \033[0;36malias-secret-list\033[0m    \033[2mList all secrets\033[0m"
-    echo -e "      \033[0;36malias-secret-remove\033[0m  \033[2mDelete a secret\033[0m"
-    echo -e "      \033[0;36malias-secrets\033[0m        \033[2mShow full help\033[0m"
-    echo ""
+    alias-secrets
 }
 
 # =============================================================================
