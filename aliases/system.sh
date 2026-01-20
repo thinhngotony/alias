@@ -22,17 +22,24 @@ alias ...='cd ../..'
 # =============================================================================
 
 alias-system() {
-    cat << 'EOF'
-System Aliases
-═══════════════════════════════════════════════════════════════════════════════
-  ll           ls -lah                        Detailed list with hidden
-  la           ls -A                          List all except . and ..
-  l            ls -CF                         Compact list
-  cls          clear                          Clear screen
-  reload       source ~/.bashrc|~/.zshrc      Reload shell config
-  home         cd ~                           Go to home directory
-  ..           cd ..                          Up one level
-  ...          cd ../..                       Up two levels
-═══════════════════════════════════════════════════════════════════════════════
-EOF
+    local BOLD='\033[1m'
+    local DIM='\033[2m'
+    local CYAN='\033[0;36m'
+    local NC='\033[0m'
+    
+    echo ""
+    echo -e "${BOLD}System Aliases${NC}"
+    echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "  ${CYAN}ll${NC}             ls -lah                      ${DIM}Detailed list${NC}"
+    echo -e "  ${CYAN}la${NC}             ls -A                        ${DIM}List all${NC}"
+    echo -e "  ${CYAN}l${NC}              ls -CF                       ${DIM}Compact list${NC}"
+    echo -e "  ${CYAN}cls${NC}            clear                        ${DIM}Clear screen${NC}"
+    echo -e "  ${CYAN}reload${NC}         source ~/.bashrc|~/.zshrc    ${DIM}Reload config${NC}"
+    echo -e "  ${CYAN}home${NC}           cd ~                         ${DIM}Go home${NC}"
+    echo -e "  ${CYAN}..${NC}             cd ..                        ${DIM}Up one level${NC}"
+    echo -e "  ${CYAN}...${NC}            cd ../..                     ${DIM}Up two levels${NC}"
+    echo ""
+    echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+    echo ""
 }

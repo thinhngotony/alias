@@ -189,37 +189,52 @@ alias-list() {
 # =============================================================================
 
 alias-help() {
-    cat << 'EOF'
-Hyber Alias
-===============================================================================
-
-Available Categories (type alias-<category> for details):
-
-  alias-git      Git commands (ga, gc, gs, gph, gpl...)
-  alias-k8s      Kubernetes commands (k, ka, kgp, kgs...)
-  alias-system   System commands (ll, la, cls, reload...)
-  alias-secrets  Secure token storage (password protected)
-
-Custom Alias Management:
-
-  alias-add <category> <name> <command>   Add alias to category
-  alias-remove <category> <name>          Remove alias from category
-  alias-list                              List all custom categories
-  alias-help                              Show this help
-
-Secure Token Storage:
-
-  alias-secret-add <name> <value>         Store token (password protected)
-  alias-secret-get <name>                 Retrieve token (requires password)
-  alias-token                             Shortcut for cloudflare-token
-
-Example:
-  alias-add ai claudex "claude --dangerously-skip-permissions"
-  alias-secret-add cloudflare-token "your-token"
-  alias-token  # Requires password to view
-
-Tip: Type 'alias-' then press TAB for autocomplete
-
-===============================================================================
-EOF
+    local BOLD='\033[1m'
+    local DIM='\033[2m'
+    local CYAN='\033[0;36m'
+    local GREEN='\033[0;32m'
+    local MAGENTA='\033[0;35m'
+    local NC='\033[0m'
+    
+    echo ""
+    echo -e "${BOLD}Hyber Alias${NC} ${DIM}v${ALIAS_VERSION:-1.1.0}${NC}"
+    echo -e "${DIM}Cross-platform shell alias manager${NC}"
+    echo ""
+    echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "${BOLD}Categories${NC}"
+    echo ""
+    echo -e "  ${CYAN}alias-git${NC}        Git commands ${DIM}(ga, gc, gs, gph, gpl...)${NC}"
+    echo -e "  ${CYAN}alias-k8s${NC}        Kubernetes ${DIM}(k, ka, kgp, kgs, kl...)${NC}"
+    echo -e "  ${CYAN}alias-system${NC}     System ${DIM}(ll, la, cls, reload...)${NC}"
+    echo -e "  ${CYAN}alias-secrets${NC}    Secure token storage ${DIM}(password protected)${NC}"
+    echo ""
+    echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "${BOLD}Custom Aliases${NC}"
+    echo ""
+    echo -e "  ${GREEN}alias-add${NC} ${DIM}<category> <name> <command>${NC}    Create alias"
+    echo -e "  ${GREEN}alias-remove${NC} ${DIM}<category> <name>${NC}           Delete alias"
+    echo -e "  ${GREEN}alias-list${NC}                               List categories"
+    echo ""
+    echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "${BOLD}Secure Storage${NC}"
+    echo ""
+    echo -e "  ${MAGENTA}alias-secret-add${NC} ${DIM}<name> <value>${NC}         Store secret"
+    echo -e "  ${MAGENTA}alias-secret-get${NC} ${DIM}<name>${NC}                 Retrieve ${DIM}(requires password)${NC}"
+    echo -e "  ${MAGENTA}alias-token${NC}                              Get cloudflare-token"
+    echo ""
+    echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "${BOLD}Examples${NC}"
+    echo ""
+    echo -e "  ${DIM}\$${NC} alias-add ai claudex \"claude --dangerously-skip-permissions\""
+    echo -e "  ${DIM}\$${NC} alias-ai"
+    echo -e "  ${DIM}\$${NC} alias-secret-add cloudflare-token \"your-token\""
+    echo -e "  ${DIM}\$${NC} alias-token"
+    echo ""
+    echo -e "${DIM}Documentation${NC}  https://github.com/thinhngotony/alias"
+    echo -e "${DIM}Tip${NC}            Type ${CYAN}alias-${NC} then press ${BOLD}TAB${NC} for autocomplete"
+    echo ""
 }

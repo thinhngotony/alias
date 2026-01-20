@@ -19,19 +19,26 @@ alias glog='git log --oneline -n 20'
 # =============================================================================
 
 alias-git() {
-    cat << 'EOF'
-Git Aliases
-═══════════════════════════════════════════════════════════════════════════════
-  ga           git add .                      Stage all changes
-  gauto        add + commit + push            Quick backup to remote
-  gb           git branch                     List branches
-  gc <msg>     git commit -m <msg>            Commit with message
-  gd           git diff                       Show unstaged changes
-  glog         git log --oneline -n 20        Recent commits (20)
-  gph <branch> git push origin <branch>       Push to remote
-  gpl <branch> git pull origin <branch>       Pull from remote
-  gs           git status                     Working tree status
-  gsw <branch> git switch <branch>            Switch branches
-═══════════════════════════════════════════════════════════════════════════════
-EOF
+    local BOLD='\033[1m'
+    local DIM='\033[2m'
+    local CYAN='\033[0;36m'
+    local NC='\033[0m'
+    
+    echo ""
+    echo -e "${BOLD}Git Aliases${NC}"
+    echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "  ${CYAN}ga${NC}             git add .                    ${DIM}Stage all changes${NC}"
+    echo -e "  ${CYAN}gauto${NC}          add + commit + push          ${DIM}Quick backup${NC}"
+    echo -e "  ${CYAN}gb${NC}             git branch                   ${DIM}List branches${NC}"
+    echo -e "  ${CYAN}gc${NC} <msg>       git commit -m <msg>          ${DIM}Commit with message${NC}"
+    echo -e "  ${CYAN}gd${NC}             git diff                     ${DIM}Show changes${NC}"
+    echo -e "  ${CYAN}glog${NC}           git log --oneline -n 20      ${DIM}Recent commits${NC}"
+    echo -e "  ${CYAN}gph${NC} <branch>   git push origin <branch>     ${DIM}Push to remote${NC}"
+    echo -e "  ${CYAN}gpl${NC} <branch>   git pull origin <branch>     ${DIM}Pull from remote${NC}"
+    echo -e "  ${CYAN}gs${NC}             git status                   ${DIM}Working tree status${NC}"
+    echo -e "  ${CYAN}gsw${NC} <branch>   git switch <branch>          ${DIM}Switch branches${NC}"
+    echo ""
+    echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+    echo ""
 }
