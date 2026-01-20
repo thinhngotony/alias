@@ -1,3 +1,4 @@
 name = "alias"
 main = "worker.js"
 compatibility_date = "2024-01-01"
+account_id = "80be496e78fc718e84484c4d6ebfc491"
