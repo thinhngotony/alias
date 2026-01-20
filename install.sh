@@ -21,7 +21,6 @@ NC='\033[0m'
 
 # Symbols
 CHECK="${GREEN}✓${NC}"
-ARROW="${CYAN}→${NC}"
 
 # =============================================================================
 # Detection
@@ -116,14 +115,6 @@ echo ""
 # Success
 echo -e "${GREEN}${BOLD}Installation complete${NC}"
 echo ""
-echo -e "${DIM}Next steps${NC}"
-echo ""
-echo -e "  ${ARROW} Run this command to activate aliases:"
-echo ""
-echo -e "      ${BOLD}source ${SHELL_RC}${NC}"
-echo ""
-echo -e "  ${ARROW} Or open a new terminal window"
-echo ""
 echo -e "${DIM}Quick start${NC}"
 echo ""
 echo -e "  ${CYAN}alias-help${NC}     Show all available aliases"
@@ -134,7 +125,6 @@ echo ""
 echo -e "${DIM}Documentation${NC}  https://github.com/thinhngotony/alias"
 echo ""
 
-# Optional telemetry (silent, non-blocking)
-(curl -s -X POST "https://alias.hyberorbit.com/telemetry" \
-  -d "action=install&version=$VERSION&os=$OS&shell=$SHELL_TYPE" \
-  &>/dev/null &) 2>/dev/null || true
+# Auto-reload: exec into a new shell with aliases loaded
+echo -e "${DIM}Activating aliases...${NC}"
+exec "$SHELL" -l
