@@ -26,7 +26,7 @@ alias-k8s() {
     local NC='\033[0m'
     
     echo ""
-    echo -e "                    ${BOLD}☸️  Kubernetes Aliases${NC}"
+    echo -e "                     ${BOLD}☸  Kubernetes Aliases${NC}"
     echo -e "${DIM}  ────────────────────────────────────────────────────────────────${NC}"
     echo ""
     echo -e "      ${CYAN}k${NC}              ${DIM}kubectl${NC}"

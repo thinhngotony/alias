@@ -27,7 +27,7 @@ alias-system() {
     local NC='\033[0m'
     
     echo ""
-    echo -e "                      ${BOLD}🖥️  System Aliases${NC}"
+    echo -e "                       ${BOLD}💻 System Aliases${NC}"
     echo -e "${DIM}  ────────────────────────────────────────────────────────────────${NC}"
     echo ""
     echo -e "      ${CYAN}ll${NC}             ${DIM}ls -lah${NC}"

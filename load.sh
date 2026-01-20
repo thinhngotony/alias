@@ -198,8 +198,8 @@ alias-help() {
     local NC='\033[0m'
     
     echo ""
-    echo -e "                      ${BOLD}⚡ Hyber Alias${NC} ${DIM}v${ALIAS_VERSION:-1.1.0}${NC}"
-    echo -e "               ${DIM}Cross-platform shell alias manager${NC}"
+    echo -e "                       ${BOLD}⚡ Hyber Alias${NC} ${DIM}v${ALIAS_VERSION:-1.1.0}${NC}"
+    echo -e "                ${DIM}Cross-platform shell alias manager${NC}"
     echo ""
     echo -e "${DIM}  ────────────────────────────────────────────────────────────────${NC}"
     echo ""
@@ -240,5 +240,66 @@ alias-help() {
     echo ""
     echo -e "  ${DIM}📚 Docs${NC}  https://github.com/thinhngotony/alias"
     echo -e "  ${DIM}💡 Tip${NC}   Type ${CYAN}alias-${NC} + ${BOLD}TAB${NC} for autocomplete"
+    echo ""
+}
+
+# =============================================================================
+# Command Suggestion Handlers
+# =============================================================================
+
+alias-() {
+    echo -e "\n  \033[0;33m⚠\033[0m  Incomplete command. Available commands:\n"
+    echo -e "      \033[0;36malias-help\033[0m       \033[2mShow all commands\033[0m"
+    echo -e "      \033[0;36malias-git\033[0m        \033[2mGit aliases\033[0m"
+    echo -e "      \033[0;36malias-k8s\033[0m        \033[2mKubernetes aliases\033[0m"
+    echo -e "      \033[0;36malias-system\033[0m     \033[2mSystem aliases\033[0m"
+    echo -e "      \033[0;36malias-secrets\033[0m    \033[2mSecrets management\033[0m"
+    echo -e "      \033[0;36malias-add\033[0m        \033[2mAdd custom alias\033[0m"
+    echo -e "      \033[0;36malias-list\033[0m       \033[2mList custom categories\033[0m"
+    echo ""
+}
+
+alias-a() {
+    echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-a\033[0m' not found. Did you mean:\n"
+    echo -e "      \033[0;36malias-add\033[0m        \033[2mAdd custom alias\033[0m"
+    echo ""
+}
+
+alias-s() {
+    echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-s\033[0m' not found. Did you mean:\n"
+    echo -e "      \033[0;36malias-system\033[0m     \033[2mSystem aliases\033[0m"
+    echo -e "      \033[0;36malias-secrets\033[0m    \033[2mSecrets management\033[0m"
+    echo -e "      \033[0;36malias-secret-add\033[0m \033[2mStore a secret\033[0m"
+    echo -e "      \033[0;36malias-secret-get\033[0m \033[2mRetrieve a secret\033[0m"
+    echo ""
+}
+
+alias-g() {
+    echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-g\033[0m' not found. Did you mean:\n"
+    echo -e "      \033[0;36malias-git\033[0m        \033[2mGit aliases\033[0m"
+    echo ""
+}
+
+alias-k() {
+    echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-k\033[0m' not found. Did you mean:\n"
+    echo -e "      \033[0;36malias-k8s\033[0m        \033[2mKubernetes aliases\033[0m"
+    echo ""
+}
+
+alias-t() {
+    echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-t\033[0m' not found. Did you mean:\n"
+    echo -e "      \033[0;36malias-token\033[0m      \033[2mGet cloudflare-token\033[0m"
+    echo ""
+}
+
+alias-r() {
+    echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-r\033[0m' not found. Did you mean:\n"
+    echo -e "      \033[0;36malias-remove\033[0m     \033[2mRemove custom alias\033[0m"
+    echo ""
+}
+
+alias-l() {
+    echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-l\033[0m' not found. Did you mean:\n"
+    echo -e "      \033[0;36malias-list\033[0m       \033[2mList custom categories\033[0m"
     echo ""
 }

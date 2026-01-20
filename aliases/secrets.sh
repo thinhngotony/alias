@@ -40,7 +40,7 @@ alias-secret-get() {
         return 1
     fi
     
-    echo -e "\n  \033[0;33m🔐\033[0m Authentication required for '\033[1m$name\033[0m'"
+    echo -e "\n  \033[0;33m🔐 \033[0mAuthentication required for '\033[1m$name\033[0m'"
     if sudo -v 2>/dev/null; then
         echo -e "  \033[0;32m✓\033[0m $(base64 -d < "$secret_file")\n"
     else
@@ -61,15 +61,15 @@ alias-secret-list() {
             if [ -f "$f" ]; then
                 local sname
                 sname=$(basename "$f" .enc)
-                echo -e "  \033[0;36m●\033[0m $sname"
+                echo -e "    \033[0;36m●\033[0m $sname"
                 found=1
             fi
         done
         if [ "$found" -eq 0 ]; then
-            echo -e "  \033[2mNo secrets stored\033[0m"
+            echo -e "    \033[2mNo secrets stored\033[0m"
         fi
     else
-        echo -e "  \033[2mNo secrets stored\033[0m"
+        echo -e "    \033[2mNo secrets stored\033[0m"
     fi
     echo -e "  \033[2m─────────────────────────────────────\033[0m\n"
 }
@@ -90,7 +90,7 @@ alias-secret-remove() {
         return 1
     fi
     
-    echo -e "\n  \033[0;33m🔐\033[0m Authentication required to remove '\033[1m$name\033[0m'"
+    echo -e "\n  \033[0;33m🔐 \033[0mAuthentication required to remove '\033[1m$name\033[0m'"
     if sudo -v 2>/dev/null; then
         rm -f "$secret_file"
         echo -e "  \033[0;32m✓\033[0m Secret '$name' removed\n"
@@ -105,6 +105,17 @@ alias-token() {
     alias-secret-get "cloudflare-token"
 }
 
+# Command not found handler - shows suggestions
+alias-secret() {
+    echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-secret\033[0m' not found. Did you mean:\n"
+    echo -e "      \033[0;36malias-secret-add\033[0m     \033[2mStore a secret\033[0m"
+    echo -e "      \033[0;36malias-secret-get\033[0m     \033[2mRetrieve a secret\033[0m"
+    echo -e "      \033[0;36malias-secret-list\033[0m    \033[2mList all secrets\033[0m"
+    echo -e "      \033[0;36malias-secret-remove\033[0m  \033[2mDelete a secret\033[0m"
+    echo -e "      \033[0;36malias-secrets\033[0m        \033[2mShow full help\033[0m"
+    echo ""
+}
+
 # =============================================================================
 # Help Function
 # =============================================================================
@@ -117,7 +128,7 @@ alias-secrets() {
     local NC='\033[0m'
     
     echo ""
-    echo -e "                    ${BOLD}🔐 Secrets Manager${NC}"
+    echo -e "                     ${BOLD}🔐 Secrets Manager${NC}"
     echo -e "${DIM}  ────────────────────────────────────────────────────────────${NC}"
     echo ""
     echo -e "  ${MAGENTA}alias-secret-add${NC} ${DIM}<name> <value>${NC}"
@@ -134,17 +145,17 @@ alias-secrets() {
     echo ""
     echo -e "${DIM}  ────────────────────────────────────────────────────────────${NC}"
     echo ""
-    echo -e "  ${BOLD}Shortcuts${NC}"
+    echo -e "  ${BOLD}⚡ Shortcuts${NC}"
     echo ""
-    echo -e "  ${CYAN}alias-token${NC}              → alias-secret-get cloudflare-token"
+    echo -e "      ${CYAN}alias-token${NC}  ${DIM}→ alias-secret-get cloudflare-token${NC}"
     echo ""
     echo -e "${DIM}  ────────────────────────────────────────────────────────────${NC}"
     echo ""
-    echo -e "  ${BOLD}Example${NC}"
+    echo -e "  ${BOLD}💡 Example${NC}"
     echo ""
-    echo -e "  ${DIM}\$${NC} alias-secret-add cloudflare-token \"KVs6F66...\""
-    echo -e "  ${DIM}\$${NC} alias-token"
-    echo -e "  ${DIM}\$${NC} alias-secret-list"
-    echo -e "  ${DIM}\$${NC} alias-secret-remove cloudflare-token"
+    echo -e "      ${DIM}\$${NC} alias-secret-add cloudflare-token \"KVs6F66...\""
+    echo -e "      ${DIM}\$${NC} alias-token"
+    echo -e "      ${DIM}\$${NC} alias-secret-list"
+    echo -e "      ${DIM}\$${NC} alias-secret-remove cloudflare-token"
     echo ""
 }
