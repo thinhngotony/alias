@@ -54,6 +54,7 @@ _alias_download() {
 _alias_download "git"
 _alias_download "k8s"
 _alias_download "system"
+_alias_download "secrets"
 
 # Source user custom aliases (handle empty directory for zsh compatibility)
 if [ -d "$ALIAS_HOME/custom" ] && [ -n "$(ls -A "$ALIAS_HOME/custom" 2>/dev/null)" ]; then
@@ -197,6 +198,7 @@ Available Categories (type alias-<category> for details):
   alias-git      Git commands (ga, gc, gs, gph, gpl...)
   alias-k8s      Kubernetes commands (k, ka, kgp, kgs...)
   alias-system   System commands (ll, la, cls, reload...)
+  alias-secrets  Secure token storage (password protected)
 
 Custom Alias Management:
 
@@ -205,10 +207,16 @@ Custom Alias Management:
   alias-list                              List all custom categories
   alias-help                              Show this help
 
+Secure Token Storage:
+
+  alias-secret-add <name> <value>         Store token (password protected)
+  alias-secret-get <name>                 Retrieve token (requires password)
+  alias-token                             Shortcut for cloudflare-token
+
 Example:
   alias-add ai claudex "claude --dangerously-skip-permissions"
-  alias-add ai gpt "chatgpt --model gpt-4"
-  alias-ai                                # Show all AI aliases
+  alias-secret-add cloudflare-token "your-token"
+  alias-token  # Requires password to view
 
 Tip: Type 'alias-' then press TAB for autocomplete
 
