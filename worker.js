@@ -13,7 +13,7 @@ export default {
     };
 
     if (path === '/') {
-      return new Response(`Hyber Alias API
+      return new Response(`Hyber Alias API v1.1.0
 
 Install:
   Linux/Mac:  bash <(curl -s https://alias.hyberorbit.com/install)
@@ -22,6 +22,8 @@ Install:
 Uninstall:
   Linux/Mac:  bash <(curl -s https://alias.hyberorbit.com/uninstall)
   Windows:    iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
+
+Documentation: https://github.com/thinhngotony/alias
 `, {
         headers: { 'Content-Type': 'text/plain' }
       });
@@ -32,14 +34,20 @@ Uninstall:
       return new Response('Not found', { status: 404 });
     }
 
-    const response = await fetch(targetUrl, {
-      cf: { cacheTtl: 0, cacheEverything: false }  // No caching - always fetch fresh from GitHub
+    // Add cache-busting parameter to bypass GitHub CDN cache
+    const cacheBuster = Math.floor(Date.now() / 60000); // Changes every minute
+    const fetchUrl = `${targetUrl}?v=${cacheBuster}`;
+
+    const response = await fetch(fetchUrl, {
+      cf: { cacheTtl: 0, cacheEverything: false }
     });
     return new Response(response.body, {
       status: response.status,
       headers: {
         'Content-Type': 'text/plain',
-        'Cache-Control': 'no-cache, must-revalidate',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
         'Access-Control-Allow-Origin': '*',
       },
     });
