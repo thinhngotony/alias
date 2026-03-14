@@ -36,19 +36,49 @@ detect_os() {
     esac
 }
 
-# Detect user's default shell
-detect_shell() {
+# Detect the user's ACTIVE shell (not just $SHELL login shell)
+# This handles cases like Codespaces where fish is the interactive shell
+# but $SHELL is still /bin/bash
+detect_active_shell() {
+    # 1. Check shell-specific version variables (most reliable when set)
+    #    These are only set when that shell is actually running.
+    #    Since we run via 'curl | sh', these won't be set in our process,
+    #    so we check the parent process instead.
+
+    # 2. Check parent process name (the shell that invoked 'curl | sh')
+    _parent_shell=""
+    if [ -f "/proc/$PPID/comm" ]; then
+        _parent_shell=$(cat "/proc/$PPID/comm" 2>/dev/null)
+    elif command -v ps >/dev/null 2>&1; then
+        _parent_shell=$(ps -p "$PPID" -o comm= 2>/dev/null)
+    fi
+
+    case "$_parent_shell" in
+        fish) echo "fish"; return ;;
+        zsh)  echo "zsh";  return ;;
+        bash) echo "bash"; return ;;
+    esac
+
+    # 3. Fall back to $SHELL (login shell)
     _shell_name=$(basename "$SHELL")
     case "$_shell_name" in
-        zsh) echo "zsh" ;;
+        zsh)  echo "zsh" ;;
         fish) echo "fish" ;;
         bash) echo "bash" ;;
-        *) echo "bash" ;;
+        *)    echo "bash" ;;
     esac
 }
 
 OS=$(detect_os)
-USER_SHELL=$(detect_shell)
+USER_SHELL=$(detect_active_shell)
+
+# Detect which shells are available on this system
+HAS_BASH=false
+HAS_ZSH=false
+HAS_FISH=false
+command -v bash >/dev/null 2>&1 && HAS_BASH=true
+command -v zsh  >/dev/null 2>&1 && HAS_ZSH=true
+command -v fish >/dev/null 2>&1 && HAS_FISH=true
 
 # Track download failures
 DOWNLOAD_FAILURES=0
@@ -63,7 +93,7 @@ safe_download() {
     _sd_dest_dir=$(dirname "$_sd_dest")
     _sd_tmp=$(mktemp "$_sd_dest_dir/.download.XXXXXX") || {
         if [ "$_sd_required" = "true" ]; then
-            printf "      %bFailed to create temp file for %s%b\n" "$RED" "$_sd_label" "$NC"
+            printf "      %b✗%b Failed to create temp file for %s\n" "$RED" "$NC" "$_sd_label"
             return 1
         fi
         DOWNLOAD_FAILURES=$((DOWNLOAD_FAILURES + 1))
@@ -96,6 +126,18 @@ printf "  %bSystem%b\n" "$BOLD" "$NC"
 printf "\n"
 printf "      OS         %b%s%b\n" "$BOLD" "$OS" "$NC"
 printf "      Shell      %b%s%b\n" "$BOLD" "$USER_SHELL" "$NC"
+
+# Show which shells we'll configure
+_shells_list=""
+if [ "$HAS_BASH" = true ]; then _shells_list="bash"; fi
+if [ "$HAS_ZSH" = true ]; then
+    if [ -n "$_shells_list" ]; then _shells_list="$_shells_list, zsh"; else _shells_list="zsh"; fi
+fi
+if [ "$HAS_FISH" = true ]; then
+    if [ -n "$_shells_list" ]; then _shells_list="$_shells_list, fish"; else _shells_list="fish"; fi
+fi
+printf "      Configure  %b%s%b\n" "$DIM" "$_shells_list" "$NC"
+
 printf "\n"
 printf "%b  ────────────────────────────────────────────────────────────────%b\n" "$DIM" "$NC"
 printf "\n"
@@ -106,61 +148,67 @@ printf "\n"
 mkdir -p "$ALIAS_HOME/cache" "$ALIAS_HOME/custom"
 printf "      %b✓%b Created ~/.alias\n" "$GREEN" "$NC"
 
-# Install based on detected shell
-case "$USER_SHELL" in
-    fish)
-        # Fish shell installation
-        mkdir -p "$HOME/.config/fish/conf.d"
-        if ! safe_download "$REPO/aliases/fish.fish" "$HOME/.config/fish/conf.d/hyper-alias.fish" "fish aliases" "true"; then
-            exit 1
-        fi
-        printf "      %b✓%b Downloaded fish aliases\n" "$GREEN" "$NC"
+# =============================================================================
+# Always install bash/zsh loader + alias cache (works for both bash and zsh)
+# =============================================================================
+if [ "$HAS_BASH" = true ] || [ "$HAS_ZSH" = true ]; then
+    if ! safe_download "$REPO/load.sh" "$ALIAS_HOME/load.sh" "loader" "true"; then
+        exit 1
+    fi
+    chmod +x "$ALIAS_HOME/load.sh"
 
-        # Also add sourcing to config.fish if not already present
-        SHELL_RC="$HOME/.config/fish/config.fish"
-        if [ -f "$SHELL_RC" ] && ! grep -q "hyber-alias\|hyper-alias" "$SHELL_RC" 2>/dev/null; then
-            printf "\n# Hyber Alias - https://github.com/thinhngotony/alias\n" >> "$SHELL_RC"
-            printf "source ~/.config/fish/conf.d/hyper-alias.fish\n" >> "$SHELL_RC"
-            printf "      %b✓%b Configured %b%s%b\n" "$GREEN" "$NC" "$DIM" "$SHELL_RC" "$NC"
-        fi
-        ;;
-    *)
-        # Bash/Zsh installation
-        if ! safe_download "$REPO/load.sh" "$ALIAS_HOME/load.sh" "loader" "true"; then
-            exit 1
-        fi
-        chmod +x "$ALIAS_HOME/load.sh"
+    safe_download "$REPO/aliases/git.sh" "$ALIAS_HOME/cache/git.sh" "git aliases"
+    safe_download "$REPO/aliases/k8s.sh" "$ALIAS_HOME/cache/k8s.sh" "k8s aliases"
+    safe_download "$REPO/aliases/system.sh" "$ALIAS_HOME/cache/system.sh" "system aliases"
+    safe_download "$REPO/aliases/secrets.sh" "$ALIAS_HOME/cache/secrets.sh" "secrets aliases"
+    safe_download "$REPO/aliases/ai.sh" "$ALIAS_HOME/cache/ai.sh" "ai aliases"
 
-        safe_download "$REPO/aliases/git.sh" "$ALIAS_HOME/cache/git.sh" "git aliases"
-        safe_download "$REPO/aliases/k8s.sh" "$ALIAS_HOME/cache/k8s.sh" "k8s aliases"
-        safe_download "$REPO/aliases/system.sh" "$ALIAS_HOME/cache/system.sh" "system aliases"
-        safe_download "$REPO/aliases/secrets.sh" "$ALIAS_HOME/cache/secrets.sh" "secrets aliases"
-        safe_download "$REPO/aliases/ai.sh" "$ALIAS_HOME/cache/ai.sh" "ai aliases"
+    if [ "$DOWNLOAD_FAILURES" -gt 0 ]; then
+        printf "      %b⚠%b  Downloaded aliases (%d file(s) failed, will retry on next shell start)\n" "$YELLOW" "$NC" "$DOWNLOAD_FAILURES"
+    else
+        printf "      %b✓%b Downloaded aliases\n" "$GREEN" "$NC"
+    fi
+fi
 
-        if [ "$DOWNLOAD_FAILURES" -gt 0 ]; then
-            printf "      %b⚠%b  Downloaded aliases (%d file(s) failed, will retry on next shell start)\n" "$YELLOW" "$NC" "$DOWNLOAD_FAILURES"
-        else
-            printf "      %b✓%b Downloaded aliases\n" "$GREEN" "$NC"
-        fi
+# =============================================================================
+# Configure bash
+# =============================================================================
+if [ "$HAS_BASH" = true ] && [ -f "$HOME/.bashrc" ]; then
+    if ! grep -q "/.alias/load.sh" "$HOME/.bashrc" 2>/dev/null; then
+        printf "\n# Hyber Alias - https://github.com/thinhngotony/alias\n" >> "$HOME/.bashrc"
+        printf "[ -f ~/.alias/load.sh ] && source ~/.alias/load.sh\n" >> "$HOME/.bashrc"
+        printf "      %b✓%b Configured %b~/.bashrc%b\n" "$GREEN" "$NC" "$DIM" "$NC"
+    else
+        printf "      %b✓%b Already configured %b~/.bashrc%b\n" "$GREEN" "$NC" "$DIM" "$NC"
+    fi
+fi
 
-        # Determine shell RC file
-        case "$USER_SHELL" in
-            zsh) SHELL_RC="$HOME/.zshrc" ;;
-            *) SHELL_RC="$HOME/.bashrc" ;;
-        esac
+# =============================================================================
+# Configure zsh
+# =============================================================================
+if [ "$HAS_ZSH" = true ] && [ -f "$HOME/.zshrc" ]; then
+    if ! grep -q "/.alias/load.sh" "$HOME/.zshrc" 2>/dev/null; then
+        printf "\n# Hyber Alias - https://github.com/thinhngotony/alias\n" >> "$HOME/.zshrc"
+        printf "[ -f ~/.alias/load.sh ] && source ~/.alias/load.sh\n" >> "$HOME/.zshrc"
+        printf "      %b✓%b Configured %b~/.zshrc%b\n" "$GREEN" "$NC" "$DIM" "$NC"
+    else
+        printf "      %b✓%b Already configured %b~/.zshrc%b\n" "$GREEN" "$NC" "$DIM" "$NC"
+    fi
+fi
 
-        # Add to shell RC if not already there
-        if ! grep -q "/.alias/load.sh" "$SHELL_RC" 2>/dev/null; then
-            printf "\n# Hyber Alias - https://github.com/thinhngotony/alias\n" >> "$SHELL_RC"
-            printf "[ -f ~/.alias/load.sh ] && source ~/.alias/load.sh\n" >> "$SHELL_RC"
-            printf "      %b✓%b Configured %b%s%b\n" "$GREEN" "$NC" "$DIM" "$SHELL_RC" "$NC"
-        else
-            printf "      %b✓%b Already configured\n" "$GREEN" "$NC"
-        fi
-        ;;
-esac
+# =============================================================================
+# Configure fish (install even if not the primary shell, as long as fish exists)
+# =============================================================================
+if [ "$HAS_FISH" = true ]; then
+    mkdir -p "$HOME/.config/fish/conf.d"
+    if safe_download "$REPO/aliases/fish.fish" "$HOME/.config/fish/conf.d/hyper-alias.fish" "fish aliases"; then
+        printf "      %b✓%b Configured %bfish (conf.d)%b\n" "$GREEN" "$NC" "$DIM" "$NC"
+    fi
+fi
 
-# Save environment (quote values to prevent injection)
+# =============================================================================
+# Save environment
+# =============================================================================
 cat > "$ALIAS_HOME/env.sh" << ENVEOF
 export HYBER_VERSION="${VERSION}"
 export HYBER_SHELL="${USER_SHELL}"
@@ -187,9 +235,7 @@ printf "\n"
 printf "  %bActivate aliases%b\n" "$BOLD" "$NC"
 printf "\n"
 
-# Print activation command based on shell.
-# Avoid forcing an interactive shell here because this script is often run
-# from non-interactive pipelines (e.g. curl | sh) and in CI.
+# Print activation command for the user's active shell
 case "$USER_SHELL" in
     fish)
         printf "      Run: %bsource ~/.config/fish/conf.d/hyper-alias.fish%b\n" "$CYAN" "$NC"
