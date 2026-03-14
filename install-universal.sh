@@ -136,15 +136,17 @@ printf "\n"
 printf "  ${DIM}Activating aliases...${NC}\n"
 printf "\n"
 
-# Activate based on shell
+# Print activation command based on shell.
+# Avoid forcing an interactive shell here because this script is often run
+# from non-interactive pipelines (e.g. curl | sh) and in CI.
 case "$USER_SHELL" in
     fish)
-        exec fish -l
+        printf "  Run to activate now: source ~/.config/fish/conf.d/hyber-alias.fish\n"
         ;;
     zsh)
-        exec zsh -l
+        printf "  Run to activate now: source ~/.zshrc\n"
         ;;
     *)
-        exec bash -l
+        printf "  Run to activate now: source ~/.bashrc\n"
         ;;
 esac
