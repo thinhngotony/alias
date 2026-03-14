@@ -32,7 +32,7 @@ curl -sfS https://alias.hyberorbit.com/install | sh
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-> Open a new terminal after install, or run your shell activation command (e.g. `source ~/.bashrc`, `source ~/.zshrc`, or `source ~/.config/fish/conf.d/hyber-alias.fish`).
+> Open a new terminal after install, or run your shell activation command (e.g. `source ~/.bashrc`, `source ~/.zshrc`, or `source ~/.config/fish/conf.d/hyper-alias.fish`).
 
 **Verify installation:**
 
@@ -68,6 +68,7 @@ iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1 
 | **Customizable**   | Add your own aliases that persist across updates |
 | **Offline Ready**  | Works without internet after first install       |
 | **Discoverable**   | Type `alias-` + TAB for category autocomplete    |
+| **Secure**         | AES-256-CBC encrypted secret storage             |
 
 ---
 
@@ -142,6 +143,31 @@ alias-list      # List custom categories
 
 ---
 
+## Secure Secret Storage
+
+Store sensitive tokens and credentials with AES-256-CBC encryption:
+
+```bash
+# Store a secret (prompts for encryption password)
+alias-secret-add cloudflare-token "your-api-token"
+
+# Retrieve a secret (prompts for decryption password, copies to clipboard if available)
+alias-secret-get cloudflare-token
+
+# List all stored secrets
+alias-secret-list
+
+# Remove a secret (secure deletion)
+alias-secret-remove cloudflare-token
+
+# Shortcut for cloudflare-token
+alias-token
+```
+
+Secrets are encrypted at rest using OpenSSL AES-256-CBC with PBKDF2 key derivation. Files are stored in `~/.alias/.secrets/` with `600` permissions.
+
+---
+
 ## Custom Aliases
 
 Add your own aliases in `~/.alias/custom/`. They persist across updates.
@@ -170,10 +196,10 @@ alias-remove ai gpt
 <details>
 <summary><strong>Linux / macOS</strong></summary>
 
-Create a file (no extension):
+Create a `.sh` file:
 
 ```bash
-cat > ~/.alias/custom/docker << 'EOF'
+cat > ~/.alias/custom/docker.sh << 'EOF'
 alias dc='docker-compose'
 alias dcu='docker-compose up -d'
 alias dcd='docker-compose down'
@@ -204,12 +230,10 @@ function dps { docker ps $args }
 ## How It Works
 
 ```
-┌───────────────────────────────────────────────────────────┐
-│  1. Install script downloads loader to ~/.alias/          │
-│  2. Adds source line to shell config (.bashrc / $PROFILE) │
-│  3. Loader fetches latest aliases on each shell start     │
-│  4. Custom aliases in ~/.alias/custom/ are loaded last    │
-└───────────────────────────────────────────────────────────┘
+1. Install script downloads loader to ~/.alias/
+2. Adds source line to shell config (.bashrc / $PROFILE)
+3. Loader fetches latest aliases on each shell start
+4. Custom aliases in ~/.alias/custom/ are loaded last
 ```
 
 **Directory structure after install:**
@@ -219,8 +243,24 @@ function dps { docker ps $args }
 ├── load.sh       # Loader (Linux/macOS)
 ├── load.ps1      # Loader (Windows)
 ├── env.sh        # Environment config
-└── custom/       # Your custom aliases
+├── cache/        # Downloaded alias modules
+├── custom/       # Your custom aliases (*.sh)
+└── .secrets/     # Encrypted secrets (AES-256-CBC)
 ```
+
+---
+
+## Security
+
+Hyber Alias follows security best practices:
+
+- **Input validation**: Category and alias names are restricted to alphanumeric characters, hyphens, and underscores. Path traversal and shell metacharacter injection are blocked.
+- **Encrypted secrets**: Secrets are stored using AES-256-CBC encryption with PBKDF2 key derivation via OpenSSL (not base64).
+- **Atomic file operations**: Downloads and updates use temporary files (`mktemp`) with atomic moves to prevent corruption.
+- **Race condition protection**: Self-updates use directory-based locking to prevent concurrent modification.
+- **Symlink protection**: Custom alias loading skips symbolic links to prevent symlink attacks.
+- **Secure deletion**: Secret removal uses `shred` when available for secure file erasure.
+- **No `exec` in installers**: Installation scripts print activation instructions instead of forcing shell replacement.
 
 ---
 
@@ -330,11 +370,11 @@ Some aliases (e.g., `gc`) override PowerShell built-ins. Use full command name i
 
 ## Requirements
 
-| Platform | Requirement                                 |
-| -------- | ------------------------------------------- |
-| Linux    | Bash, Zsh, or Fish, `curl`                  |
-| macOS    | Bash, Zsh, or Fish, `curl`                  |
-| Windows  | PowerShell 5.1+ (built-in on Windows 10/11) |
+| Platform | Requirement                                     |
+| -------- | ----------------------------------------------- |
+| Linux    | Bash, Zsh, or Fish, `curl`, `openssl`           |
+| macOS    | Bash, Zsh, or Fish, `curl`, `openssl`           |
+| Windows  | PowerShell 5.1+ (built-in on Windows 10/11)     |
 
 ---
 

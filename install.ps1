@@ -10,6 +10,10 @@ $ErrorActionPreference = "Stop"
 try {
     $release = Invoke-RestMethod -Uri "https://api.github.com/repos/thinhngotony/alias/releases/latest" -TimeoutSec 5
     $Version = $release.tag_name -replace '^v', ''
+    # Validate version is semver-like
+    if ($Version -notmatch '^\d+\.\d+\.\d+') {
+        $Version = "latest"
+    }
 } catch {
     $Version = "latest"
 }
@@ -55,11 +59,18 @@ New-Item -ItemType Directory -Force -Path $AliasHome | Out-Null
 New-Item -ItemType Directory -Force -Path "$AliasHome\custom" | Out-Null
 Write-Host "  " -NoNewline; Write-Host "✓" -ForegroundColor Green -NoNewline; Write-Host " Created ~/.alias" -ForegroundColor DarkGray
 
-# Download files
+# Download files using temp file for atomicity
 try {
-    Invoke-WebRequest -Uri "$Repo/load.ps1" -OutFile "$AliasHome\load.ps1" -UseBasicParsing
+    $tmpFile = [System.IO.Path]::GetTempFileName()
+    Invoke-WebRequest -Uri "$Repo/load.ps1" -OutFile $tmpFile -UseBasicParsing
+    if ((Get-Item $tmpFile).Length -gt 0) {
+        Move-Item $tmpFile "$AliasHome\load.ps1" -Force
+    } else {
+        throw "Downloaded file is empty"
+    }
     Write-Host "  " -NoNewline; Write-Host "✓" -ForegroundColor Green -NoNewline; Write-Host " Downloaded aliases"
 } catch {
+    Remove-Item $tmpFile -Force -ErrorAction SilentlyContinue
     Write-Host "  " -NoNewline; Write-Host "✗" -ForegroundColor Red -NoNewline; Write-Host " Failed to download loader"
     exit 1
 }
@@ -84,7 +95,6 @@ if ($null -eq $ProfileContent -or $ProfileContent -notmatch "\.alias\\load\.ps1"
 
 # Save environment
 @"
-`$env:HYBER_ENV = "dev"
 `$env:HYBER_SHELL = "powershell"
 `$env:HYBER_OS = "windows"
 `$env:HYBER_VERSION = "$Version"

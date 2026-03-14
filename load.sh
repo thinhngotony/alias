@@ -9,31 +9,61 @@ ALIAS_HOME="${HOME}/.alias"
 [ -f "$ALIAS_HOME/env.sh" ] && source "$ALIAS_HOME/env.sh"
 export ALIAS_VERSION="${HYBER_VERSION:-latest}"
 
+# =============================================================================
 # Self-update loader (runs in background, completely silent)
+# Uses mktemp for safe temp files and mkdir-based locking to prevent races
+# =============================================================================
 _alias_self_update() {
     # Use nohup with full redirection to avoid any job control messages
     # shellcheck disable=SC2016
     (nohup sh -c '
         REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
         ALIAS_HOME="$HOME/.alias"
-        loader_tmp="$ALIAS_HOME/load.sh.tmp"
+        LOCK_DIR="$ALIAS_HOME/.update.lock"
+
+        # Atomic lock using mkdir (POSIX-safe)
+        # Clean stale locks older than 120 seconds
+        if [ -d "$LOCK_DIR" ]; then
+            lock_age=0
+            if [ -f "$LOCK_DIR/pid" ]; then
+                lock_age=$(( $(date +%s) - $(stat -c %Y "$LOCK_DIR/pid" 2>/dev/null || echo "0") ))
+            fi
+            if [ "$lock_age" -gt 120 ]; then
+                rm -rf "$LOCK_DIR" 2>/dev/null
+            else
+                exit 0
+            fi
+        fi
+
+        if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+            exit 0
+        fi
+        echo $$ > "$LOCK_DIR/pid" 2>/dev/null
+
+        # Use mktemp for unpredictable temp file
+        loader_tmp=$(mktemp "$ALIAS_HOME/load.sh.XXXXXX") || { rmdir "$LOCK_DIR" 2>/dev/null; exit 1; }
+
         if curl -s --connect-timeout 3 --max-time 5 "$REPO/load.sh" -o "$loader_tmp" 2>/dev/null && [ -s "$loader_tmp" ]; then
             if ! cmp -s "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null; then
+                chmod +x "$loader_tmp" 2>/dev/null
                 mv "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null
-                chmod +x "$ALIAS_HOME/load.sh" 2>/dev/null
             else
                 rm -f "$loader_tmp" 2>/dev/null
             fi
         else
             rm -f "$loader_tmp" 2>/dev/null
         fi
+
+        rm -rf "$LOCK_DIR" 2>/dev/null
     ' >/dev/null 2>&1 &)
 }
 
 # Run self-update in background
 _alias_self_update
 
+# =============================================================================
 # Download and cache aliases if online, then source from cache
+# =============================================================================
 _alias_download() {
     local name=$1
     local url="$REPO/aliases/${name}.sh"
@@ -41,11 +71,14 @@ _alias_download() {
 
     mkdir -p "$ALIAS_HOME/cache"
 
-    # Try to download (with 5 second timeout)
-    if curl -s --connect-timeout 5 --max-time 5 "$url" -o "$cache.tmp" 2>/dev/null && [ -s "$cache.tmp" ]; then
-        mv "$cache.tmp" "$cache" 2>/dev/null || true
+    # Use mktemp for safe temp file
+    local tmp
+    tmp=$(mktemp "$ALIAS_HOME/cache/${name}.sh.XXXXXX") || return 1
+
+    if curl -s --connect-timeout 5 --max-time 5 "$url" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+        mv "$tmp" "$cache" 2>/dev/null || rm -f "$tmp" 2>/dev/null
     else
-        rm -f "$cache.tmp" 2>/dev/null || true
+        rm -f "$tmp" 2>/dev/null
     fi
 
     # Source from cache if exists
@@ -60,13 +93,46 @@ _alias_download "system"
 _alias_download "secrets"
 _alias_download "ai"
 
-# Source user custom aliases (handle empty directory for zsh compatibility)
+# =============================================================================
+# Source user custom aliases
+# Only source regular .sh files (no symlinks, no directories)
+# =============================================================================
 if [ -d "$ALIAS_HOME/custom" ] && [ -n "$(ls -A "$ALIAS_HOME/custom" 2>/dev/null)" ]; then
-    for file in "$ALIAS_HOME/custom"/*; do
-        # shellcheck source=/dev/null
-        [ -f "$file" ] && source "$file" 2>/dev/null
+    for file in "$ALIAS_HOME/custom"/*.sh; do
+        # Only source regular files (not symlinks), must end in .sh
+        if [ -f "$file" ] && [ ! -L "$file" ]; then
+            # shellcheck source=/dev/null
+            source "$file" 2>/dev/null
+        fi
     done
 fi
+
+# =============================================================================
+# Input Validation Helpers
+# =============================================================================
+
+# Validate a name (category or alias): alphanumeric, hyphens, underscores only
+_alias_validate_name() {
+    local name="$1"
+    local label="$2"
+    if [ -z "$name" ]; then
+        echo "Error: $label cannot be empty"
+        return 1
+    fi
+    # Must be alphanumeric, hyphens, underscores; 1-64 chars
+    if ! printf '%s' "$name" | grep -qE '^[a-zA-Z0-9_-]{1,64}$'; then
+        echo "Error: $label must contain only letters, numbers, hyphens, and underscores (max 64 chars)"
+        return 1
+    fi
+    # Block path traversal attempts
+    case "$name" in
+        *..* | */* | *\\*)
+            echo "Error: $label contains invalid characters"
+            return 1
+            ;;
+    esac
+    return 0
+}
 
 # =============================================================================
 # Custom Category Management
@@ -77,7 +143,7 @@ fi
 alias-add() {
     local category="$1"
     local alias_name="$2"
-    shift 2
+    shift 2 2>/dev/null || true
     local command="$*"
 
     if [ -z "$category" ] || [ -z "$alias_name" ] || [ -z "$command" ]; then
@@ -85,6 +151,10 @@ alias-add() {
         echo "Example: alias-add ai claudex \"claude --dangerously-skip-permissions\""
         return 1
     fi
+
+    # Validate inputs
+    _alias_validate_name "$category" "Category" || return 1
+    _alias_validate_name "$alias_name" "Alias name" || return 1
 
     local category_file="$ALIAS_HOME/custom/${category}.sh"
     mkdir -p "$ALIAS_HOME/custom"
@@ -94,6 +164,10 @@ alias-add() {
         echo "Alias '$alias_name' already exists in category '$category'. Use alias-remove first."
         return 1
     fi
+
+    # Escape single quotes in the command for safe alias definition
+    local escaped_command
+    escaped_command="${command//\'/\'\\\'\'}"
 
     # Create category file if not exists, with header and help function
     if [ ! -f "$category_file" ]; then
@@ -126,8 +200,20 @@ HELP
 EOF
     fi
 
-    # Add alias to category file (before ALIASES_END marker)
-    sed -i "/^# ALIASES_END/i alias ${alias_name}='${command}'" "$category_file"
+    # Safely insert alias before ALIASES_END marker using line-by-line copy
+    # This avoids sed regex injection entirely
+    local alias_line="alias ${alias_name}='${escaped_command}'"
+    local tmpfile
+    tmpfile=$(mktemp "$ALIAS_HOME/custom/.tmp.XXXXXX") || { echo "Error: failed to create temp file"; return 1; }
+
+    while IFS= read -r line; do
+        if [ "$line" = "# ALIASES_END" ]; then
+            printf '%s\n' "$alias_line"
+        fi
+        printf '%s\n' "$line"
+    done < "$category_file" > "$tmpfile"
+
+    mv "$tmpfile" "$category_file"
 
     # Source the updated file
     # shellcheck source=/dev/null
@@ -147,6 +233,10 @@ alias-remove() {
         return 1
     fi
 
+    # Validate inputs
+    _alias_validate_name "$category" "Category" || return 1
+    _alias_validate_name "$alias_name" "Alias name" || return 1
+
     local category_file="$ALIAS_HOME/custom/${category}.sh"
 
     if [ ! -f "$category_file" ]; then
@@ -159,8 +249,18 @@ alias-remove() {
         return 1
     fi
 
-    # Remove the alias line
-    sed -i "/^alias ${alias_name}=/d" "$category_file"
+    # Safely remove alias line using line-by-line copy (no sed injection)
+    local tmpfile
+    tmpfile=$(mktemp "$ALIAS_HOME/custom/.tmp.XXXXXX") || { echo "Error: failed to create temp file"; return 1; }
+
+    while IFS= read -r line; do
+        case "$line" in
+            "alias ${alias_name}="*) continue ;;
+            *) printf '%s\n' "$line" ;;
+        esac
+    done < "$category_file" > "$tmpfile"
+
+    mv "$tmpfile" "$category_file"
 
     # Unset the alias
     unalias "$alias_name" 2>/dev/null || true
@@ -174,7 +274,7 @@ alias-list() {
     echo "==============================================================================="
     if [ -d "$ALIAS_HOME/custom" ] && [ -n "$(ls -A "$ALIAS_HOME/custom" 2>/dev/null)" ]; then
         for file in "$ALIAS_HOME/custom"/*.sh; do
-            if [ -f "$file" ]; then
+            if [ -f "$file" ] && [ ! -L "$file" ]; then
                 local cat_name
                 cat_name=$(basename "$file" .sh)
                 local count
@@ -200,7 +300,7 @@ alias-help() {
     local MAGENTA='\033[0;35m'
     local YELLOW='\033[0;33m'
     local NC='\033[0m'
-    
+
     echo ""
     echo -e "                       ${BOLD}⚡ Hyber Alias${NC} ${DIM}v${ALIAS_VERSION:-latest}${NC}"
     echo -e "                ${DIM}Cross-platform shell alias manager${NC}"

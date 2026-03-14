@@ -12,9 +12,21 @@ $AliasVersion = if ($env:HYBER_VERSION) { $env:HYBER_VERSION } else { "latest" }
 # Self-update loader in background
 $selfUpdateJob = Start-Job -ScriptBlock {
     param($Repo, $AliasHome)
+    $lockDir = "$AliasHome\.update.lock"
     try {
+        # Atomic lock using directory creation
+        if (Test-Path $lockDir) {
+            $lockAge = (New-TimeSpan -Start (Get-Item $lockDir).LastWriteTime -End (Get-Date)).TotalSeconds
+            if ($lockAge -gt 120) {
+                Remove-Item $lockDir -Recurse -Force -ErrorAction SilentlyContinue
+            } else {
+                return
+            }
+        }
+        New-Item -ItemType Directory -Path $lockDir -ErrorAction Stop | Out-Null
+
         $loaderUrl = "$Repo/load.ps1"
-        $loaderTmp = "$AliasHome\load.ps1.tmp"
+        $loaderTmp = [System.IO.Path]::GetTempFileName()
         $loaderPath = "$AliasHome\load.ps1"
         Invoke-WebRequest -Uri $loaderUrl -OutFile $loaderTmp -TimeoutSec 5 -ErrorAction Stop
         if ((Test-Path $loaderTmp) -and (Get-Item $loaderTmp).Length -gt 0) {
@@ -27,7 +39,9 @@ $selfUpdateJob = Start-Job -ScriptBlock {
             }
         }
     } catch {
-        Remove-Item "$AliasHome\load.ps1.tmp" -Force -ErrorAction SilentlyContinue
+        Remove-Item $loaderTmp -Force -ErrorAction SilentlyContinue
+    } finally {
+        Remove-Item $lockDir -Recurse -Force -ErrorAction SilentlyContinue
     }
 } -ArgumentList $Repo, $AliasHome
 
@@ -145,26 +159,48 @@ AI Aliases
 # Custom Category Management
 # =============================================================================
 
+# Input validation helper
+function _ValidateAliasName {
+    param([string]$Name, [string]$Label)
+    if ([string]::IsNullOrWhiteSpace($Name)) {
+        Write-Host "$Label cannot be empty" -ForegroundColor Red
+        return $false
+    }
+    if ($Name -notmatch '^[a-zA-Z0-9_-]{1,64}$') {
+        Write-Host "$Label must contain only letters, numbers, hyphens, and underscores (max 64 chars)" -ForegroundColor Red
+        return $false
+    }
+    if ($Name -match '\.\.' -or $Name -match '[/\\]') {
+        Write-Host "$Label contains invalid characters" -ForegroundColor Red
+        return $false
+    }
+    return $true
+}
+
 function global:alias-add {
     param(
         [Parameter(Mandatory=$true)][string]$Category,
         [Parameter(Mandatory=$true)][string]$AliasName,
         [Parameter(Mandatory=$true, ValueFromRemainingArguments=$true)][string[]]$Command
     )
-    
+
+    # Validate inputs
+    if (-not (_ValidateAliasName $Category "Category")) { return }
+    if (-not (_ValidateAliasName $AliasName "Alias name")) { return }
+
     $commandStr = $Command -join " "
     $categoryFile = "$AliasHome\custom\$Category.ps1"
-    
+
     if (-not (Test-Path "$AliasHome\custom")) {
         New-Item -ItemType Directory -Path "$AliasHome\custom" -Force | Out-Null
     }
-    
+
     # Check if alias already exists
     if ((Test-Path $categoryFile) -and (Select-String -Path $categoryFile -Pattern "function global:$AliasName " -Quiet)) {
         Write-Host "Alias '$AliasName' already exists in category '$Category'. Use alias-remove first."
         return
     }
-    
+
     # Create category file if not exists
     if (-not (Test-Path $categoryFile)) {
         @"
@@ -190,16 +226,17 @@ function global:alias-$Category {
 # ALIASES_END
 "@ | Out-File $categoryFile -Encoding UTF8
     }
-    
-    # Add alias function
-    $aliasFunc = "function global:$AliasName { $commandStr `$args }"
+
+    # Create the function safely using ScriptBlock instead of Invoke-Expression
+    $funcBody = [scriptblock]::Create("$commandStr `$args")
+    Set-Item -Path "Function:\global:$AliasName" -Value $funcBody -Force
+
+    # Add to category file (insert before ALIASES_END marker)
+    $aliasLine = "function global:$AliasName { $commandStr `$args }"
     $content = Get-Content $categoryFile -Raw
-    $content = $content -replace "# ALIASES_END", "$aliasFunc`n# ALIASES_END"
+    $content = $content -replace "# ALIASES_END", "$aliasLine`n# ALIASES_END"
     $content | Out-File $categoryFile -Encoding UTF8
-    
-    # Load the new function
-    Invoke-Expression $aliasFunc
-    
+
     Write-Host "Added alias '$AliasName' -> '$commandStr' to category '$Category'"
     Write-Host "Run 'alias-$Category' to see all aliases in this category"
 }
@@ -209,27 +246,31 @@ function global:alias-remove {
         [Parameter(Mandatory=$true)][string]$Category,
         [Parameter(Mandatory=$true)][string]$AliasName
     )
-    
+
+    # Validate inputs
+    if (-not (_ValidateAliasName $Category "Category")) { return }
+    if (-not (_ValidateAliasName $AliasName "Alias name")) { return }
+
     $categoryFile = "$AliasHome\custom\$Category.ps1"
-    
+
     if (-not (Test-Path $categoryFile)) {
         Write-Host "Category '$Category' not found"
         return
     }
-    
+
     $content = Get-Content $categoryFile -Raw
     if ($content -notmatch "function global:$AliasName ") {
         Write-Host "Alias '$AliasName' not found in category '$Category'"
         return
     }
-    
+
     # Remove the function line
     $content = $content -replace "function global:$AliasName \{[^}]+\}\r?\n?", ""
     $content | Out-File $categoryFile -Encoding UTF8
-    
+
     # Remove from current session
     Remove-Item "Function:\$AliasName" -ErrorAction SilentlyContinue
-    
+
     Write-Host "Removed alias '$AliasName' from category '$Category'"
 }
 
@@ -278,9 +319,11 @@ Tip: Type 'alias-' then press TAB for autocomplete
 "@
 }
 
-# Source user custom aliases
+# Source user custom aliases (only .ps1 files, no symlinks)
 if (Test-Path "$AliasHome\custom") {
-    Get-ChildItem "$AliasHome\custom\*.ps1" -ErrorAction SilentlyContinue | ForEach-Object {
-        . $_.FullName
-    }
+    Get-ChildItem "$AliasHome\custom\*.ps1" -ErrorAction SilentlyContinue |
+        Where-Object { -not $_.Attributes.HasFlag([System.IO.FileAttributes]::ReparsePoint) } |
+        ForEach-Object {
+            . $_.FullName
+        }
 }

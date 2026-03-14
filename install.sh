@@ -13,13 +13,16 @@ ALIAS_HOME="$HOME/.alias"
 # Fetch latest version from GitHub releases
 VERSION=$(curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/latest" 2>/dev/null \
     | grep '"tag_name"' | head -1 | sed 's/.*"tag_name" *: *"//;s/".*//' | sed 's/^v//')
-if [[ -z "$VERSION" ]]; then
+
+# Validate version is semver-like (digits and dots only)
+if ! printf '%s' "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+'; then
     VERSION="latest"
 fi
 
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 CYAN='\033[0;36m'
 DIM='\033[2m'
 BOLD='\033[1m'
@@ -33,13 +36,11 @@ CHECK="${GREEN}✓${NC}"
 # =============================================================================
 
 detect_os() {
-    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-        echo "windows"
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "macos"
-    else
-        echo "linux"
-    fi
+    case "$(uname -s)" in
+        Darwin*) echo "macos" ;;
+        MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+        *) echo "linux" ;;
+    esac
 }
 
 detect_shell() {
@@ -66,6 +67,7 @@ get_shell_rc() {
 OS=$(detect_os)
 SHELL_TYPE=$(detect_shell)
 SHELL_RC=$(get_shell_rc "$SHELL_TYPE")
+DOWNLOAD_FAILURES=0
 
 # Header
 echo ""
@@ -87,14 +89,57 @@ echo -e "${DIM}Installing${NC}"
 mkdir -p "$ALIAS_HOME/cache" "$ALIAS_HOME/custom"
 echo -e "  ${CHECK} Created ${DIM}~/.alias${NC}"
 
+# Safe download helper
+_safe_download() {
+    local url="$1"
+    local dest="$2"
+    local label="$3"
+    local required="${4:-false}"
+
+    local dest_dir
+    dest_dir=$(dirname "$dest")
+    local tmp
+    tmp=$(mktemp "$dest_dir/.download.XXXXXX") || {
+        if [ "$required" = "true" ]; then
+            echo -e "  ${RED}✗${NC} Failed to create temp file for $label"
+            return 1
+        fi
+        DOWNLOAD_FAILURES=$((DOWNLOAD_FAILURES + 1))
+        return 1
+    }
+
+    if curl -sfS "$url" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+        mv "$tmp" "$dest" 2>/dev/null
+        return 0
+    else
+        rm -f "$tmp" 2>/dev/null
+        if [ "$required" = "true" ]; then
+            echo -e "  ${RED}✗${NC} Failed to download $label"
+            return 1
+        fi
+        DOWNLOAD_FAILURES=$((DOWNLOAD_FAILURES + 1))
+        echo -e "  ${YELLOW}⚠${NC}  Failed to download $label (non-critical)"
+        return 1
+    fi
+}
+
 # Download files
-curl -sfS "$REPO/load.sh" -o "$ALIAS_HOME/load.sh" 2>/dev/null || { echo -e "  ${RED}✗${NC} Failed to download loader"; exit 1; }
+if ! _safe_download "$REPO/load.sh" "$ALIAS_HOME/load.sh" "loader" "true"; then
+    exit 1
+fi
 chmod +x "$ALIAS_HOME/load.sh"
-curl -sfS "$REPO/aliases/git.sh" -o "$ALIAS_HOME/cache/git.sh" 2>/dev/null || true
-curl -sfS "$REPO/aliases/k8s.sh" -o "$ALIAS_HOME/cache/k8s.sh" 2>/dev/null || true
-curl -sfS "$REPO/aliases/system.sh" -o "$ALIAS_HOME/cache/system.sh" 2>/dev/null || true
-curl -sfS "$REPO/aliases/ai.sh" -o "$ALIAS_HOME/cache/ai.sh" 2>/dev/null || true
-echo -e "  ${CHECK} Downloaded aliases"
+
+_safe_download "$REPO/aliases/git.sh" "$ALIAS_HOME/cache/git.sh" "git aliases"
+_safe_download "$REPO/aliases/k8s.sh" "$ALIAS_HOME/cache/k8s.sh" "k8s aliases"
+_safe_download "$REPO/aliases/system.sh" "$ALIAS_HOME/cache/system.sh" "system aliases"
+_safe_download "$REPO/aliases/secrets.sh" "$ALIAS_HOME/cache/secrets.sh" "secrets aliases"
+_safe_download "$REPO/aliases/ai.sh" "$ALIAS_HOME/cache/ai.sh" "ai aliases"
+
+if [ "$DOWNLOAD_FAILURES" -gt 0 ]; then
+    echo -e "  ${YELLOW}⚠${NC}  Downloaded aliases ($DOWNLOAD_FAILURES file(s) failed, will retry on next shell start)"
+else
+    echo -e "  ${CHECK} Downloaded aliases"
+fi
 
 # Configure shell
 if ! grep -q "/.alias/load.sh" "$SHELL_RC" 2>/dev/null; then
@@ -110,11 +155,11 @@ fi
 
 # Save environment
 cat > "$ALIAS_HOME/env.sh" << EOF
-export HYBER_ENV="${ENV:-dev}"
-export HYBER_SHELL="$SHELL_TYPE"
-export HYBER_OS="$OS"
-export HYBER_VERSION="$VERSION"
+export HYBER_VERSION="${VERSION}"
+export HYBER_SHELL="${SHELL_TYPE}"
+export HYBER_OS="${OS}"
 EOF
+chmod 600 "$ALIAS_HOME/env.sh"
 echo -e "  ${CHECK} Saved environment"
 
 echo ""
@@ -132,6 +177,13 @@ echo ""
 echo -e "${DIM}Documentation${NC}  https://github.com/thinhngotony/alias"
 echo ""
 
-# Auto-reload: exec into a new shell with aliases loaded
-echo -e "${DIM}Activating aliases...${NC}"
-exec "$SHELL" -l
+# Print activation instructions (no exec to avoid breaking piped installs)
+echo -e "${BOLD}Activate aliases${NC}"
+echo ""
+case "$SHELL_TYPE" in
+    zsh)  echo -e "  Run: ${CYAN}source ~/.zshrc${NC}" ;;
+    fish) echo -e "  Run: ${CYAN}source ~/.config/fish/config.fish${NC}" ;;
+    *)    echo -e "  Run: ${CYAN}source ~/.bashrc${NC}" ;;
+esac
+echo -e "  Or open a new terminal."
+echo ""

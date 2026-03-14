@@ -33,7 +33,7 @@ fi
 
 # Remove from .bashrc
 if [ -f "$HOME/.bashrc" ]; then
-    if grep -q "\.alias/load\.sh" "$HOME/.bashrc" 2>/dev/null; then
+    if grep -q '\.alias/load\.sh' "$HOME/.bashrc" 2>/dev/null; then
         sed_inplace '/# Hyber/d' "$HOME/.bashrc"
         sed_inplace '/\.alias\/load\.sh/d' "$HOME/.bashrc"
         echo -e "${GREEN}✓ Removed from ~/.bashrc${NC}"
@@ -42,7 +42,7 @@ fi
 
 # Remove from .zshrc
 if [ -f "$HOME/.zshrc" ]; then
-    if grep -q "\.alias/load\.sh" "$HOME/.zshrc" 2>/dev/null; then
+    if grep -q '\.alias/load\.sh' "$HOME/.zshrc" 2>/dev/null; then
         sed_inplace '/# Hyber/d' "$HOME/.zshrc"
         sed_inplace '/\.alias\/load\.sh/d' "$HOME/.zshrc"
         echo -e "${GREEN}✓ Removed from ~/.zshrc${NC}"
@@ -52,7 +52,21 @@ fi
 # Remove from fish config
 if [ -f "$HOME/.config/fish/conf.d/hyber-alias.fish" ]; then
     rm -f "$HOME/.config/fish/conf.d/hyber-alias.fish"
-    echo -e "${GREEN}✓ Removed from fish config${NC}"
+    echo -e "${GREEN}✓ Removed fish conf.d alias file${NC}"
+fi
+if [ -f "$HOME/.config/fish/conf.d/hyper-alias.fish" ]; then
+    rm -f "$HOME/.config/fish/conf.d/hyper-alias.fish"
+    echo -e "${GREEN}✓ Removed fish conf.d alias file${NC}"
+fi
+
+# Remove sourcing from fish config.fish
+if [ -f "$HOME/.config/fish/config.fish" ]; then
+    if grep -q 'hyber-alias\|hyper-alias' "$HOME/.config/fish/config.fish" 2>/dev/null; then
+        sed_inplace '/# Hyber/d' "$HOME/.config/fish/config.fish"
+        sed_inplace '/hyber-alias/d' "$HOME/.config/fish/config.fish"
+        sed_inplace '/hyper-alias/d' "$HOME/.config/fish/config.fish"
+        echo -e "${GREEN}✓ Removed from fish config.fish${NC}"
+    fi
 fi
 
 echo ""
