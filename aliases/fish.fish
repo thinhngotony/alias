@@ -35,13 +35,17 @@ alias cls 'clear'
 alias reload 'source ~/.config/fish/config.fish'
 alias home 'cd ~'
 
+# AI Aliases
+alias copilotx 'copilot --allow-all-tools --allow-all-paths'
+alias claudex 'claude --allow-dangerously-skip-permissions --dangerously-skip-permissions'
+
 # =============================================================================
 # Help Functions
 # =============================================================================
 
 function alias-help
     echo ""
-    echo "                       ⚡ Hyber Alias v1.1.0"
+    echo "                       ⚡ Hyber Alias v$HYBER_VERSION"
     echo "                Cross-platform shell alias manager"
     echo ""
     echo "  ────────────────────────────────────────────────────────────────"
@@ -51,6 +55,7 @@ function alias-help
     echo "      alias-git        Git commands (ga, gc, gs, gph...)"
     echo "      alias-k8s        Kubernetes (k, kgp, kgs, kl...)"
     echo "      alias-system     System (ll, la, cls, reload...)"
+    echo "      alias-ai         AI coding agents (copilotx, claudex)"
     echo ""
     echo "  ────────────────────────────────────────────────────────────────"
     echo ""
@@ -107,5 +112,15 @@ function alias-system
     echo "      cls            clear"
     echo "      reload         source config.fish"
     echo "      home           cd ~"
+    echo ""
+end
+
+function alias-ai
+    echo ""
+    echo "                        🤖 AI Aliases"
+    echo "  ────────────────────────────────────────────────────────────────"
+    echo ""
+    echo "      copilotx       copilot --allow-all-tools --allow-all-paths"
+    echo "      claudex        claude --allow-dangerously-skip-permissions"
     echo ""
 end

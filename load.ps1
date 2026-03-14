@@ -1,13 +1,13 @@
-# Hyber Alias Loader for PowerShell - v1.1.0
+# Hyber Alias Loader for PowerShell
 
 $AliasHome = "$env:USERPROFILE\.alias"
-$AliasVersion = "1.1.0"
 $Repo = "https://raw.githubusercontent.com/thinhngotony/alias/main"
 
 # Source environment
 if (Test-Path "$AliasHome\env.ps1") {
     . "$AliasHome\env.ps1"
 }
+$AliasVersion = if ($env:HYBER_VERSION) { $env:HYBER_VERSION } else { "latest" }
 
 # Self-update loader in background
 $selfUpdateJob = Start-Job -ScriptBlock {
@@ -72,7 +72,12 @@ function global:reload { . $PROFILE }
 function global:home { Set-Location ~ }
 function global:.. { Set-Location .. }
 function global:... { Set-Location ..\.. }
+# =============================================================================
+# AI Aliases
+# =============================================================================
 
+function global:copilotx { copilot --allow-all-tools --allow-all-paths $args }
+function global:claudex { claude --allow-dangerously-skip-permissions --dangerously-skip-permissions $args }
 # =============================================================================
 # Help Functions
 # =============================================================================
@@ -127,7 +132,15 @@ System Aliases
 ===============================================================================
 "@
 }
-
+function global:alias-ai {
+    Write-Host @"
+AI Aliases
+===============================================================================
+  copilotx     copilot --allow-all-tools      Full access Copilot agent
+  claudex      claude --dangerously-skip...   Full access Claude agent
+===============================================================================
+"@
+}
 # =============================================================================
 # Custom Category Management
 # =============================================================================
@@ -245,6 +258,7 @@ Available Categories (type alias-<category> for details):
   alias-git      Git commands (ga, gcm, gs, gph, gpl...)
   alias-k8s      Kubernetes commands (k, ka, kgp, kgs...)
   alias-system   System commands (ll, la, reload...)
+  alias-ai       AI coding agents (copilotx, claudex)
 
 Custom Alias Management:
 

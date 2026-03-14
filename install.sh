@@ -2,14 +2,20 @@
 set -e
 
 # =============================================================================
-# Hyber Alias Installer v1.1.0
+# Hyber Alias Installer
 # Cross-platform shell alias manager
 # https://github.com/thinhngotony/alias
 # =============================================================================
 
-VERSION="1.1.0"
 REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 ALIAS_HOME="$HOME/.alias"
+
+# Fetch latest version from GitHub releases
+VERSION=$(curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/latest" 2>/dev/null \
+    | grep '"tag_name"' | head -1 | sed 's/.*"tag_name" *: *"//;s/".*//' | sed 's/^v//')
+if [[ -z "$VERSION" ]]; then
+    VERSION="latest"
+fi
 
 # Colors
 RED='\033[0;31m'
@@ -87,6 +93,7 @@ chmod +x "$ALIAS_HOME/load.sh"
 curl -sfS "$REPO/aliases/git.sh" -o "$ALIAS_HOME/cache/git.sh" 2>/dev/null || true
 curl -sfS "$REPO/aliases/k8s.sh" -o "$ALIAS_HOME/cache/k8s.sh" 2>/dev/null || true
 curl -sfS "$REPO/aliases/system.sh" -o "$ALIAS_HOME/cache/system.sh" 2>/dev/null || true
+curl -sfS "$REPO/aliases/ai.sh" -o "$ALIAS_HOME/cache/ai.sh" 2>/dev/null || true
 echo -e "  ${CHECK} Downloaded aliases"
 
 # Configure shell

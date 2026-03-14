@@ -1,13 +1,13 @@
 #!/bin/bash
-# Hyber Alias Loader - v1.1.0
+# Hyber Alias Loader
 
 REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 ALIAS_HOME="${HOME}/.alias"
-export ALIAS_VERSION="1.1.0"
 
 # Source environment
 # shellcheck source=/dev/null
 [ -f "$ALIAS_HOME/env.sh" ] && source "$ALIAS_HOME/env.sh"
+export ALIAS_VERSION="${HYBER_VERSION:-latest}"
 
 # Self-update loader (runs in background, completely silent)
 _alias_self_update() {
@@ -58,6 +58,7 @@ _alias_download "git"
 _alias_download "k8s"
 _alias_download "system"
 _alias_download "secrets"
+_alias_download "ai"
 
 # Source user custom aliases (handle empty directory for zsh compatibility)
 if [ -d "$ALIAS_HOME/custom" ] && [ -n "$(ls -A "$ALIAS_HOME/custom" 2>/dev/null)" ]; then
@@ -201,7 +202,7 @@ alias-help() {
     local NC='\033[0m'
     
     echo ""
-    echo -e "                       ${BOLD}⚡ Hyber Alias${NC} ${DIM}v${ALIAS_VERSION:-1.1.0}${NC}"
+    echo -e "                       ${BOLD}⚡ Hyber Alias${NC} ${DIM}v${ALIAS_VERSION:-latest}${NC}"
     echo -e "                ${DIM}Cross-platform shell alias manager${NC}"
     echo ""
     echo -e "${DIM}  ────────────────────────────────────────────────────────────────${NC}"
@@ -212,6 +213,7 @@ alias-help() {
     echo -e "      ${CYAN}alias-k8s${NC}        ${DIM}Kubernetes (k, kgp, kgs, kl...)${NC}"
     echo -e "      ${CYAN}alias-system${NC}     ${DIM}System (ll, la, cls, reload...)${NC}"
     echo -e "      ${CYAN}alias-secrets${NC}    ${DIM}Secure token storage${NC}"
+    echo -e "      ${CYAN}alias-ai${NC}         ${DIM}AI coding agents (copilotx, claudex)${NC}"
     echo ""
     echo -e "${DIM}  ────────────────────────────────────────────────────────────────${NC}"
     echo ""

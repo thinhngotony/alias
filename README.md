@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/platforms-Linux%20%7C%20macOS%20%7C%20Windows-blue" alt="Platforms">
-  <img src="https://img.shields.io/badge/shells-Bash%20%7C%20Zsh%20%7C%20PowerShell-green" alt="Shells">
+  <img src="https://img.shields.io/badge/shells-Bash%20%7C%20Zsh%20%7C%20Fish%20%7C%20PowerShell-green" alt="Shells">
   <img src="https://img.shields.io/github/license/thinhngotony/alias" alt="License">
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs Welcome">
 </p>
@@ -20,10 +20,10 @@
 
 ## Quick Start
 
-**Linux / macOS**
+**Linux / macOS (Bash, Zsh, Fish, sh)**
 
-```bash
-bash <(curl -s https://alias.hyberorbit.com/install)
+```sh
+curl -sfS https://alias.hyberorbit.com/install | sh
 ```
 
 **Windows PowerShell**
@@ -35,17 +35,19 @@ iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 > Aliases are immediately available. No restart required.
 
 **Verify installation:**
+
 ```bash
 alias | grep -E "^g|^k"
 ```
+
 You should see aliases like `ga`, `gb`, `gs`, `k`, `kgp`, etc.
 
 <details>
 <summary><strong>Alternative URL (if the above doesn't work)</strong></summary>
 
-```bash
+```sh
 # Linux/macOS
-bash <(curl -s https://raw.githubusercontent.com/thinhngotony/alias/main/install.sh)
+curl -sfS https://raw.githubusercontent.com/thinhngotony/alias/main/install-universal.sh | sh
 
 # Windows PowerShell
 iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1 | iex
@@ -57,15 +59,15 @@ iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1 
 
 ## Why Hyber Alias?
 
-| Feature | Description |
-|---------|-------------|
-| **Zero Config** | Auto-detects OS, shell, and environment |
-| **Cross-Platform** | Linux, macOS, Windows, WSL, Docker, Kubernetes |
-| **Instant Setup** | Installs in under 5 seconds |
-| **Always Fresh** | Auto-updates on each shell start |
-| **Customizable** | Add your own aliases that persist across updates |
-| **Offline Ready** | Works without internet after first install |
-| **Discoverable** | Type `alias-` + TAB for category autocomplete |
+| Feature            | Description                                      |
+| ------------------ | ------------------------------------------------ |
+| **Zero Config**    | Auto-detects OS, shell, and environment          |
+| **Cross-Platform** | Linux, macOS, Windows, WSL, Docker, Kubernetes   |
+| **Instant Setup**  | Installs in under 5 seconds                      |
+| **Always Fresh**   | Auto-updates on each shell start                 |
+| **Customizable**   | Add your own aliases that persist across updates |
+| **Offline Ready**  | Works without internet after first install       |
+| **Discoverable**   | Type `alias-` + TAB for category autocomplete    |
 
 ---
 
@@ -78,6 +80,7 @@ alias-help      # Show all categories
 alias-git       # Git aliases
 alias-k8s       # Kubernetes aliases
 alias-system    # System aliases
+alias-ai        # AI coding agent aliases
 alias-add       # Add custom alias to category
 alias-remove    # Remove custom alias
 alias-list      # List custom categories
@@ -89,46 +92,53 @@ alias-list      # List custom categories
 
 ### Git
 
-| Alias | Command | Description |
-|:------|:--------|:------------|
-| `ga` | `git add .` | Stage all changes |
-| `gb` | `git branch` | List branches |
-| `gc <msg>` | `git commit -m <msg>` | Commit with message (use `gcm` on PowerShell) |
-| `gd` | `git diff` | Show unstaged changes |
-| `glog` | `git log --oneline -n 20` | Recent commits |
-| `gph <branch>` | `git push origin <branch>` | Push to remote |
-| `gpl <branch>` | `git pull origin <branch>` | Pull from remote |
-| `gs` | `git status` | Working tree status |
-| `gsw <branch>` | `git switch <branch>` | Switch branches |
-| `gauto` | Stage, commit "Backup", push | Quick backup |
+| Alias          | Command                      | Description                                   |
+| :------------- | :--------------------------- | :-------------------------------------------- |
+| `ga`           | `git add .`                  | Stage all changes                             |
+| `gb`           | `git branch`                 | List branches                                 |
+| `gc <msg>`     | `git commit -m <msg>`        | Commit with message (use `gcm` on PowerShell) |
+| `gd`           | `git diff`                   | Show unstaged changes                         |
+| `glog`         | `git log --oneline -n 20`    | Recent commits                                |
+| `gph <branch>` | `git push origin <branch>`   | Push to remote                                |
+| `gpl <branch>` | `git pull origin <branch>`   | Pull from remote                              |
+| `gs`           | `git status`                 | Working tree status                           |
+| `gsw <branch>` | `git switch <branch>`        | Switch branches                               |
+| `gauto`        | Stage, commit "Backup", push | Quick backup                                  |
 
 ### Kubernetes
 
-| Alias | Command | Description |
-|:------|:--------|:------------|
-| `k` | `kubectl` | Shorthand |
-| `ka <file>` | `kubectl apply -f <file>` | Apply manifest |
-| `kd` | `kubectl delete` | Delete resource |
-| `kdesc` | `kubectl describe` | Describe resource |
-| `ke` | `kubectl exec -it` | Exec into container |
-| `kg` | `kubectl get` | Get resources |
-| `kgp` | `kubectl get pods` | List pods |
-| `kgs` | `kubectl get services` | List services |
-| `kl` | `kubectl logs` | View logs |
-| `kctx` | `kubectl config current-context` | Current context |
-| `kns <ns>` | Set namespace | Switch namespace |
+| Alias       | Command                          | Description         |
+| :---------- | :------------------------------- | :------------------ |
+| `k`         | `kubectl`                        | Shorthand           |
+| `ka <file>` | `kubectl apply -f <file>`        | Apply manifest      |
+| `kd`        | `kubectl delete`                 | Delete resource     |
+| `kdesc`     | `kubectl describe`               | Describe resource   |
+| `ke`        | `kubectl exec -it`               | Exec into container |
+| `kg`        | `kubectl get`                    | Get resources       |
+| `kgp`       | `kubectl get pods`               | List pods           |
+| `kgs`       | `kubectl get services`           | List services       |
+| `kl`        | `kubectl logs`                   | View logs           |
+| `kctx`      | `kubectl config current-context` | Current context     |
+| `kns <ns>`  | Set namespace                    | Switch namespace    |
 
 ### System
 
-| Alias | Command | Description |
-|:------|:--------|:------------|
-| `ll` | `ls -lah` | Detailed list |
-| `la` | `ls -A` | List all |
-| `cls` | `clear` | Clear screen |
+| Alias    | Command             | Description     |
+| :------- | :------------------ | :-------------- |
+| `ll`     | `ls -lah`           | Detailed list   |
+| `la`     | `ls -A`             | List all        |
+| `cls`    | `clear`             | Clear screen    |
 | `reload` | Reload shell config | Refresh aliases |
-| `home` | `cd ~` | Go home |
-| `..` | `cd ..` | Up one level |
-| `...` | `cd ../..` | Up two levels |
+| `home`   | `cd ~`              | Go home         |
+| `..`     | `cd ..`             | Up one level    |
+| `...`    | `cd ../..`          | Up two levels   |
+
+### AI
+
+| Alias      | Command                                                                      | Description               |
+| :--------- | :--------------------------------------------------------------------------- | :------------------------ |
+| `copilotx` | `copilot --allow-all-tools --allow-all-paths`                                | Full access Copilot agent |
+| `claudex`  | `claude --allow-dangerously-skip-permissions --dangerously-skip-permissions` | Full access Claude agent  |
 
 ---
 
@@ -234,8 +244,8 @@ source ~/.alias/load.sh
 
 **Linux / macOS**
 
-```bash
-bash <(curl -s https://alias.hyberorbit.com/uninstall)
+```sh
+curl -sfS https://alias.hyberorbit.com/uninstall | sh
 ```
 
 **Windows PowerShell**
@@ -294,12 +304,14 @@ Or open a new terminal.
 <summary><strong>Clean reinstall</strong></summary>
 
 **Linux/macOS:**
-```bash
-bash <(curl -s https://alias.hyberorbit.com/uninstall)
-bash <(curl -s https://alias.hyberorbit.com/install)
+
+```sh
+curl -sfS https://alias.hyberorbit.com/uninstall | sh
+curl -sfS https://alias.hyberorbit.com/install | sh
 ```
 
 **Windows:**
+
 ```powershell
 iwr -useb https://alias.hyberorbit.com/uninstall.ps1 | iex
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
@@ -318,11 +330,11 @@ Some aliases (e.g., `gc`) override PowerShell built-ins. Use full command name i
 
 ## Requirements
 
-| Platform | Requirement |
-|----------|-------------|
-| Linux | Bash or Zsh, `curl` |
-| macOS | Bash or Zsh, `curl` |
-| Windows | PowerShell 5.1+ (built-in on Windows 10/11) |
+| Platform | Requirement                                 |
+| -------- | ------------------------------------------- |
+| Linux    | Bash, Zsh, or Fish, `curl`                  |
+| macOS    | Bash, Zsh, or Fish, `curl`                  |
+| Windows  | PowerShell 5.1+ (built-in on Windows 10/11) |
 
 ---
 
@@ -347,4 +359,3 @@ MIT License - see [LICENSE](LICENSE) for details.
 <p align="center">
   <sub>Built with care by <a href="https://hyberorbit.com">Hyber Orbit</a></sub>
 </p>
-

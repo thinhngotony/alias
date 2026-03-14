@@ -1,11 +1,17 @@
 #!/usr/bin/env fish
 # =============================================================================
-# Hyber Alias Installer v1.1.0 - Fish Shell
+# Hyber Alias Installer - Fish Shell
 # =============================================================================
 
-set VERSION "1.1.0"
 set REPO "https://raw.githubusercontent.com/thinhngotony/alias/main"
 set ALIAS_HOME "$HOME/.alias"
+
+# Fetch latest version from GitHub releases
+set VERSION (curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/latest" 2>/dev/null \
+    | grep '"tag_name"' | head -1 | sed 's/.*"tag_name" *: *"//;s/".*//' | sed 's/^v//')
+if test -z "$VERSION"
+    set VERSION "latest"
+end
 
 # Header
 echo ""

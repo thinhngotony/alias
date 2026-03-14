@@ -1,13 +1,19 @@
 #!/bin/sh
 # =============================================================================
-# Hyber Alias Universal Installer v1.1.0
+# Hyber Alias Universal Installer
 # Auto-detects shell and installs appropriate aliases
 # Works from any shell: bash, zsh, fish, sh
 # =============================================================================
 
-VERSION="1.1.0"
 REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 ALIAS_HOME="$HOME/.alias"
+
+# Fetch latest version from GitHub releases
+VERSION=$(curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/latest" 2>/dev/null \
+    | grep '"tag_name"' | head -1 | sed 's/.*"tag_name" *: *"//;s/".*//' | sed 's/^v//')
+if [ -z "$VERSION" ]; then
+    VERSION="latest"
+fi
 
 # Colors (POSIX compatible)
 RED='\033[0;31m'
@@ -84,6 +90,7 @@ case "$USER_SHELL" in
         curl -sfS "$REPO/aliases/k8s.sh" -o "$ALIAS_HOME/cache/k8s.sh" 2>/dev/null || true
         curl -sfS "$REPO/aliases/system.sh" -o "$ALIAS_HOME/cache/system.sh" 2>/dev/null || true
         curl -sfS "$REPO/aliases/secrets.sh" -o "$ALIAS_HOME/cache/secrets.sh" 2>/dev/null || true
+        curl -sfS "$REPO/aliases/ai.sh" -o "$ALIAS_HOME/cache/ai.sh" 2>/dev/null || true
         printf "      ${GREEN}✓${NC} Downloaded aliases\n"
         
         # Determine shell RC file

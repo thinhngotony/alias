@@ -42,16 +42,19 @@ We take security seriously. If you discover a security vulnerability, please rep
 ### For Users
 
 1. **Verify the source**: Only install from official sources:
-   ```bash
-   bash <(curl -s https://alias.hyberorbit.com/install)
+
+   ```sh
+   curl -sfS https://alias.hyberorbit.com/install | sh
    ```
 
 2. **Review before running**: You can inspect the install script:
+
    ```bash
    curl -s https://alias.hyberorbit.com/install | less
    ```
 
 3. **Check file integrity**: After installation, verify files:
+
    ```bash
    ls -la ~/.alias/
    cat ~/.alias/load.sh
@@ -72,6 +75,7 @@ We take security seriously. If you discover a security vulnerability, please rep
 ### Script Execution
 
 This project uses `curl | bash` pattern for installation. While convenient, users should:
+
 - Verify they trust the source
 - Optionally download and review before running
 - Use HTTPS URLs only
@@ -85,6 +89,7 @@ This project uses `curl | bash` pattern for installation. While convenient, user
 ## Security Updates
 
 Security updates will be:
+
 - Released as patch versions (e.g., 1.0.1)
 - Announced in release notes
 - Tagged with `[SECURITY]` in CHANGELOG.md

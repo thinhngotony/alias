@@ -1,12 +1,18 @@
 # =============================================================================
-# Hyber Alias Installer v1.1.0
+# Hyber Alias Installer
 # Cross-platform shell alias manager
 # https://github.com/thinhngotony/alias
 # =============================================================================
 
 $ErrorActionPreference = "Stop"
 
-$Version = "1.1.0"
+# Fetch latest version from GitHub releases
+try {
+    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/thinhngotony/alias/releases/latest" -TimeoutSec 5
+    $Version = $release.tag_name -replace '^v', ''
+} catch {
+    $Version = "latest"
+}
 $Repo = "https://raw.githubusercontent.com/thinhngotony/alias/main"
 $AliasHome = "$env:USERPROFILE\.alias"
 
