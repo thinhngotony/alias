@@ -36,30 +36,39 @@ detect_os() {
     esac
 }
 
-# Detect the user's ACTIVE shell (not just $SHELL login shell)
-# This handles cases like Codespaces where fish is the interactive shell
-# but $SHELL is still /bin/bash
+# Detect the user's ACTIVE shell by walking the process tree.
+# When run via 'curl | sh', PPID may point to a pipe or subshell,
+# so we walk up the ancestor chain to find the first real shell.
 detect_active_shell() {
-    # 1. Check shell-specific version variables (most reliable when set)
-    #    These are only set when that shell is actually running.
-    #    Since we run via 'curl | sh', these won't be set in our process,
-    #    so we check the parent process instead.
+    _pid=$PPID
+    _depth=0
+    while [ "$_pid" -gt 1 ] && [ "$_depth" -lt 10 ]; do
+        _comm=""
+        if [ -f "/proc/$_pid/comm" ]; then
+            _comm=$(cat "/proc/$_pid/comm" 2>/dev/null)
+        elif command -v ps >/dev/null 2>&1; then
+            _comm=$(ps -p "$_pid" -o comm= 2>/dev/null)
+        fi
 
-    # 2. Check parent process name (the shell that invoked 'curl | sh')
-    _parent_shell=""
-    if [ -f "/proc/$PPID/comm" ]; then
-        _parent_shell=$(cat "/proc/$PPID/comm" 2>/dev/null)
-    elif command -v ps >/dev/null 2>&1; then
-        _parent_shell=$(ps -p "$PPID" -o comm= 2>/dev/null)
-    fi
+        case "$_comm" in
+            fish) echo "fish"; return ;;
+            zsh)  echo "zsh";  return ;;
+            bash) echo "bash"; return ;;
+        esac
 
-    case "$_parent_shell" in
-        fish) echo "fish"; return ;;
-        zsh)  echo "zsh";  return ;;
-        bash) echo "bash"; return ;;
-    esac
+        # Move to parent: read PPID from /proc/PID/stat (field 4)
+        if [ -f "/proc/$_pid/stat" ]; then
+            _pid=$(awk '{print $4}' "/proc/$_pid/stat" 2>/dev/null || echo 1)
+        elif command -v ps >/dev/null 2>&1; then
+            _pid=$(ps -p "$_pid" -o ppid= 2>/dev/null | tr -d ' ')
+            [ -z "$_pid" ] && _pid=1
+        else
+            break
+        fi
+        _depth=$((_depth + 1))
+    done
 
-    # 3. Fall back to $SHELL (login shell)
+    # Fallback: $SHELL (login shell)
     _shell_name=$(basename "$SHELL")
     case "$_shell_name" in
         zsh)  echo "zsh" ;;
@@ -235,17 +244,36 @@ printf "\n"
 printf "  %bActivate aliases%b\n" "$BOLD" "$NC"
 printf "\n"
 
-# Print activation command for the user's active shell
-case "$USER_SHELL" in
-    fish)
-        printf "      Run: %bsource ~/.config/fish/conf.d/hyper-alias.fish%b\n" "$CYAN" "$NC"
-        ;;
-    zsh)
-        printf "      Run: %bsource ~/.zshrc%b\n" "$CYAN" "$NC"
-        ;;
-    *)
-        printf "      Run: %bsource ~/.bashrc%b\n" "$CYAN" "$NC"
-        ;;
-esac
+# Print activation for ALL configured shells so the user always sees the right one
+_printed=0
+if [ "$HAS_FISH" = true ]; then
+    if [ "$USER_SHELL" = "fish" ]; then
+        printf "      Run: %bsource ~/.config/fish/conf.d/hyper-alias.fish%b  %b← your shell%b\n" "$CYAN" "$NC" "$GREEN" "$NC"
+    else
+        printf "      fish:  %bsource ~/.config/fish/conf.d/hyper-alias.fish%b\n" "$DIM" "$NC"
+    fi
+    _printed=1
+fi
+if [ "$HAS_BASH" = true ] && [ -f "$HOME/.bashrc" ]; then
+    if [ "$USER_SHELL" = "bash" ]; then
+        printf "      Run: %bsource ~/.bashrc%b  %b← your shell%b\n" "$CYAN" "$NC" "$GREEN" "$NC"
+    else
+        printf "      bash:  %bsource ~/.bashrc%b\n" "$DIM" "$NC"
+    fi
+    _printed=1
+fi
+if [ "$HAS_ZSH" = true ] && [ -f "$HOME/.zshrc" ]; then
+    if [ "$USER_SHELL" = "zsh" ]; then
+        printf "      Run: %bsource ~/.zshrc%b  %b← your shell%b\n" "$CYAN" "$NC" "$GREEN" "$NC"
+    else
+        printf "      zsh:   %bsource ~/.zshrc%b\n" "$DIM" "$NC"
+    fi
+    _printed=1
+fi
+if [ "$_printed" -eq 0 ]; then
+    printf "      Run: %bsource ~/.bashrc%b\n" "$CYAN" "$NC"
+fi
+
+printf "\n"
 printf "      Or open a new terminal.\n"
 printf "\n"

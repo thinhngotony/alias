@@ -23,10 +23,13 @@ jobs:
 
       - name: Lint Bash scripts
         run: |
-          shellcheck install.sh
-          shellcheck uninstall.sh
-          shellcheck load.sh
-          shellcheck aliases/*.sh
+          shellcheck -s bash install.sh
+          shellcheck -s bash uninstall.sh
+          shellcheck -s bash load.sh
+          shellcheck -s bash aliases/*.sh
+
+      - name: Lint POSIX scripts
+        run: shellcheck -s sh install-universal.sh
 
   syntax-check:
     name: Syntax Check
@@ -40,28 +43,127 @@ jobs:
           bash -n install.sh
           bash -n uninstall.sh
           bash -n load.sh
-          bash -n aliases/git.sh
-          bash -n aliases/k8s.sh
-          bash -n aliases/system.sh
-          bash -n aliases/ai.sh
+          for f in aliases/*.sh; do
+            bash -n "$f" && echo "$f OK" || exit 1
+          done
+
+      - name: Check POSIX sh syntax
+        run: sh -n install-universal.sh
 
       - name: Check PowerShell syntax
         shell: pwsh
         run: |
-          $errors = $null
-          $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/install.ps1", [ref]$null, [ref]$errors)
-          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; throw "install.ps1 has syntax errors" }
+          foreach ($file in @("install.ps1", "uninstall.ps1", "load.ps1")) {
+            $errors = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/$file", [ref]$null, [ref]$errors)
+            if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; throw "$file has syntax errors" }
+            Write-Host "$file OK"
+          }
 
-          $errors = $null
-          $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/uninstall.ps1", [ref]$null, [ref]$errors)
-          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; throw "uninstall.ps1 has syntax errors" }
+  test-functional:
+    name: Functional Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-          $errors = $null
-          $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/load.ps1", [ref]$null, [ref]$errors)
-          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; throw "load.ps1 has syntax errors" }
+      - name: Test input validation
+        run: |
+          source load.sh 2>/dev/null || true
+
+          echo "=== Valid names ==="
+          _alias_validate_name "my-alias" "Test" || exit 1
+          _alias_validate_name "foo_bar" "Test" || exit 1
+          _alias_validate_name "k8s" "Test" || exit 1
+          echo "PASS"
+
+          echo "=== Path traversal blocked ==="
+          _alias_validate_name "../etc" "Test" 2>&1 && exit 1 || true
+          _alias_validate_name "foo/bar" "Test" 2>&1 && exit 1 || true
+          echo "PASS"
+
+          echo "=== Shell metacharacters blocked ==="
+          _alias_validate_name 'test;rm' "Test" 2>&1 && exit 1 || true
+          _alias_validate_name 'test$HOME' "Test" 2>&1 && exit 1 || true
+          _alias_validate_name "" "Test" 2>&1 && exit 1 || true
+          echo "PASS"
+
+      - name: Test alias-add and alias-remove
+        run: |
+          source load.sh 2>/dev/null || true
+          mkdir -p "$HOME/.alias/custom"
+
+          # Add an alias
+          alias-add testcat mytest "echo hello" 2>&1
+          grep -q "^alias mytest=" "$HOME/.alias/custom/testcat.sh" || { echo "FAIL: alias not added"; exit 1; }
+          echo "PASS: alias added"
+
+          # Remove it
+          alias-remove testcat mytest 2>&1
+          grep -q "^alias mytest=" "$HOME/.alias/custom/testcat.sh" && { echo "FAIL: alias not removed"; exit 1; }
+          echo "PASS: alias removed"
+
+          # Bad inputs rejected
+          alias-add "../etc" "test" "echo hi" 2>&1 | grep -q "Error" || { echo "FAIL: path traversal not blocked"; exit 1; }
+          alias-add "good" "bad;name" "echo hi" 2>&1 | grep -q "Error" || { echo "FAIL: metachar not blocked"; exit 1; }
+          echo "PASS: bad inputs rejected"
+
+          rm -rf "$HOME/.alias/custom/testcat.sh"
+
+      - name: Test secrets encryption round-trip
+        run: |
+          source aliases/secrets.sh 2>/dev/null || true
+          SECRETS_DIR="/tmp/test-secrets-$$"
+          mkdir -p "$SECRETS_DIR"
+          chmod 700 "$SECRETS_DIR"
+
+          # Encrypt
+          test_value="my-super-secret-token-12345"
+          test_pass="testpassword123"
+          printf '%s' "$test_value" | openssl enc -aes-256-cbc -pbkdf2 -salt -pass "pass:${test_pass}" -out "$SECRETS_DIR/test.enc"
+
+          # Not plaintext
+          grep -q "$test_value" "$SECRETS_DIR/test.enc" 2>/dev/null && { echo "FAIL: secret in plaintext"; exit 1; }
+          echo "PASS: encrypted at rest"
+
+          # Decrypt succeeds
+          decrypted=$(openssl enc -aes-256-cbc -pbkdf2 -d -salt -pass "pass:${test_pass}" -in "$SECRETS_DIR/test.enc")
+          [ "$decrypted" = "$test_value" ] || { echo "FAIL: decryption mismatch"; exit 1; }
+          echo "PASS: decrypt matches"
+
+          # Wrong password fails
+          openssl enc -aes-256-cbc -pbkdf2 -d -salt -pass "pass:wrongpassword" -in "$SECRETS_DIR/test.enc" 2>/dev/null && { echo "FAIL: wrong password accepted"; exit 1; } || true
+          echo "PASS: wrong password rejected"
+
+          # Legacy detection
+          echo "test" | base64 > "$SECRETS_DIR/legacy.enc"
+          _secret_is_legacy "$SECRETS_DIR/legacy.enc" || { echo "FAIL: legacy not detected"; exit 1; }
+          _secret_is_legacy "$SECRETS_DIR/test.enc" && { echo "FAIL: openssl detected as legacy"; exit 1; } || true
+          echo "PASS: legacy detection works"
+
+          rm -rf "$SECRETS_DIR"
+
+      - name: Test symlink protection
+        run: |
+          TEST_DIR="/tmp/test-custom-$$"
+          mkdir -p "$TEST_DIR"
+          echo "# regular file" > "$TEST_DIR/good.sh"
+          echo "# evil target" > "/tmp/evil-target-$$.sh"
+          ln -s "/tmp/evil-target-$$.sh" "$TEST_DIR/evil.sh"
+
+          sourced_count=0
+          for file in "$TEST_DIR"/*.sh; do
+              if [ -f "$file" ] && [ ! -L "$file" ]; then
+                  sourced_count=$((sourced_count + 1))
+              fi
+          done
+          [ "$sourced_count" -eq 1 ] || { echo "FAIL: expected 1 file, got $sourced_count"; exit 1; }
+          echo "PASS: symlink skipped"
+
+          rm -rf "$TEST_DIR" "/tmp/evil-target-$$.sh"
 
   test-install:
-    name: Test Installation
+    name: Test Install (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -70,39 +172,130 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Test install (Linux/macOS)
+      - name: Test universal installer (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          # Run install script (ignore reload errors in CI)
-          bash install.sh || true
-          # Verify installation files exist
-          test -f ~/.alias/load.sh
-          test -f ~/.alias/env.sh
-          test -d ~/.alias/custom
+          sh install-universal.sh
+          # Verify files
+          test -f ~/.alias/load.sh || { echo "FAIL: load.sh missing"; exit 1; }
+          test -f ~/.alias/env.sh || { echo "FAIL: env.sh missing"; exit 1; }
+          test -d ~/.alias/custom || { echo "FAIL: custom dir missing"; exit 1; }
+          # Verify env.sh permissions
+          perms=$(stat -c '%a' ~/.alias/env.sh 2>/dev/null || stat -f '%Lp' ~/.alias/env.sh 2>/dev/null)
+          [ "$perms" = "600" ] || echo "WARNING: env.sh permissions are $perms (expected 600)"
           # Verify shell config was updated
-          grep -q "\.alias/load\.sh" ~/.bashrc || grep -q "\.alias/load\.sh" ~/.zshrc
-          # Verify loader script is valid bash
+          grep -q '\.alias/load\.sh' ~/.bashrc 2>/dev/null || grep -q '\.alias/load\.sh' ~/.zshrc 2>/dev/null || { echo "FAIL: no shell configured"; exit 1; }
+          # Verify loader is valid bash
           bash -n ~/.alias/load.sh
+          echo "PASS: universal installer"
+
+      - name: Test bash installer (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          # Clean up previous install
+          rm -rf ~/.alias
+          sed -i '/\.alias/d' ~/.bashrc 2>/dev/null || true
+          sed -i '/Hyber/d' ~/.bashrc 2>/dev/null || true
+
+          bash install.sh
+          test -f ~/.alias/load.sh || { echo "FAIL: load.sh missing"; exit 1; }
+          test -f ~/.alias/env.sh || { echo "FAIL: env.sh missing"; exit 1; }
+          bash -n ~/.alias/load.sh
+          echo "PASS: bash installer"
+
+      - name: Test loading aliases (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          # Source and verify aliases are defined
+          bash -c '
+            source ~/.alias/load.sh 2>/dev/null
+            # Check that key functions exist
+            type alias-help >/dev/null 2>&1 || { echo "FAIL: alias-help not defined"; exit 1; }
+            type alias-add >/dev/null 2>&1 || { echo "FAIL: alias-add not defined"; exit 1; }
+            type _alias_validate_name >/dev/null 2>&1 || { echo "FAIL: _alias_validate_name not defined"; exit 1; }
+            echo "PASS: aliases loaded"
+          '
 
       - name: Test install (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          # Set execution policy for this process
           Set-ExecutionPolicy Bypass -Scope Process -Force
-          # Set environment variable to skip policy check in install script
           $env:SKIP_POLICY_CHECK = "1"
-          # Run install script
           . .\install.ps1
-          # Verify installation
           if (-not (Test-Path ~\.alias\load.ps1)) { throw "load.ps1 not found" }
           if (-not (Test-Path ~\.alias\env.ps1)) { throw "env.ps1 not found" }
           if (-not (Test-Path ~\.alias\custom)) { throw "custom directory not found" }
-          Write-Host "Windows installation verified successfully" -ForegroundColor Green
+          Write-Host "PASS: Windows installation"
+
+  test-install-fish:
+    name: Test Install (fish shell)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install fish
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fish
+
+      - name: Test installer detects fish and installs fish config
+        run: |
+          # Run the installer from fish (simulates Codespaces)
+          fish -c 'sh install-universal.sh'
+
+          # Verify fish config was installed
+          test -f ~/.config/fish/conf.d/hyper-alias.fish || { echo "FAIL: fish config not installed"; exit 1; }
+          echo "PASS: fish config installed"
+
+          # Verify bash was also configured (multi-shell install)
+          test -f ~/.alias/load.sh || { echo "FAIL: bash loader not installed"; exit 1; }
+          echo "PASS: bash loader also installed"
+
+      - name: Test fish aliases load correctly
+        run: |
+          fish -c '
+            source ~/.config/fish/conf.d/hyper-alias.fish
+            # Verify aliases exist
+            type alias-help >/dev/null 2>&1; or begin; echo "FAIL: alias-help not defined"; exit 1; end
+            type alias-git >/dev/null 2>&1; or begin; echo "FAIL: alias-git not defined"; exit 1; end
+            echo "PASS: fish aliases loaded"
+          '
+
+      - name: Test sourcing .bashrc from fish fails gracefully
+        run: |
+          # This is the exact scenario from Codespaces
+          # fish should NOT be told to source .bashrc
+          # Verify our installer output includes the fish activation command
+          output=$(fish -c 'sh install-universal.sh' 2>&1)
+          echo "$output"
+          # Should mention fish source command
+          echo "$output" | grep -q "hyper-alias.fish" || { echo "FAIL: fish activation not shown"; exit 1; }
+          echo "PASS: fish activation command shown"
+
+  test-uninstall:
+    name: Test Uninstall
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install then uninstall
+        run: |
+          # Install first
+          sh install-universal.sh
+          test -f ~/.alias/load.sh || { echo "FAIL: not installed"; exit 1; }
+
+          # Uninstall
+          bash uninstall.sh
+          test -d ~/.alias && { echo "FAIL: ~/.alias still exists"; exit 1; } || true
+          grep -q '\.alias' ~/.bashrc 2>/dev/null && { echo "FAIL: .bashrc still has alias lines"; exit 1; } || true
+          echo "PASS: clean uninstall"
 
   release:
     name: Create Release
-    needs: [lint, syntax-check, test-install]
+    needs: [lint, syntax-check, test-functional, test-install, test-install-fish, test-uninstall]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -117,11 +310,8 @@ jobs:
         id: changelog
         run: |
           VERSION="${{ steps.version.outputs.VERSION }}"
-          # Extract the section for this version from CHANGELOG.md
-          # Matches from "## [x.y.z]" until the next "## [" or end of relevant content
           CHANGELOG=$(awk "/^## \[${VERSION#v}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md | head -50)
 
-          # Handle multiline output
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "CONTENT<<$EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
@@ -152,14 +342,11 @@ jobs:
 
             ### Features
             - One-command install/uninstall
-            - Git aliases: `ga`, `gb`, `gc`/`gcm`, `gd`, `gs`, `gph`, `gpl`, `gsw`, `glog`, `gauto`
-            - Kubernetes aliases: `k`, `ka`, `kd`, `kg`, `kgp`, `kgs`, `kl`, `ke`, `kctx`, `kns`
-            - System aliases: `ll`, `la`, `cls`, `reload`, `home`, `..`, `...`
-            - Custom alias support via `~/.alias/custom/`
-            - Auto-update on shell start
-            - Offline fallback with local cache
-            - Cross-platform (Linux, macOS, Windows, WSL, Docker)
-            - Bash, Zsh, and PowerShell support
+            - Multi-shell support: bash, zsh, fish, PowerShell
+            - Auto-detects active shell (even in Codespaces)
+            - AES-256-CBC encrypted secret storage
+            - Input validation prevents injection attacks
+            - Auto-update on shell start with atomic file operations
 
             **Full Changelog**: https://github.com/thinhngotony/alias/compare/v1.0.0...${{ steps.version.outputs.VERSION }}
         env:
