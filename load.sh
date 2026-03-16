@@ -97,14 +97,16 @@ _alias_download "ai"
 # Source user custom aliases
 # Only source regular .sh files (no symlinks, no directories)
 # =============================================================================
-if [ -d "$ALIAS_HOME/custom" ] && [ -n "$(ls -A "$ALIAS_HOME/custom" 2>/dev/null)" ]; then
-    for file in "$ALIAS_HOME/custom"/*.sh; do
-        # Only source regular files (not symlinks), must end in .sh
+if [ -d "$ALIAS_HOME/custom" ]; then
+    # Use find instead of glob to avoid zsh "no matches found" error
+    # when the directory exists but contains no .sh files
+    while IFS= read -r -d '' file; do
+        # Only source regular files (not symlinks)
         if [ -f "$file" ] && [ ! -L "$file" ]; then
             # shellcheck source=/dev/null
             source "$file" 2>/dev/null
         fi
-    done
+    done < <(find "$ALIAS_HOME/custom" -maxdepth 1 -name '*.sh' -print0 2>/dev/null)
 fi
 
 # =============================================================================
@@ -272,17 +274,20 @@ alias-remove() {
 alias-list() {
     echo "Custom Categories:"
     echo "==============================================================================="
-    if [ -d "$ALIAS_HOME/custom" ] && [ -n "$(ls -A "$ALIAS_HOME/custom" 2>/dev/null)" ]; then
-        for file in "$ALIAS_HOME/custom"/*.sh; do
+    local _found=0
+    if [ -d "$ALIAS_HOME/custom" ]; then
+        while IFS= read -r -d '' file; do
             if [ -f "$file" ] && [ ! -L "$file" ]; then
                 local cat_name
                 cat_name=$(basename "$file" .sh)
                 local count
                 count=$(grep -c "^alias " "$file" 2>/dev/null || echo 0)
                 printf "  alias-%-10s %d alias(es)\n" "$cat_name" "$count"
+                _found=1
             fi
-        done
-    else
+        done < <(find "$ALIAS_HOME/custom" -maxdepth 1 -name '*.sh' -print0 2>/dev/null)
+    fi
+    if [ "$_found" -eq 0 ]; then
         echo "  No custom categories. Create one with: alias-add <category> <name> <cmd>"
     fi
     echo "==============================================================================="
