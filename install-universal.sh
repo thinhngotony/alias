@@ -7,6 +7,8 @@
 
 REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 ALIAS_HOME="$HOME/.alias"
+# Cache-buster to bypass GitHub/CDN caching
+_CB="?$(date +%s)"
 
 # Fetch latest version from GitHub releases
 VERSION=$(curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/latest" 2>/dev/null \
@@ -109,7 +111,7 @@ safe_download() {
         return 1
     }
 
-    if curl -sfS "$_sd_url" -o "$_sd_tmp" 2>/dev/null && [ -s "$_sd_tmp" ]; then
+    if curl -sfS "${_sd_url}${_CB}" -o "$_sd_tmp" 2>/dev/null && [ -s "$_sd_tmp" ]; then
         mv "$_sd_tmp" "$_sd_dest" 2>/dev/null
         return 0
     else

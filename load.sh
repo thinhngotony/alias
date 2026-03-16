@@ -43,7 +43,8 @@ _alias_self_update() {
         # Use mktemp for unpredictable temp file
         loader_tmp=$(mktemp "$ALIAS_HOME/load.sh.XXXXXX") || { rmdir "$LOCK_DIR" 2>/dev/null; exit 1; }
 
-        if curl -s --connect-timeout 3 --max-time 5 "$REPO/load.sh" -o "$loader_tmp" 2>/dev/null && [ -s "$loader_tmp" ]; then
+        _cb="?$(date +%s)"
+        if curl -s --connect-timeout 3 --max-time 5 "$REPO/load.sh${_cb}" -o "$loader_tmp" 2>/dev/null && [ -s "$loader_tmp" ]; then
             if ! cmp -s "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null; then
                 chmod +x "$loader_tmp" 2>/dev/null
                 mv "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null
@@ -75,7 +76,9 @@ _alias_download() {
     local tmp
     tmp=$(mktemp "$ALIAS_HOME/cache/${name}.sh.XXXXXX") || return 1
 
-    if curl -s --connect-timeout 5 --max-time 5 "$url" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+    local cb
+    cb="?$(date +%s)"
+    if curl -s --connect-timeout 5 --max-time 5 "${url}${cb}" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
         mv "$tmp" "$cache" 2>/dev/null || rm -f "$tmp" 2>/dev/null
     else
         rm -f "$tmp" 2>/dev/null
