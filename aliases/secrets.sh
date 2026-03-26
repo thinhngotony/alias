@@ -61,13 +61,15 @@ alias-secret-add() {
     # Prompt for encryption password
     local password password_confirm
     echo ""
-    read -r -s -p "  🔐 Enter encryption password: " password
+    printf "  🔐 Enter encryption password: "
+    read -r -s password
     echo ""
     if [ -z "$password" ]; then
         echo -e "  \033[0;31m✗\033[0m Password cannot be empty\n"
         return 1
     fi
-    read -r -s -p "  🔐 Confirm password: " password_confirm
+    printf "  🔐 Confirm password: "
+    read -r -s password_confirm
     echo ""
 
     if [ "$password" != "$password_confirm" ]; then
@@ -123,7 +125,8 @@ alias-secret-get() {
     # Prompt for decryption password
     echo ""
     local password
-    read -r -s -p "  🔐 Enter decryption password: " password
+    printf "  🔐 Enter decryption password: "
+    read -r -s password
     echo ""
 
     if [ -z "$password" ]; then
