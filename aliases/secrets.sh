@@ -237,7 +237,6 @@ alias-secret() {
 alias-secrets() {
     local BOLD='\033[1m'
     local DIM='\033[2m'
-    local CYAN='\033[0;36m'
     local MAGENTA='\033[0;35m'
     local NC='\033[0m'
 
