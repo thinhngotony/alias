@@ -5,10 +5,7 @@
 # Works from any shell: bash, zsh, fish, sh
 # =============================================================================
 
-REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 ALIAS_HOME="$HOME/.alias"
-# Cache-buster to bypass GitHub/CDN caching
-_CB="?$(date +%s)"
 
 # Fetch latest version from GitHub releases
 VERSION=$(curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/latest" 2>/dev/null \
@@ -17,6 +14,14 @@ VERSION=$(curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/la
 # Validate version is semver-like (digits and dots only)
 if ! printf '%s' "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+'; then
     VERSION="latest"
+fi
+
+# Use tag-based URL for immutable CDN content (no stale cache issues)
+# Fall back to main branch if version detection failed
+if [ "$VERSION" != "latest" ]; then
+    REPO="https://raw.githubusercontent.com/thinhngotony/alias/v${VERSION}"
+else
+    REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 fi
 
 # Colors (POSIX compatible)
@@ -111,7 +116,7 @@ safe_download() {
         return 1
     }
 
-    if curl -sfS "${_sd_url}${_CB}" -o "$_sd_tmp" 2>/dev/null && [ -s "$_sd_tmp" ]; then
+    if curl -sfS "${_sd_url}" -o "$_sd_tmp" 2>/dev/null && [ -s "$_sd_tmp" ]; then
         mv "$_sd_tmp" "$_sd_dest" 2>/dev/null
         return 0
     else

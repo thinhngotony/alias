@@ -7,10 +7,7 @@ set -e
 # https://github.com/thinhngotony/alias
 # =============================================================================
 
-REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 ALIAS_HOME="$HOME/.alias"
-# Cache-buster to bypass GitHub/CDN caching
-_CB="?$(date +%s)"
 
 # Fetch latest version from GitHub releases
 VERSION=$(curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/latest" 2>/dev/null \
@@ -19,6 +16,14 @@ VERSION=$(curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/la
 # Validate version is semver-like (digits and dots only)
 if ! printf '%s' "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+'; then
     VERSION="latest"
+fi
+
+# Use tag-based URL for immutable CDN content (no stale cache issues)
+# Fall back to main branch if version detection failed
+if [ "$VERSION" != "latest" ]; then
+    REPO="https://raw.githubusercontent.com/thinhngotony/alias/v${VERSION}"
+else
+    REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 fi
 
 # Colors
@@ -140,7 +145,7 @@ _safe_download() {
         return 1
     }
 
-    if curl -sfS "${url}${_CB}" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+    if curl -sfS "${url}" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
         mv "$tmp" "$dest" 2>/dev/null
         return 0
     else

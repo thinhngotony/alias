@@ -1,13 +1,19 @@
 #!/bin/bash
 # Hyber Alias Loader
 
-REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
 ALIAS_HOME="${HOME}/.alias"
 
 # Source environment
 # shellcheck source=/dev/null
 [ -f "$ALIAS_HOME/env.sh" ] && source "$ALIAS_HOME/env.sh"
 export ALIAS_VERSION="${HYBER_VERSION:-latest}"
+
+# Use tag-based URL for immutable CDN content, fall back to main
+if [ "$ALIAS_VERSION" != "latest" ]; then
+    REPO="https://raw.githubusercontent.com/thinhngotony/alias/v${ALIAS_VERSION}"
+else
+    REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
+fi
 
 # =============================================================================
 # Self-update loader (runs in background, completely silent)
@@ -17,8 +23,9 @@ _alias_self_update() {
     # Use nohup with full redirection to avoid any job control messages
     # shellcheck disable=SC2016
     (nohup sh -c '
-        REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
         ALIAS_HOME="$HOME/.alias"
+        # Always check main branch for latest loader
+        REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
         LOCK_DIR="$ALIAS_HOME/.update.lock"
 
         # Atomic lock using mkdir (POSIX-safe)
@@ -43,8 +50,7 @@ _alias_self_update() {
         # Use mktemp for unpredictable temp file
         loader_tmp=$(mktemp "$ALIAS_HOME/load.sh.XXXXXX") || { rmdir "$LOCK_DIR" 2>/dev/null; exit 1; }
 
-        _cb="?$(date +%s)"
-        if curl -s --connect-timeout 3 --max-time 5 "$REPO/load.sh${_cb}" -o "$loader_tmp" 2>/dev/null && [ -s "$loader_tmp" ]; then
+        if curl -s --connect-timeout 3 --max-time 5 "$REPO/load.sh" -o "$loader_tmp" 2>/dev/null && [ -s "$loader_tmp" ]; then
             if ! cmp -s "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null; then
                 chmod +x "$loader_tmp" 2>/dev/null
                 mv "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null
@@ -76,9 +82,7 @@ _alias_download() {
     local tmp
     tmp=$(mktemp "$ALIAS_HOME/cache/${name}.sh.XXXXXX") || return 1
 
-    local cb
-    cb="?$(date +%s)"
-    if curl -s --connect-timeout 5 --max-time 5 "${url}${cb}" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+    if curl -s --connect-timeout 5 --max-time 5 "${url}" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
         mv "$tmp" "$cache" 2>/dev/null || rm -f "$tmp" 2>/dev/null
     else
         rm -f "$tmp" 2>/dev/null

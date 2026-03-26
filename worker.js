@@ -3,45 +3,44 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    // Fetch latest version tag from GitHub API
+    let version = "latest";
+    try {
+      const release = await fetch(
+        "https://api.github.com/repos/thinhngotony/alias/releases/latest",
+        {
+          headers: { "User-Agent": "hyber-alias-worker" },
+          cf: { cacheTtl: 60 },
+        },
+      );
+      if (release.ok) {
+        const data = await release.json();
+        version = data.tag_name || "latest";
+      }
+    } catch {
+      // fall through with 'latest'
+    }
+
+    // Use tag-based URL for immutable CDN content (no stale cache)
+    // Fall back to main branch if version detection failed
+    const ref = version !== "latest" ? version : "main";
+    const base = `https://raw.githubusercontent.com/thinhngotony/alias/${ref}`;
+
     const routes = {
-      "/install":
-        "https://raw.githubusercontent.com/thinhngotony/alias/main/install-universal.sh",
-      "/install.sh":
-        "https://raw.githubusercontent.com/thinhngotony/alias/main/install.sh",
-      "/install.ps1":
-        "https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1",
-      "/install.fish":
-        "https://raw.githubusercontent.com/thinhngotony/alias/main/install.fish",
-      "/uninstall":
-        "https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.sh",
-      "/uninstall.ps1":
-        "https://raw.githubusercontent.com/thinhngotony/alias/main/uninstall.ps1",
-      "/load.sh":
-        "https://raw.githubusercontent.com/thinhngotony/alias/main/load.sh",
-      "/load.ps1":
-        "https://raw.githubusercontent.com/thinhngotony/alias/main/load.ps1",
+      "/install": `${base}/install-universal.sh`,
+      "/install.sh": `${base}/install.sh`,
+      "/install.ps1": `${base}/install.ps1`,
+      "/install.fish": `${base}/install.fish`,
+      "/uninstall": `${base}/uninstall.sh`,
+      "/uninstall.ps1": `${base}/uninstall.ps1`,
+      "/load.sh": `${base}/load.sh`,
+      "/load.ps1": `${base}/load.ps1`,
     };
 
     if (path === "/") {
-      let version = "latest";
-      try {
-        const release = await fetch(
-          "https://api.github.com/repos/thinhngotony/alias/releases/latest",
-          {
-            headers: { "User-Agent": "hyber-alias-worker" },
-            cf: { cacheTtl: 300 },
-          },
-        );
-        if (release.ok) {
-          const data = await release.json();
-          version = (data.tag_name || "latest").replace(/^v/, "");
-        }
-      } catch {
-        // fall through with 'latest'
-      }
-
+      const displayVersion = version.replace(/^v/, "");
       return new Response(
-        `Hyber Alias API v${version}
+        `Hyber Alias API v${displayVersion}
 
 Install:
   Linux/Mac:  curl -sfS https://alias.hyberorbit.com/install | sh
@@ -66,11 +65,7 @@ Documentation: https://github.com/thinhngotony/alias
       return new Response("Not found", { status: 404 });
     }
 
-    // Add cache-busting parameter to bypass GitHub CDN cache
-    const cacheBuster = Math.floor(Date.now() / 60000); // Changes every minute
-    const fetchUrl = `${targetUrl}?v=${cacheBuster}`;
-
-    const response = await fetch(fetchUrl, {
+    const response = await fetch(targetUrl, {
       cf: { cacheTtl: 0, cacheEverything: false },
     });
     return new Response(response.body, {
