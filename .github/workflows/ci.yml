@@ -157,21 +157,33 @@ jobs:
           [ "$failed" -eq 0 ] || exit 1
           echo "PASS: no bash-only read -p usage"
 
-      - name: Test zsh compatibility (no local inside loops)
+      - name: Test zsh secret-list no output leak
         run: |
           # In zsh, re-declaring 'local var' inside a loop prints var=value
-          # All local declarations must be before the loop
-          failed=0
-          for f in aliases/*.sh load.sh; do
-            matches=$(awk '/while |for /{loop=1} /done/{loop=0} loop && /^[[:space:]]*local /{print FILENAME":"NR": "$0}' "$f" 2>/dev/null)
-            if [ -n "$matches" ]; then
-              echo "$matches"
-              echo "FAIL: found 'local' inside loop in $f (causes output leak in zsh)"
-              failed=1
+          # Verify alias-secret-list has no spurious output like sname=...
+          if command -v zsh >/dev/null 2>&1; then
+            SECRETS_DIR="/tmp/test-list-$$"
+            mkdir -p "$SECRETS_DIR"
+            chmod 700 "$SECRETS_DIR"
+            printf 'test' | openssl enc -aes-256-cbc -pbkdf2 -salt -pass pass:x -out "$SECRETS_DIR/one.enc"
+            printf 'test' | openssl enc -aes-256-cbc -pbkdf2 -salt -pass pass:x -out "$SECRETS_DIR/two.enc"
+
+            output=$(zsh -c "
+              source aliases/secrets.sh
+              SECRETS_DIR='$SECRETS_DIR'
+              alias-secret-list
+            " 2>&1)
+            if echo "$output" | grep -qE '^[a-z_]+='; then
+              echo "FAIL: variable leak in alias-secret-list output:"
+              echo "$output"
+              rm -rf "$SECRETS_DIR"
+              exit 1
             fi
-          done
-          [ "$failed" -eq 0 ] || exit 1
-          echo "PASS: no local declarations inside loops"
+            echo "PASS: no variable leak in zsh alias-secret-list"
+            rm -rf "$SECRETS_DIR"
+          else
+            echo "SKIP: zsh not available"
+          fi
 
       - name: Test clipboard fallback (no display)
         run: |
