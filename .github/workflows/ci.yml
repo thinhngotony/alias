@@ -143,6 +143,64 @@ jobs:
 
           rm -rf "$SECRETS_DIR"
 
+      - name: Test zsh compatibility (no bash-only read -p)
+        run: |
+          # read -p means "read from coprocess" in zsh, not "prompt"
+          # All prompts must use printf + read -r -s instead
+          failed=0
+          for f in aliases/*.sh load.sh; do
+            if grep -n 'read.*-p ' "$f" 2>/dev/null; then
+              echo "FAIL: found bash-only 'read -p' in $f (breaks zsh)"
+              failed=1
+            fi
+          done
+          [ "$failed" -eq 0 ] || exit 1
+          echo "PASS: no bash-only read -p usage"
+
+      - name: Test clipboard fallback (no display)
+        run: |
+          source aliases/secrets.sh 2>/dev/null || true
+          SECRETS_DIR="/tmp/test-clip-$$"
+          mkdir -p "$SECRETS_DIR"
+          chmod 700 "$SECRETS_DIR"
+
+          test_value="clipboard-test-secret"
+          test_pass="testpass"
+          printf '%s' "$test_value" | openssl enc -aes-256-cbc -pbkdf2 -salt -pass "pass:${test_pass}" -out "$SECRETS_DIR/clip.enc"
+          chmod 600 "$SECRETS_DIR/clip.enc"
+
+          # On CI there is no display, so clipboard tools should fail
+          # and alias-secret-get should fall back to printing the value
+          export SECRETS_DIR
+          output=$(printf '%s\n' "$test_pass" | alias-secret-get clip 2>&1)
+          if echo "$output" | grep -q "$test_value"; then
+            echo "PASS: falls back to printing when clipboard unavailable"
+          elif echo "$output" | grep -q "copied to clipboard"; then
+            echo "FAIL: claims clipboard success without a display"
+            exit 1
+          else
+            echo "FAIL: secret not in output: $output"
+            exit 1
+          fi
+
+          rm -rf "$SECRETS_DIR"
+
+      - name: Test zsh sources secrets correctly
+        run: |
+          # Verify secrets.sh can be sourced and functions are defined in zsh
+          if command -v zsh >/dev/null 2>&1; then
+            zsh -c '
+              source aliases/secrets.sh
+              type alias-secret-add >/dev/null 2>&1 || { echo "FAIL: alias-secret-add not defined in zsh"; exit 1; }
+              type alias-secret-get >/dev/null 2>&1 || { echo "FAIL: alias-secret-get not defined in zsh"; exit 1; }
+              type alias-secret-list >/dev/null 2>&1 || { echo "FAIL: alias-secret-list not defined in zsh"; exit 1; }
+              type alias-secret-remove >/dev/null 2>&1 || { echo "FAIL: alias-secret-remove not defined in zsh"; exit 1; }
+              echo "PASS: all secret functions defined in zsh"
+            '
+          else
+            echo "SKIP: zsh not available"
+          fi
+
       - name: Test symlink protection
         run: |
           TEST_DIR="/tmp/test-custom-$$"

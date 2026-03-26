@@ -136,15 +136,23 @@ alias-secret-get() {
 
     local decrypted
     if decrypted=$(openssl enc -aes-256-cbc -pbkdf2 -d -salt -pass "pass:${password}" -in "$secret_file" 2>/dev/null); then
-        # Try to copy to clipboard if available, otherwise print
+        # Try to copy to clipboard, verify it actually worked before claiming success
+        local copied=false
         if command -v pbcopy >/dev/null 2>&1; then
-            printf '%s' "$decrypted" | pbcopy
-            echo -e "  \033[0;32m✓\033[0m Secret '\033[1m$name\033[0m' copied to clipboard\n"
+            if printf '%s' "$decrypted" | pbcopy 2>/dev/null; then
+                copied=true
+            fi
         elif command -v xclip >/dev/null 2>&1; then
-            printf '%s' "$decrypted" | xclip -selection clipboard 2>/dev/null
-            echo -e "  \033[0;32m✓\033[0m Secret '\033[1m$name\033[0m' copied to clipboard\n"
+            if printf '%s' "$decrypted" | xclip -selection clipboard 2>/dev/null; then
+                copied=true
+            fi
         elif command -v xsel >/dev/null 2>&1; then
-            printf '%s' "$decrypted" | xsel --clipboard 2>/dev/null
+            if printf '%s' "$decrypted" | xsel --clipboard 2>/dev/null; then
+                copied=true
+            fi
+        fi
+
+        if [ "$copied" = true ]; then
             echo -e "  \033[0;32m✓\033[0m Secret '\033[1m$name\033[0m' copied to clipboard\n"
         else
             echo -e "  \033[0;32m✓\033[0m $decrypted\n"
