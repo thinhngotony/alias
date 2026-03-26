@@ -157,6 +157,21 @@ jobs:
           [ "$failed" -eq 0 ] || exit 1
           echo "PASS: no bash-only read -p usage"
 
+      - name: Test zsh compatibility (no local inside loops)
+        run: |
+          # In zsh, re-declaring 'local var' inside a loop prints var=value
+          # All local declarations must be before the loop
+          failed=0
+          for f in aliases/*.sh load.sh; do
+            # Find while/for loops containing 'local' declarations
+            if awk '/while |for /{loop=1} /done/{loop=0} loop && /^[[:space:]]*local /{print FILENAME":"NR": "$0; found=1} END{exit found?1:0}' "$f" 2>/dev/null; then
+              echo "FAIL: found 'local' inside loop in $f (causes output leak in zsh)"
+              failed=1
+            fi
+          done
+          [ "$failed" -eq 0 ] || exit 1
+          echo "PASS: no local declarations inside loops"
+
       - name: Test clipboard fallback (no display)
         run: |
           source aliases/secrets.sh 2>/dev/null || true

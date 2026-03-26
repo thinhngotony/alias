@@ -170,11 +170,11 @@ alias-secret-list() {
     echo -e "  \033[2m─────────────────────────────────────\033[0m"
     if [ -d "$SECRETS_DIR" ]; then
         local found=0
+        local sname enc_type
         while IFS= read -r -d '' f; do
             if [ -f "$f" ]; then
-                local sname
                 sname=$(basename "$f" .enc)
-                local enc_type="encrypted"
+                enc_type="encrypted"
                 if _secret_is_legacy "$f"; then
                     enc_type="legacy-base64"
                 fi
