@@ -310,7 +310,6 @@ alias-help() {
     local CYAN='\033[0;36m'
     local GREEN='\033[0;32m'
     local MAGENTA='\033[0;35m'
-    local YELLOW='\033[0;33m'
     local NC='\033[0m'
 
     echo ""
