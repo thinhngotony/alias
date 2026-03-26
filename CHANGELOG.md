@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.6] - 2026-03-26
+
+### Fixed
+
+- **zsh compatibility**: replaced bash-only `read -p` with `printf` + `read -r -s` (fixes "no coprocess" error on zsh/macOS)
+- **zsh variable leak**: `local` re-declaration inside loop in `alias-secret-list` printed `sname=value` in zsh
+- **clipboard fallback**: `alias-secret-get` now checks clipboard tool exit codes; falls back to printing when `pbcopy`/`xclip`/`xsel` fail (SSH/headless)
+- **CDN stale cache**: switched from `raw.githubusercontent.com/main` (5-min CDN cache) to tag-based URLs which are immutable on GitHub CDN
+- Cloudflare Worker resolves latest release tag for all download URLs
+- Removed unused `alias-token` shortcut and all references
+
+### Added
+
+- CI: zsh `read -p` regression guard across all shell scripts
+- CI: clipboard fallback verification on headless environments
+- CI: `alias-secret-list` variable leak test in zsh
+- CI: zsh sourcing and function definition check for secrets
+
 ## [1.2.0] - 2026-03-14
 
 ### Added
@@ -128,7 +146,8 @@ curl -sfS https://alias.hyberorbit.com/install | sh
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.3.6...HEAD
+[1.3.6]: https://github.com/thinhngotony/alias/compare/v1.2.0...v1.3.6
 [1.2.0]: https://github.com/thinhngotony/alias/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/thinhngotony/alias/compare/v1.0.3...v1.1.0
 [1.0.3]: https://github.com/thinhngotony/alias/compare/v1.0.2...v1.0.3
