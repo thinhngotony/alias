@@ -225,11 +225,6 @@ alias-secret-remove() {
     fi
 }
 
-# Convenience aliases
-alias-token() {
-    alias-secret-get "cloudflare-token"
-}
-
 # Command not found handler - shows help directly
 alias-secret() {
     alias-secrets
@@ -264,17 +259,11 @@ alias-secrets() {
     echo ""
     echo -e "${DIM}  ────────────────────────────────────────────────────────────${NC}"
     echo ""
-    echo -e "  ${BOLD}⚡ Shortcuts${NC}"
-    echo ""
-    echo -e "      ${CYAN}alias-token${NC}  ${DIM}→ alias-secret-get cloudflare-token${NC}"
-    echo ""
-    echo -e "${DIM}  ────────────────────────────────────────────────────────────${NC}"
-    echo ""
     echo -e "  ${BOLD}💡 Example${NC}"
     echo ""
-    echo -e "      ${DIM}\$${NC} alias-secret-add cloudflare-token \"KVs6F66...\""
-    echo -e "      ${DIM}\$${NC} alias-token"
+    echo -e "      ${DIM}\$${NC} alias-secret-add my-token \"KVs6F66...\""
+    echo -e "      ${DIM}\$${NC} alias-secret-get my-token"
     echo -e "      ${DIM}\$${NC} alias-secret-list"
-    echo -e "      ${DIM}\$${NC} alias-secret-remove cloudflare-token"
+    echo -e "      ${DIM}\$${NC} alias-secret-remove my-token"
     echo ""
 }

@@ -343,15 +343,14 @@ alias-help() {
     echo -e "      ${MAGENTA}alias-secret-get${NC} ${DIM}<name>${NC}"
     echo -e "      ${MAGENTA}alias-secret-list${NC}"
     echo -e "      ${MAGENTA}alias-secret-remove${NC} ${DIM}<name>${NC}"
-    echo -e "      ${YELLOW}alias-token${NC}  ${DIM}→ get cloudflare-token${NC}"
     echo ""
     echo -e "${DIM}  ────────────────────────────────────────────────────────────────${NC}"
     echo ""
     echo -e "  ${BOLD}💡 Examples${NC}"
     echo ""
     echo -e "      ${DIM}\$${NC} alias-add ai claudex \"claude --dangerously-skip-permissions\""
-    echo -e "      ${DIM}\$${NC} alias-secret-add cloudflare-token \"your-token\""
-    echo -e "      ${DIM}\$${NC} alias-token"
+    echo -e "      ${DIM}\$${NC} alias-secret-add my-token \"your-token\""
+    echo -e "      ${DIM}\$${NC} alias-secret-get my-token"
     echo ""
     echo -e "${DIM}  ────────────────────────────────────────────────────────────────${NC}"
     echo ""
@@ -400,12 +399,6 @@ alias-g() {
 alias-k() {
     echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-k\033[0m' not found. Did you mean:\n"
     echo -e "      \033[0;36malias-k8s\033[0m        \033[2mKubernetes aliases\033[0m"
-    echo ""
-}
-
-alias-t() {
-    echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-t\033[0m' not found. Did you mean:\n"
-    echo -e "      \033[0;36malias-token\033[0m      \033[2mGet cloudflare-token\033[0m"
     echo ""
 }
 

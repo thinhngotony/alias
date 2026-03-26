@@ -149,19 +149,16 @@ Store sensitive tokens and credentials with AES-256-CBC encryption:
 
 ```bash
 # Store a secret (prompts for encryption password)
-alias-secret-add cloudflare-token "your-api-token"
+alias-secret-add my-token "your-api-token"
 
 # Retrieve a secret (prompts for decryption password, copies to clipboard if available)
-alias-secret-get cloudflare-token
+alias-secret-get my-token
 
 # List all stored secrets
 alias-secret-list
 
 # Remove a secret (secure deletion)
-alias-secret-remove cloudflare-token
-
-# Shortcut for cloudflare-token
-alias-token
+alias-secret-remove my-token
 ```
 
 Secrets are encrypted at rest using OpenSSL AES-256-CBC with PBKDF2 key derivation. Files are stored in `~/.alias/.secrets/` with `600` permissions.
