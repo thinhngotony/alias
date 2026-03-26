@@ -1,7 +1,9 @@
-# .gitignore
 .DS_Store
 *.swp
 *.swo
 *~
 .vscode
 .idea
+.wrangler/
+node_modules/
+*.log
