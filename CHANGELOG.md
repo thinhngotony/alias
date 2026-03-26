@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.7] - 2026-03-26
+
+### Changed
+
+- Added `CODE_OF_CONDUCT.md` (Contributor Covenant)
+- Removed `TRACKING.md` internal dev document
+- Removed hardcoded Cloudflare `account_id` from `wrangler.toml`
+- Updated `.gitignore` with `.wrangler/`, `node_modules/`, `*.log`
+
 ## [1.3.6] - 2026-03-26
 
 ### Fixed
@@ -146,7 +155,8 @@ curl -sfS https://alias.hyberorbit.com/install | sh
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.3.6...HEAD
+[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.3.7...HEAD
+[1.3.7]: https://github.com/thinhngotony/alias/compare/v1.3.6...v1.3.7
 [1.3.6]: https://github.com/thinhngotony/alias/compare/v1.2.0...v1.3.6
 [1.2.0]: https://github.com/thinhngotony/alias/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/thinhngotony/alias/compare/v1.0.3...v1.1.0
