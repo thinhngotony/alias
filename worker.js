@@ -65,18 +65,31 @@ Documentation: https://github.com/thinhngotony/alias
       return new Response("Not found", { status: 404 });
     }
 
-    const response = await fetch(targetUrl, {
-      cf: { cacheTtl: 0, cacheEverything: false },
-    });
-    return new Response(response.body, {
-      status: response.status,
-      headers: {
-        "Content-Type": "text/plain",
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        Pragma: "no-cache",
-        Expires: "0",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
+    try {
+      const response = await fetch(targetUrl, {
+        cf: { cacheTtl: 60, cacheEverything: true },
+      });
+
+      if (!response.ok) {
+        return new Response(`Upstream error: ${response.status}`, {
+          status: 502,
+          headers: { "Content-Type": "text/plain" },
+        });
+      }
+
+      return new Response(response.body, {
+        status: response.status,
+        headers: {
+          "Content-Type": "text/plain",
+          "Cache-Control": "public, max-age=60",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    } catch (error) {
+      return new Response("Failed to fetch upstream resource", {
+        status: 502,
+        headers: { "Content-Type": "text/plain" },
+      });
+    }
   },
 };

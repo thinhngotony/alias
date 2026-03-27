@@ -78,7 +78,8 @@ alias-secret-add() {
     fi
 
     # Encrypt with AES-256-CBC + PBKDF2 key derivation
-    if printf '%s' "$value" | openssl enc -aes-256-cbc -pbkdf2 -salt -pass "pass:${password}" -out "$secret_file" 2>/dev/null; then
+    # Use -pass fd:3 to avoid password exposure in process listing
+    if printf '%s' "$value" | openssl enc -aes-256-cbc -pbkdf2 -salt -pass "fd:3" -out "$secret_file" 3<<< "$password" 2>/dev/null; then
         chmod 600 "$secret_file"
         echo -e "\n  \033[0;32m✓\033[0m Secret '\033[1m$name\033[0m' encrypted and stored\n"
     else
@@ -110,15 +111,16 @@ alias-secret-get() {
     if _secret_is_legacy "$secret_file"; then
         echo -e "\n  \033[0;33m⚠\033[0m  Secret '$name' uses legacy encoding (base64)."
         echo -e "     Re-encrypt with: alias-secret-add $name \"\$(base64 -d < '$secret_file')\"\n"
-        echo -e "  \033[0;33m🔐 \033[0mRetrieving legacy secret '\033[1m$name\033[0m'"
-        if sudo -v 2>/dev/null; then
-            local decrypted
-            decrypted=$(base64 -d < "$secret_file" 2>/dev/null)
-            echo -e "  \033[0;32m✓\033[0m $decrypted\n"
-        else
-            echo -e "  \033[0;31m✗\033[0m Authentication failed\n"
-            return 1
+        echo -e "  \033[0;33m⚠\033[0m  WARNING: Legacy secret will be displayed in terminal"
+        printf "  Continue? [y/N] "
+        read -r confirm
+        if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+            echo -e "  \033[0;33m⚠\033[0m  Cancelled\n"
+            return 0
         fi
+        local decrypted
+        decrypted=$(base64 -d < "$secret_file" 2>/dev/null)
+        echo -e "  \033[0;32m✓\033[0m $decrypted\n"
         return 0
     fi
 
@@ -135,7 +137,8 @@ alias-secret-get() {
     fi
 
     local decrypted
-    if decrypted=$(openssl enc -aes-256-cbc -pbkdf2 -d -salt -pass "pass:${password}" -in "$secret_file" 2>/dev/null); then
+    # Use -pass fd:3 to avoid password exposure in process listing
+    if decrypted=$(openssl enc -aes-256-cbc -pbkdf2 -d -salt -pass "fd:3" -in "$secret_file" 3<<< "$password" 2>/dev/null); then
         # Try to copy to clipboard, verify it actually worked before claiming success
         local copied=false
         if command -v pbcopy >/dev/null 2>&1; then
@@ -209,20 +212,23 @@ alias-secret-remove() {
         return 1
     fi
 
-    echo -e "\n  \033[0;33m🔐 \033[0mAuthentication required to remove '\033[1m$name\033[0m'"
-    if sudo -v 2>/dev/null; then
-        # Overwrite before deleting for secure removal
-        if command -v shred >/dev/null 2>&1; then
-            shred -fuz "$secret_file" 2>/dev/null
-        else
-            dd if=/dev/urandom of="$secret_file" bs=1 count=256 conv=notrunc 2>/dev/null
-            rm -f "$secret_file"
-        fi
-        echo -e "  \033[0;32m✓\033[0m Secret '$name' securely removed\n"
-    else
-        echo -e "  \033[0;31m✗\033[0m Authentication failed\n"
-        return 1
+    # Confirm removal (no sudo needed - user owns the file)
+    echo ""
+    printf "  ⚠️  Are you sure you want to remove '\033[1m%s\033[0m'? [y/N] " "$name"
+    read -r confirm
+    if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+        echo -e "  \033[0;33m⚠\033[0m  Cancelled\n"
+        return 0
     fi
+
+    # Overwrite before deleting for secure removal
+    if command -v shred >/dev/null 2>&1; then
+        shred -fuz "$secret_file" 2>/dev/null
+    else
+        dd if=/dev/urandom of="$secret_file" bs=1 count=256 conv=notrunc 2>/dev/null
+        rm -f "$secret_file"
+    fi
+    echo -e "  \033[0;32m✓\033[0m Secret '$name' securely removed\n"
 }
 
 # Command not found handler - shows help directly

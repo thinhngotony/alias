@@ -1,7 +1,12 @@
 #!/bin/bash
 # Hyber Alias Loader
 
+set -e
+
 ALIAS_HOME="${HOME}/.alias"
+
+# Allow custom repository URL for forks/self-hosting
+ALIAS_REPO_URL="${ALIAS_REPO_URL:-https://raw.githubusercontent.com/thinhngotony/alias}"
 
 # Source environment
 # shellcheck source=/dev/null
@@ -10,22 +15,29 @@ export ALIAS_VERSION="${HYBER_VERSION:-latest}"
 
 # Use tag-based URL for immutable CDN content, fall back to main
 if [ "$ALIAS_VERSION" != "latest" ]; then
-    REPO="https://raw.githubusercontent.com/thinhngotony/alias/v${ALIAS_VERSION}"
+    REPO="${ALIAS_REPO_URL}/v${ALIAS_VERSION}"
 else
-    REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
+    REPO="${ALIAS_REPO_URL}/main"
 fi
 
 # =============================================================================
 # Self-update loader (runs in background, completely silent)
 # Uses mktemp for safe temp files and mkdir-based locking to prevent races
+# Set ALIAS_AUTO_UPDATE=false to disable auto-updates
 # =============================================================================
 _alias_self_update() {
+    # Allow users to opt-out of auto-updates
+    if [ "${ALIAS_AUTO_UPDATE:-true}" = "false" ]; then
+        return 0
+    fi
+
     # Use nohup with full redirection to avoid any job control messages
     # shellcheck disable=SC2016
     (nohup sh -c '
         ALIAS_HOME="$HOME/.alias"
+        ALIAS_REPO_URL="${ALIAS_REPO_URL:-https://raw.githubusercontent.com/thinhngotony/alias}"
         # Always check main branch for latest loader
-        REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
+        REPO="${ALIAS_REPO_URL}/main"
         LOCK_DIR="$ALIAS_HOME/.update.lock"
 
         # Atomic lock using mkdir (POSIX-safe)
@@ -33,7 +45,9 @@ _alias_self_update() {
         if [ -d "$LOCK_DIR" ]; then
             lock_age=0
             if [ -f "$LOCK_DIR/pid" ]; then
-                lock_age=$(( $(date +%s) - $(stat -c %Y "$LOCK_DIR/pid" 2>/dev/null || echo "0") ))
+                # Cross-platform stat: try GNU stat first, then BSD stat (macOS)
+                lock_mtime=$(stat -c %Y "$LOCK_DIR/pid" 2>/dev/null || stat -f %m "$LOCK_DIR/pid" 2>/dev/null || echo "0")
+                lock_age=$(( $(date +%s) - lock_mtime ))
             fi
             if [ "$lock_age" -gt 120 ]; then
                 rm -rf "$LOCK_DIR" 2>/dev/null
@@ -48,12 +62,16 @@ _alias_self_update() {
         echo $$ > "$LOCK_DIR/pid" 2>/dev/null
 
         # Use mktemp for unpredictable temp file
-        loader_tmp=$(mktemp "$ALIAS_HOME/load.sh.XXXXXX") || { rmdir "$LOCK_DIR" 2>/dev/null; exit 1; }
+        loader_tmp=$(mktemp "$ALIAS_HOME/load.sh.XXXXXX") || { rm -rf "$LOCK_DIR" 2>/dev/null; exit 1; }
 
-        if curl -s --connect-timeout 3 --max-time 5 "$REPO/load.sh" -o "$loader_tmp" 2>/dev/null && [ -s "$loader_tmp" ]; then
+        # Download with HTTPS enforcement and proper error handling
+        if curl -sfS --proto "=https" --connect-timeout 3 --max-time 5 "$REPO/load.sh" -o "$loader_tmp" 2>/dev/null && [ -s "$loader_tmp" ]; then
             if ! cmp -s "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null; then
-                chmod +x "$loader_tmp" 2>/dev/null
-                mv "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null
+                if chmod +x "$loader_tmp" 2>/dev/null && mv "$loader_tmp" "$ALIAS_HOME/load.sh" 2>/dev/null; then
+                    : # Success
+                else
+                    rm -f "$loader_tmp" 2>/dev/null
+                fi
             else
                 rm -f "$loader_tmp" 2>/dev/null
             fi
@@ -82,7 +100,8 @@ _alias_download() {
     local tmp
     tmp=$(mktemp "$ALIAS_HOME/cache/${name}.sh.XXXXXX") || return 1
 
-    if curl -s --connect-timeout 5 --max-time 5 "${url}" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+    # Download with HTTPS enforcement
+    if curl -sfS --proto '=https' --connect-timeout 5 --max-time 5 "${url}" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
         mv "$tmp" "$cache" 2>/dev/null || rm -f "$tmp" 2>/dev/null
     else
         rm -f "$tmp" 2>/dev/null

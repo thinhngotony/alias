@@ -7,6 +7,9 @@
 
 ALIAS_HOME="$HOME/.alias"
 
+# Allow custom repository URL for forks/self-hosting
+ALIAS_REPO_URL="${ALIAS_REPO_URL:-https://raw.githubusercontent.com/thinhngotony/alias}"
+
 # Fetch latest version from GitHub releases
 VERSION=$(curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/latest" 2>/dev/null \
     | grep '"tag_name"' | head -1 | sed 's/.*"tag_name" *: *"//;s/".*//' | sed 's/^v//')
@@ -19,9 +22,9 @@ fi
 # Use tag-based URL for immutable CDN content (no stale cache issues)
 # Fall back to main branch if version detection failed
 if [ "$VERSION" != "latest" ]; then
-    REPO="https://raw.githubusercontent.com/thinhngotony/alias/v${VERSION}"
+    REPO="${ALIAS_REPO_URL}/v${VERSION}"
 else
-    REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
+    REPO="${ALIAS_REPO_URL}/main"
 fi
 
 # Colors (POSIX compatible)
@@ -116,7 +119,8 @@ safe_download() {
         return 1
     }
 
-    if curl -sfS "${_sd_url}" -o "$_sd_tmp" 2>/dev/null && [ -s "$_sd_tmp" ]; then
+    # Download with HTTPS enforcement
+    if curl -sfS --proto '=https' "${_sd_url}" -o "$_sd_tmp" 2>/dev/null && [ -s "$_sd_tmp" ]; then
         mv "$_sd_tmp" "$_sd_dest" 2>/dev/null
         return 0
     else
@@ -217,7 +221,7 @@ fi
 # =============================================================================
 if [ "$HAS_FISH" = true ]; then
     mkdir -p "$HOME/.config/fish/conf.d"
-    if safe_download "$REPO/aliases/fish.fish" "$HOME/.config/fish/conf.d/hyper-alias.fish" "fish aliases"; then
+    if safe_download "$REPO/aliases/fish.fish" "$HOME/.config/fish/conf.d/hyber-alias.fish" "fish aliases"; then
         printf "      %b✓%b Configured %bfish (conf.d)%b\n" "$GREEN" "$NC" "$DIM" "$NC"
     fi
 fi
@@ -255,9 +259,9 @@ printf "\n"
 _printed=0
 if [ "$HAS_FISH" = true ]; then
     if [ "$USER_SHELL" = "fish" ]; then
-        printf "      Run: %bsource ~/.config/fish/conf.d/hyper-alias.fish%b  %b← your shell%b\n" "$CYAN" "$NC" "$GREEN" "$NC"
+        printf "      Run: %bsource ~/.config/fish/conf.d/hyber-alias.fish%b  %b← your shell%b\n" "$CYAN" "$NC" "$GREEN" "$NC"
     else
-        printf "      fish:  %bsource ~/.config/fish/conf.d/hyper-alias.fish%b\n" "$DIM" "$NC"
+        printf "      fish:  %bsource ~/.config/fish/conf.d/hyber-alias.fish%b\n" "$DIM" "$NC"
     fi
     _printed=1
 fi

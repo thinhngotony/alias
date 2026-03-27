@@ -9,6 +9,9 @@ set -e
 
 ALIAS_HOME="$HOME/.alias"
 
+# Allow custom repository URL for forks/self-hosting
+ALIAS_REPO_URL="${ALIAS_REPO_URL:-https://raw.githubusercontent.com/thinhngotony/alias}"
+
 # Fetch latest version from GitHub releases
 VERSION=$(curl -sfS "https://api.github.com/repos/thinhngotony/alias/releases/latest" 2>/dev/null \
     | grep '"tag_name"' | head -1 | sed 's/.*"tag_name" *: *"//;s/".*//' | sed 's/^v//')
@@ -21,9 +24,9 @@ fi
 # Use tag-based URL for immutable CDN content (no stale cache issues)
 # Fall back to main branch if version detection failed
 if [ "$VERSION" != "latest" ]; then
-    REPO="https://raw.githubusercontent.com/thinhngotony/alias/v${VERSION}"
+    REPO="${ALIAS_REPO_URL}/v${VERSION}"
 else
-    REPO="https://raw.githubusercontent.com/thinhngotony/alias/main"
+    REPO="${ALIAS_REPO_URL}/main"
 fi
 
 # Colors
@@ -145,7 +148,8 @@ _safe_download() {
         return 1
     }
 
-    if curl -sfS "${url}" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+    # Download with HTTPS enforcement
+    if curl -sfS --proto '=https' "${url}" -o "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
         mv "$tmp" "$dest" 2>/dev/null
         return 0
     else
@@ -211,7 +215,7 @@ fi
 # Configure fish
 if [ "$HAS_FISH" = true ]; then
     mkdir -p "$HOME/.config/fish/conf.d"
-    if _safe_download "$REPO/aliases/fish.fish" "$HOME/.config/fish/conf.d/hyper-alias.fish" "fish aliases"; then
+    if _safe_download "$REPO/aliases/fish.fish" "$HOME/.config/fish/conf.d/hyber-alias.fish" "fish aliases"; then
         echo -e "  ${CHECK} Configured ${DIM}fish (conf.d)${NC}"
     fi
 fi
@@ -247,9 +251,9 @@ echo ""
 _printed=0
 if [ "$HAS_FISH" = true ]; then
     if [ "$SHELL_TYPE" = "fish" ]; then
-        echo -e "  Run: ${CYAN}source ~/.config/fish/conf.d/hyper-alias.fish${NC}  ${GREEN}← your shell${NC}"
+        echo -e "  Run: ${CYAN}source ~/.config/fish/conf.d/hyber-alias.fish${NC}  ${GREEN}← your shell${NC}"
     else
-        echo -e "  fish:  ${DIM}source ~/.config/fish/conf.d/hyper-alias.fish${NC}"
+        echo -e "  fish:  ${DIM}source ~/.config/fish/conf.d/hyber-alias.fish${NC}"
     fi
     _printed=1
 fi

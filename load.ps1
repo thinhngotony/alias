@@ -1,7 +1,10 @@
 # Hyber Alias Loader for PowerShell
 
 $AliasHome = "$env:USERPROFILE\.alias"
-$Repo = "https://raw.githubusercontent.com/thinhngotony/alias/main"
+
+# Allow custom repository URL for forks/self-hosting
+$AliasRepoUrl = if ($env:ALIAS_REPO_URL) { $env:ALIAS_REPO_URL } else { "https://raw.githubusercontent.com/thinhngotony/alias" }
+$Repo = "$AliasRepoUrl/main"
 
 # Source environment
 if (Test-Path "$AliasHome\env.ps1") {
@@ -9,41 +12,43 @@ if (Test-Path "$AliasHome\env.ps1") {
 }
 $AliasVersion = if ($env:HYBER_VERSION) { $env:HYBER_VERSION } else { "latest" }
 
-# Self-update loader in background
-$selfUpdateJob = Start-Job -ScriptBlock {
-    param($Repo, $AliasHome)
-    $lockDir = "$AliasHome\.update.lock"
-    try {
-        # Atomic lock using directory creation
-        if (Test-Path $lockDir) {
-            $lockAge = (New-TimeSpan -Start (Get-Item $lockDir).LastWriteTime -End (Get-Date)).TotalSeconds
-            if ($lockAge -gt 120) {
-                Remove-Item $lockDir -Recurse -Force -ErrorAction SilentlyContinue
-            } else {
-                return
+# Self-update loader in background (can be disabled with $env:ALIAS_AUTO_UPDATE = "false")
+if ($env:ALIAS_AUTO_UPDATE -ne "false") {
+    $selfUpdateJob = Start-Job -ScriptBlock {
+        param($Repo, $AliasHome)
+        $lockDir = "$AliasHome\.update.lock"
+        try {
+            # Atomic lock using directory creation
+            if (Test-Path $lockDir) {
+                $lockAge = (New-TimeSpan -Start (Get-Item $lockDir).LastWriteTime -End (Get-Date)).TotalSeconds
+                if ($lockAge -gt 120) {
+                    Remove-Item $lockDir -Recurse -Force -ErrorAction SilentlyContinue
+                } else {
+                    return
+                }
             }
-        }
-        New-Item -ItemType Directory -Path $lockDir -ErrorAction Stop | Out-Null
+            New-Item -ItemType Directory -Path $lockDir -ErrorAction Stop | Out-Null
 
-        $loaderUrl = "$Repo/load.ps1"
-        $loaderTmp = [System.IO.Path]::GetTempFileName()
-        $loaderPath = "$AliasHome\load.ps1"
-        Invoke-WebRequest -Uri $loaderUrl -OutFile $loaderTmp -TimeoutSec 5 -ErrorAction Stop
-        if ((Test-Path $loaderTmp) -and (Get-Item $loaderTmp).Length -gt 0) {
-            $newContent = Get-Content $loaderTmp -Raw
-            $oldContent = if (Test-Path $loaderPath) { Get-Content $loaderPath -Raw } else { "" }
-            if ($newContent -ne $oldContent) {
-                Move-Item $loaderTmp $loaderPath -Force
-            } else {
-                Remove-Item $loaderTmp -Force -ErrorAction SilentlyContinue
+            $loaderUrl = "$Repo/load.ps1"
+            $loaderTmp = [System.IO.Path]::GetTempFileName()
+            $loaderPath = "$AliasHome\load.ps1"
+            Invoke-WebRequest -Uri $loaderUrl -OutFile $loaderTmp -TimeoutSec 5 -ErrorAction Stop
+            if ((Test-Path $loaderTmp) -and (Get-Item $loaderTmp).Length -gt 0) {
+                $newContent = Get-Content $loaderTmp -Raw
+                $oldContent = if (Test-Path $loaderPath) { Get-Content $loaderPath -Raw } else { "" }
+                if ($newContent -ne $oldContent) {
+                    Move-Item $loaderTmp $loaderPath -Force
+                } else {
+                    Remove-Item $loaderTmp -Force -ErrorAction SilentlyContinue
+                }
             }
+        } catch {
+            Remove-Item $loaderTmp -Force -ErrorAction SilentlyContinue
+        } finally {
+            Remove-Item $lockDir -Recurse -Force -ErrorAction SilentlyContinue
         }
-    } catch {
-        Remove-Item $loaderTmp -Force -ErrorAction SilentlyContinue
-    } finally {
-        Remove-Item $lockDir -Recurse -Force -ErrorAction SilentlyContinue
-    }
-} -ArgumentList $Repo, $AliasHome
+    } -ArgumentList $Repo, $AliasHome
+}
 
 # =============================================================================
 # Git Aliases
@@ -227,9 +232,33 @@ function global:alias-$Category {
 "@ | Out-File $categoryFile -Encoding UTF8
     }
 
-    # Create the function safely using ScriptBlock instead of Invoke-Expression
-    $funcBody = [scriptblock]::Create("$commandStr `$args")
-    Set-Item -Path "Function:\global:$AliasName" -Value $funcBody -Force
+    # Validate command doesn't contain dangerous patterns
+    $dangerousPatterns = @(
+        '`\$\(',          # Command substitution
+        '\$\{',           # Variable expansion
+        '\|',             # Pipe
+        ';',              # Command separator
+        '&',              # Background/AND
+        '\n',             # Newline
+        '\r'              # Carriage return
+    )
+    foreach ($pattern in $dangerousPatterns) {
+        if ($commandStr -match $pattern) {
+            Write-Host "Error: Command contains potentially unsafe pattern" -ForegroundColor Red
+            return
+        }
+    }
+
+    # Create the function using a wrapper that safely passes the command
+    # Instead of dynamically creating scriptblocks from user input,
+    # we store the command as data and execute it safely
+    $funcDef = @"
+function global:$AliasName {
+    `$cmd = '$($commandStr -replace "'", "''")'
+    Invoke-Expression "`$cmd `$args"
+}
+"@
+    Invoke-Expression $funcDef
 
     # Add to category file (insert before ALIASES_END marker)
     $aliasLine = "function global:$AliasName { $commandStr `$args }"

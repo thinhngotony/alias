@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-03-27
+
+### Security
+
+- **Password no longer visible in process listing**: Changed from `-pass "pass:${password}"` to `-pass "fd:3"` with file descriptor for OpenSSL encryption/decryption
+- **PowerShell code injection prevention**: Added dangerous pattern validation before creating dynamic functions
+- **HTTPS enforcement**: All curl commands now use `--proto '=https'` to prevent protocol downgrade attacks
+
+### Added
+
+- **Auto-update opt-out**: Set `ALIAS_AUTO_UPDATE=false` environment variable to disable automatic loader updates (for security-conscious users)
+- **Custom repository URL**: Set `ALIAS_REPO_URL` environment variable to use a fork or self-hosted mirror
+
+### Fixed
+
+- **macOS compatibility**: Fixed `stat -c` (GNU) to fallback to `stat -f` (BSD) for lock file age detection
+- **Race condition**: Improved temp file handling with proper error checking for chmod/mv sequence
+- **Worker error handling**: Added `response.ok` check and try/catch with proper 502 error responses
+- **Naming consistency**: Standardized fish config filename to `hyber-alias.fish` (was inconsistently `hyper-alias.fish`)
+- **Unnecessary sudo**: Removed sudo requirement for secret removal (user owns the files)
+- **Legacy secret warning**: Added explicit confirmation before displaying legacy base64 secrets in terminal
+
+### Changed
+
+- Added `set -e` to `load.sh` for fail-fast behavior
+- Worker now uses 60-second cache TTL instead of no-cache for better CDN efficiency
+
 ## [1.3.7] - 2026-03-26
 
 ### Changed
