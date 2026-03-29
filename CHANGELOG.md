@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-03-30
+
+### Fixed
+
+- **Critical: interactive shell exits on non-zero commands**: Removed `set -e` from `load.sh` — since the file is sourced (not executed), `ERR_EXIT` leaked into the user's interactive shell, causing terminal tabs to close on harmless non-zero returns from hooks, completions, or pipelines
+
 ## [1.4.0] - 2026-03-27
 
 ### Security
@@ -31,7 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Added `set -e` to `load.sh` for fail-fast behavior
 - Worker now uses 60-second cache TTL instead of no-cache for better CDN efficiency
 
 ## [1.3.7] - 2026-03-26
@@ -182,7 +187,9 @@ curl -sfS https://alias.hyberorbit.com/install | sh
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.3.7...HEAD
+[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/thinhngotony/alias/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/thinhngotony/alias/compare/v1.3.7...v1.4.0
 [1.3.7]: https://github.com/thinhngotony/alias/compare/v1.3.6...v1.3.7
 [1.3.6]: https://github.com/thinhngotony/alias/compare/v1.2.0...v1.3.6
 [1.2.0]: https://github.com/thinhngotony/alias/compare/v1.1.0...v1.2.0
