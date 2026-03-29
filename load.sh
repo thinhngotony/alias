@@ -1,7 +1,10 @@
 #!/bin/bash
 # Hyber Alias Loader
-
-set -e
+#
+# IMPORTANT: This file is sourced (not executed) by interactive shells.
+# Never use 'set -e' here — it would apply ERR_EXIT to the calling shell,
+# causing it to exit on any non-zero return (even from hooks or completions).
+# All functions use explicit error handling instead.
 
 ALIAS_HOME="${HOME}/.alias"
 
