@@ -332,7 +332,7 @@ jobs:
           fish -c 'sh install-universal.sh'
 
           # Verify fish config was installed
-          test -f ~/.config/fish/conf.d/hyper-alias.fish || { echo "FAIL: fish config not installed"; exit 1; }
+          test -f ~/.config/fish/conf.d/hyber-alias.fish || { echo "FAIL: fish config not installed"; exit 1; }
           echo "PASS: fish config installed"
 
           # Verify bash was also configured (multi-shell install)
@@ -342,7 +342,7 @@ jobs:
       - name: Test fish aliases load correctly
         run: |
           fish -c '
-            source ~/.config/fish/conf.d/hyper-alias.fish
+            source ~/.config/fish/conf.d/hyber-alias.fish
             # Verify aliases exist
             type alias-help >/dev/null 2>&1; or begin; echo "FAIL: alias-help not defined"; exit 1; end
             type alias-git >/dev/null 2>&1; or begin; echo "FAIL: alias-git not defined"; exit 1; end
@@ -357,7 +357,7 @@ jobs:
           output=$(fish -c 'sh install-universal.sh' 2>&1)
           echo "$output"
           # Should mention fish source command
-          echo "$output" | grep -q "hyper-alias.fish" || { echo "FAIL: fish activation not shown"; exit 1; }
+          echo "$output" | grep -q "hyber-alias.fish" || { echo "FAIL: fish activation not shown"; exit 1; }
           echo "PASS: fish activation command shown"
 
   test-uninstall:

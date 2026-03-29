@@ -32,7 +32,7 @@ curl -sfS https://alias.hyberorbit.com/install | sh
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-> Open a new terminal after install, or run your shell activation command (e.g. `source ~/.bashrc`, `source ~/.zshrc`, or `source ~/.config/fish/conf.d/hyper-alias.fish`).
+> Open a new terminal after install, or run your shell activation command (e.g. `source ~/.bashrc`, `source ~/.zshrc`, or `source ~/.config/fish/conf.d/hyber-alias.fish`).
 
 **Verify installation:**
 
