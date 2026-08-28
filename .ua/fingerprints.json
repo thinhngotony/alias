@@ -1,0 +1,344 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "4df19408d762c687b3ff95e036f85cdc6b327c7b",
+  "generatedAt": "2026-08-27T15:39:34.285Z",
+  "files": {
+    ".github/ISSUE_TEMPLATE/bug_report.md": {
+      "filePath": ".github/ISSUE_TEMPLATE/bug_report.md",
+      "contentHash": "4c1b48182628b2c21c1f2d8cedd3f3d544351626c0e929e55d660b0d14386695",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 48,
+      "hasStructuralAnalysis": true
+    },
+    ".github/ISSUE_TEMPLATE/config.yml": {
+      "filePath": ".github/ISSUE_TEMPLATE/config.yml",
+      "contentHash": "a56ed67298ee7ee1dd8aab39e1493b0764cfe2683b973832bb092da720cf5ea4",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 9,
+      "hasStructuralAnalysis": true
+    },
+    ".github/ISSUE_TEMPLATE/feature_request.md": {
+      "filePath": ".github/ISSUE_TEMPLATE/feature_request.md",
+      "contentHash": "d816fb6e8ed9dcf0a6977fa0889d7d488ce11656ff4e17fe15272a72e5b9c2a1",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 43,
+      "hasStructuralAnalysis": true
+    },
+    ".github/PULL_REQUEST_TEMPLATE.md": {
+      "filePath": ".github/PULL_REQUEST_TEMPLATE.md",
+      "contentHash": "ccf6e30d48f57ecad559f98ee917b9dfb596745ceb89692aa1351d74fd6adb05",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 53,
+      "hasStructuralAnalysis": true
+    },
+    ".github/workflows/ci.yml": {
+      "filePath": ".github/workflows/ci.yml",
+      "contentHash": "866c282ded3b93c50a0c29b15f82243f9734064204e2611aa1d85406564aa1b6",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 440,
+      "hasStructuralAnalysis": true
+    },
+    "CHANGELOG.md": {
+      "filePath": "CHANGELOG.md",
+      "contentHash": "c15f043d2375f5471199e68fb45ae729b1648b8a77d00c87970844ad200342ea",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 202,
+      "hasStructuralAnalysis": true
+    },
+    "CODE_OF_CONDUCT.md": {
+      "filePath": "CODE_OF_CONDUCT.md",
+      "contentHash": "b3f129c493300cbcb1f673d788f848007ed967f624eac1b0a866c95ecbb3acd1",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 40,
+      "hasStructuralAnalysis": true
+    },
+    "CONTRIBUTING.md": {
+      "filePath": "CONTRIBUTING.md",
+      "contentHash": "05efb8c148ac3191a92d3d8111943442004b11a5556a74c0e3767bb45f6fbac6",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 241,
+      "hasStructuralAnalysis": true
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "f96777f84c1db26f52f100a2b6421005c5569047b8c784c6296617e49163c654",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 399,
+      "hasStructuralAnalysis": true
+    },
+    "SECURITY.md": {
+      "filePath": "SECURITY.md",
+      "contentHash": "34df64a91febb604ffa9186cfa1a8e923f805ad0c5f6cda7617229011e3ffeec",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 96,
+      "hasStructuralAnalysis": true
+    },
+    "aliases/ai.sh": {
+      "filePath": "aliases/ai.sh",
+      "contentHash": "29edd7cf0e8c884dbb2e0a0f56c2de21f145d03b7a82fea9421aca1e20d48092",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 29,
+      "hasStructuralAnalysis": true
+    },
+    "aliases/fish.fish": {
+      "filePath": "aliases/fish.fish",
+      "contentHash": "5292002f2f4e2e2e3c74d6ccd50397755f41ede4f5abdfe3f2ac0e6d6b78d563",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 127,
+      "hasStructuralAnalysis": false
+    },
+    "aliases/git.sh": {
+      "filePath": "aliases/git.sh",
+      "contentHash": "1537d2399b41f329e11001e6951cb094f7bc56d16477f75cc6c161b98b6499fb",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 45,
+      "hasStructuralAnalysis": true
+    },
+    "aliases/k8s.sh": {
+      "filePath": "aliases/k8s.sh",
+      "contentHash": "e18bb7a13d158e7feec4c76c954e1930e2af6b525f5a8b1d1b5d7d013c6ab278",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 47,
+      "hasStructuralAnalysis": true
+    },
+    "aliases/secrets.sh": {
+      "filePath": "aliases/secrets.sh",
+      "contentHash": "6080436b1d4bbd13c34750356da60ee0123d99780e57a36aacdad0e708274eeb",
+      "functions": [
+        {
+          "name": "_secret_validate_name",
+          "params": [],
+          "exported": false,
+          "lineCount": 17
+        },
+        {
+          "name": "_secret_is_legacy",
+          "params": [],
+          "exported": false,
+          "lineCount": 8
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 275,
+      "hasStructuralAnalysis": true
+    },
+    "aliases/system.sh": {
+      "filePath": "aliases/system.sh",
+      "contentHash": "93c08bbf6f689b11f187c6d4940630eb4d7bef35a768f367ada4994d24b70ea7",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 45,
+      "hasStructuralAnalysis": true
+    },
+    "install-universal.sh": {
+      "filePath": "install-universal.sh",
+      "contentHash": "1d19956c19abba0d75da2c1f22f275e793fd2096473affaa5f199e6df6b29771",
+      "functions": [
+        {
+          "name": "detect_os",
+          "params": [],
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "detect_active_shell",
+          "params": [],
+          "exported": false,
+          "lineCount": 38
+        },
+        {
+          "name": "safe_download",
+          "params": [],
+          "exported": false,
+          "lineCount": 31
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 291,
+      "hasStructuralAnalysis": true
+    },
+    "install.fish": {
+      "filePath": "install.fish",
+      "contentHash": "481dd3837a077e51d39b3d6d787c08a62c5d54a5c337c1540270f6f6d29542bf",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 67,
+      "hasStructuralAnalysis": false
+    },
+    "install.ps1": {
+      "filePath": "install.ps1",
+      "contentHash": "8806a8c6db05495e6a26482cba82356ed6609f7a879e1f8846cd168733256859",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 126,
+      "hasStructuralAnalysis": false
+    },
+    "install.sh": {
+      "filePath": "install.sh",
+      "contentHash": "1f04e728faf6a64ba06f9e732d3192ae0886705c24c5a68ad00bfedc784b1a6a",
+      "functions": [
+        {
+          "name": "detect_os",
+          "params": [],
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "detect_active_shell",
+          "params": [],
+          "exported": false,
+          "lineCount": 37
+        },
+        {
+          "name": "_safe_download",
+          "params": [],
+          "exported": false,
+          "lineCount": 33
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 283,
+      "hasStructuralAnalysis": true
+    },
+    "load.ps1": {
+      "filePath": "load.ps1",
+      "contentHash": "c82a20877d07d5478274e34378034c1d0094088f4cd49518250031ea0c2e5631",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 359,
+      "hasStructuralAnalysis": false
+    },
+    "load.sh": {
+      "filePath": "load.sh",
+      "contentHash": "d7a82f5e873aea19b2f0ab04f58e26effbce24b7ad6a72db2bd9d73bee036e80",
+      "functions": [
+        {
+          "name": "_alias_self_update",
+          "params": [],
+          "exported": false,
+          "lineCount": 57
+        },
+        {
+          "name": "_alias_download",
+          "params": [],
+          "exported": false,
+          "lineCount": 22
+        },
+        {
+          "name": "_alias_validate_name",
+          "params": [],
+          "exported": false,
+          "lineCount": 21
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 437,
+      "hasStructuralAnalysis": true
+    },
+    "uninstall.ps1": {
+      "filePath": "uninstall.ps1",
+      "contentHash": "029da01724f5b36faa9809360df20be0a3cd0b3f1d27f4365e2b71917ea0bde2",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 32,
+      "hasStructuralAnalysis": false
+    },
+    "uninstall.sh": {
+      "filePath": "uninstall.sh",
+      "contentHash": "9f799e161977564f52b12eaeb15c7ae765686c0b66106a419da8709f5770b2ca",
+      "functions": [
+        {
+          "name": "sed_inplace",
+          "params": [],
+          "exported": false,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 72,
+      "hasStructuralAnalysis": true
+    },
+    "worker.js": {
+      "filePath": "worker.js",
+      "contentHash": "6e0a159e9a127346a2c46056d6e8614d209b5c732829f9840554062f1383077c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 96,
+      "hasStructuralAnalysis": true
+    },
+    "wrangler.toml": {
+      "filePath": "wrangler.toml",
+      "contentHash": "5f9260db85aada4fd309aad724b37b13c5b4f38d0d0ba780e6ba592d5e1f5722",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 5,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

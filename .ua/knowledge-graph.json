@@ -1,0 +1,2073 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "alias",
+    "languages": [
+      "fish",
+      "javascript",
+      "markdown",
+      "powershell",
+      "shell",
+      "toml",
+      "yaml"
+    ],
+    "frameworks": [],
+    "description": "Hyber Alias is a cross-platform shell alias manager for Bash, Zsh, Fish, and PowerShell that installs curated productivity aliases for Git, Kubernetes, and system operations.",
+    "analyzedAt": "2026-08-27T15:38:10.496Z",
+    "gitCommitHash": "4df19408d762c687b3ff95e036f85cdc6b327c7b"
+  },
+  "nodes": [
+    {
+      "id": "pipeline:.github/workflows/ci.yml",
+      "type": "pipeline",
+      "name": "ci.yml",
+      "filePath": ".github/workflows/ci.yml",
+      "summary": "Defines the GitHub Actions CI and release workflow for shell linting, syntax validation, security-focused functional checks, cross-platform installation, fish compatibility, clean uninstallation, and tag-driven GitHub releases.",
+      "tags": [
+        "ci-cd",
+        "cross-platform",
+        "release-automation",
+        "security-validation",
+        "shell-testing"
+      ],
+      "complexity": "complex",
+      "languageNotes": "The workflow organizes seven jobs, gates the tag-only release on six validation jobs, and uses an operating-system matrix to exercise Linux, macOS, and Windows installers."
+    },
+    {
+      "id": "document:.github/ISSUE_TEMPLATE/bug_report.md",
+      "type": "document",
+      "name": "bug_report.md",
+      "filePath": ".github/ISSUE_TEMPLATE/bug_report.md",
+      "summary": "GitHub issue template that gathers reproducible bug reports across operating systems and supported shells. Its eight sections capture environment details, expected and actual behavior, error output, context, and reporter checks.",
+      "tags": [
+        "documentation",
+        "issue-template",
+        "bug-reporting",
+        "support"
+      ],
+      "complexity": "simple",
+      "languageNotes": "GitHub-compatible YAML front matter supplies the template name, title prefix, and bug label before the Markdown prompts."
+    },
+    {
+      "id": "config:.github/ISSUE_TEMPLATE/config.yml",
+      "type": "config",
+      "name": "config.yml",
+      "filePath": ".github/ISSUE_TEMPLATE/config.yml",
+      "summary": "Configures the GitHub issue chooser to reject blank issues and direct users to project documentation or Discussions for installation help, usage questions, and ideas.",
+      "tags": [
+        "configuration",
+        "issue-triage",
+        "support-routing",
+        "github"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.github/ISSUE_TEMPLATE/feature_request.md",
+      "type": "document",
+      "name": "feature_request.md",
+      "filePath": ".github/ISSUE_TEMPLATE/feature_request.md",
+      "summary": "GitHub issue template for proposing broadly useful project enhancements. Its seven sections solicit the problem, proposed solution, suggested shell aliases, alternatives, use case, supporting context, and contributor checklist.",
+      "tags": [
+        "documentation",
+        "issue-template",
+        "feature-planning",
+        "alias-design"
+      ],
+      "complexity": "simple",
+      "languageNotes": "The Markdown template combines GitHub YAML front matter with a fenced Bash example for proposed alias definitions."
+    },
+    {
+      "id": "document:CHANGELOG.md",
+      "type": "document",
+      "name": "CHANGELOG.md",
+      "filePath": "CHANGELOG.md",
+      "summary": "Chronicles releases from 1.0.0-rc.1 through 1.4.1 using Keep a Changelog and Semantic Versioning, including security, compatibility, loader, installer, and delivery changes.",
+      "tags": [
+        "documentation",
+        "release-history",
+        "changelog",
+        "semantic-versioning"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:CODE_OF_CONDUCT.md",
+      "type": "document",
+      "name": "CODE_OF_CONDUCT.md",
+      "filePath": "CODE_OF_CONDUCT.md",
+      "summary": "Defines the Contributor Covenant participation standards, enforcement responsibilities, reporting channel, and scope for project community spaces.",
+      "tags": [
+        "documentation",
+        "community",
+        "code-of-conduct",
+        "governance"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:CONTRIBUTING.md",
+      "type": "document",
+      "name": "CONTRIBUTING.md",
+      "filePath": "CONTRIBUTING.md",
+      "summary": "Explains contribution setup, alias and documentation changes, local cross-platform checks, shell and PowerShell conventions, release automation, and pull-request expectations.",
+      "tags": [
+        "documentation",
+        "contributing",
+        "development",
+        "release-process"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Provides the main product guide for installing and using Hyber Alias across Bash, Zsh, Fish, and PowerShell, with alias references, customization, encrypted secrets, architecture, security, updates, uninstall steps, and troubleshooting.",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "installation",
+        "user-guide",
+        "cross-platform"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:SECURITY.md",
+      "type": "document",
+      "name": "SECURITY.md",
+      "filePath": "SECURITY.md",
+      "summary": "States supported versions and responsible-disclosure timelines, then documents safe installation, input handling, script-execution risks, permissions, and security-update practices.",
+      "tags": [
+        "documentation",
+        "security",
+        "vulnerability-reporting",
+        "responsible-disclosure"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:install-universal.sh",
+      "type": "file",
+      "name": "install-universal.sh",
+      "filePath": "install-universal.sh",
+      "summary": "POSIX installer that detects the active shell and operating system, securely downloads the Bash/Zsh loader and alias modules, installs Fish configuration when available, updates shell startup files, and records environment metadata.",
+      "tags": [
+        "installer",
+        "cross-platform",
+        "shell-detection",
+        "atomic-download",
+        "entry-point"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses POSIX sh process-tree inspection with /proc and ps fallbacks so curl-piped installation can identify the user's interactive shell."
+    },
+    {
+      "id": "file:install.ps1",
+      "type": "file",
+      "name": "install.ps1",
+      "filePath": "install.ps1",
+      "summary": "Windows PowerShell installer that resolves the latest release, adjusts the current-user execution policy when needed, atomically installs the loader, wires it into the PowerShell profile, and saves environment metadata.",
+      "tags": [
+        "installer",
+        "powershell",
+        "windows",
+        "profile-configuration",
+        "atomic-download"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:install.sh",
+      "type": "file",
+      "name": "install.sh",
+      "filePath": "install.sh",
+      "summary": "Bash installer that discovers installed shells, securely downloads and caches the loader and curated alias modules, configures Bash, Zsh, and Fish startup hooks, and persists version and platform metadata.",
+      "tags": [
+        "installer",
+        "bash",
+        "cross-platform",
+        "shell-detection",
+        "atomic-download"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:load.ps1",
+      "type": "file",
+      "name": "load.ps1",
+      "filePath": "load.ps1",
+      "summary": "PowerShell loader that silently self-updates, defines global Git, Kubernetes, system, and AI commands, manages validated custom alias categories, presents help, and sources regular custom scripts.",
+      "tags": [
+        "loader",
+        "powershell",
+        "alias-management",
+        "self-update",
+        "entry-point"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses global: function scope for interactive commands and a background job guarded by a directory lock for silent loader updates."
+    },
+    {
+      "id": "file:load.sh",
+      "type": "file",
+      "name": "load.sh",
+      "filePath": "load.sh",
+      "summary": "Interactive Bash/Zsh loader that safely self-updates, downloads and sources cached alias categories, loads regular custom scripts, validates custom names, and exposes custom-alias management and discovery commands.",
+      "tags": [
+        "loader",
+        "bash",
+        "alias-management",
+        "self-update",
+        "entry-point"
+      ],
+      "complexity": "complex",
+      "languageNotes": "It is designed to be sourced, deliberately avoids set -e, and uses mkdir locks, mktemp files, and atomic moves to isolate background updates from the calling shell."
+    },
+    {
+      "id": "file:uninstall.ps1",
+      "type": "file",
+      "name": "uninstall.ps1",
+      "filePath": "uninstall.ps1",
+      "summary": "Removes the Windows alias directory and filters Hyber Alias loader entries from the user's PowerShell profile.",
+      "tags": [
+        "uninstaller",
+        "powershell",
+        "windows",
+        "profile-cleanup"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:uninstall.sh",
+      "type": "file",
+      "name": "uninstall.sh",
+      "filePath": "uninstall.sh",
+      "summary": "Removes the alias home directory and Hyber Alias startup hooks from Bash, Zsh, and Fish, using portable GNU/BSD sed handling.",
+      "tags": [
+        "uninstaller",
+        "shell",
+        "cross-platform",
+        "configuration-cleanup"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:wrangler.toml",
+      "type": "config",
+      "name": "wrangler.toml",
+      "filePath": "wrangler.toml",
+      "summary": "Configures the Cloudflare Worker deployment named alias with worker.js as its entry point and a 2024-01-01 compatibility date; account identity is supplied at deployment time.",
+      "tags": [
+        "configuration",
+        "cloudflare-workers",
+        "deployment",
+        "worker-runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:install-universal.sh:detect_active_shell",
+      "type": "function",
+      "name": "detect_active_shell",
+      "filePath": "install-universal.sh",
+      "lineRange": [
+        52,
+        89
+      ],
+      "summary": "Walks parent processes through /proc or ps to identify Fish, Zsh, or Bash, falling back to the configured login shell.",
+      "tags": [
+        "shell-detection",
+        "process-tree",
+        "cross-platform",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:install-universal.sh:safe_download",
+      "type": "function",
+      "name": "safe_download",
+      "filePath": "install-universal.sh",
+      "lineRange": [
+        106,
+        136
+      ],
+      "summary": "Downloads a required or optional artifact over HTTPS into a temporary file, atomically moves successful content, and records noncritical failures.",
+      "tags": [
+        "download",
+        "atomic-write",
+        "error-handling",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:install.sh:detect_active_shell",
+      "type": "function",
+      "name": "detect_active_shell",
+      "filePath": "install.sh",
+      "lineRange": [
+        59,
+        95
+      ],
+      "summary": "Finds the interactive Fish, Zsh, or Bash process by walking ancestors and uses the login shell as a fallback.",
+      "tags": [
+        "shell-detection",
+        "process-tree",
+        "cross-platform",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:install.sh:_safe_download",
+      "type": "function",
+      "name": "_safe_download",
+      "filePath": "install.sh",
+      "lineRange": [
+        133,
+        165
+      ],
+      "summary": "Fetches a required or optional installer artifact over HTTPS through a temporary file and moves validated content into place atomically.",
+      "tags": [
+        "download",
+        "atomic-write",
+        "error-handling",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:_alias_self_update",
+      "type": "function",
+      "name": "_alias_self_update",
+      "filePath": "load.sh",
+      "lineRange": [
+        31,
+        87
+      ],
+      "summary": "Runs an opt-out background loader update with stale-lock recovery, an atomic directory lock, bounded HTTPS transfer, content comparison, and atomic replacement.",
+      "tags": [
+        "self-update",
+        "background-job",
+        "locking",
+        "atomic-write",
+        "security"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:load.sh:_alias_download",
+      "type": "function",
+      "name": "_alias_download",
+      "filePath": "load.sh",
+      "lineRange": [
+        95,
+        116
+      ],
+      "summary": "Downloads one named alias category into the local cache through a temporary file and sources the cached copy when available.",
+      "tags": [
+        "download",
+        "cache",
+        "alias-loader",
+        "offline-fallback"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:_alias_validate_name",
+      "type": "function",
+      "name": "_alias_validate_name",
+      "filePath": "load.sh",
+      "lineRange": [
+        146,
+        166
+      ],
+      "summary": "Validates category and alias names for presence, length, an allowlisted character set, and path-traversal characters.",
+      "tags": [
+        "validation",
+        "input-sanitization",
+        "path-traversal",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:alias-add",
+      "type": "function",
+      "name": "alias-add",
+      "filePath": "load.sh",
+      "lineRange": [
+        174,
+        255
+      ],
+      "summary": "Validates a custom category and alias, creates the category file when absent, safely inserts an escaped alias definition before its marker, and sources the updated file.",
+      "tags": [
+        "alias-management",
+        "validation",
+        "atomic-write",
+        "user-command"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:load.sh:alias-remove",
+      "type": "function",
+      "name": "alias-remove",
+      "filePath": "load.sh",
+      "lineRange": [
+        258,
+        300
+      ],
+      "summary": "Validates a custom alias reference, removes its exact definition with a temporary line-by-line rewrite, and unsets it from the current shell.",
+      "tags": [
+        "alias-management",
+        "validation",
+        "configuration-cleanup",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:alias-list",
+      "type": "function",
+      "name": "alias-list",
+      "filePath": "load.sh",
+      "lineRange": [
+        303,
+        323
+      ],
+      "summary": "Enumerates regular custom category files, counts stored aliases, and prints an actionable empty-state message when none exist.",
+      "tags": [
+        "alias-management",
+        "discovery",
+        "filesystem",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:alias-help",
+      "type": "function",
+      "name": "alias-help",
+      "filePath": "load.sh",
+      "lineRange": [
+        329,
+        381
+      ],
+      "summary": "Renders the versioned command catalog for curated categories, custom-alias operations, encrypted-secret commands, examples, and documentation.",
+      "tags": [
+        "help",
+        "command-catalog",
+        "user-interface",
+        "user-command"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:load.sh:alias-",
+      "type": "function",
+      "name": "alias-",
+      "filePath": "load.sh",
+      "lineRange": [
+        387,
+        397
+      ],
+      "summary": "Handles an incomplete alias command by listing the primary category and custom-alias commands available for completion.",
+      "tags": [
+        "command-suggestion",
+        "help",
+        "user-interface",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:alias-a",
+      "type": "function",
+      "name": "alias-a",
+      "filePath": "load.sh",
+      "lineRange": [
+        399,
+        403
+      ],
+      "summary": "Suggests alias-add when the user enters the abbreviated alias-a command.",
+      "tags": [
+        "command-suggestion",
+        "help",
+        "user-interface",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:alias-s",
+      "type": "function",
+      "name": "alias-s",
+      "filePath": "load.sh",
+      "lineRange": [
+        405,
+        412
+      ],
+      "summary": "Suggests system and secret-management commands when the user enters alias-s.",
+      "tags": [
+        "command-suggestion",
+        "help",
+        "user-interface",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:alias-g",
+      "type": "function",
+      "name": "alias-g",
+      "filePath": "load.sh",
+      "lineRange": [
+        414,
+        418
+      ],
+      "summary": "Suggests the Git alias category when the user enters alias-g.",
+      "tags": [
+        "command-suggestion",
+        "help",
+        "user-interface",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:alias-k",
+      "type": "function",
+      "name": "alias-k",
+      "filePath": "load.sh",
+      "lineRange": [
+        420,
+        424
+      ],
+      "summary": "Suggests the Kubernetes alias category when the user enters alias-k.",
+      "tags": [
+        "command-suggestion",
+        "help",
+        "user-interface",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:alias-r",
+      "type": "function",
+      "name": "alias-r",
+      "filePath": "load.sh",
+      "lineRange": [
+        426,
+        430
+      ],
+      "summary": "Suggests alias-remove when the user enters the abbreviated alias-r command.",
+      "tags": [
+        "command-suggestion",
+        "help",
+        "user-interface",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.sh:alias-l",
+      "type": "function",
+      "name": "alias-l",
+      "filePath": "load.sh",
+      "lineRange": [
+        432,
+        436
+      ],
+      "summary": "Suggests alias-list when the user enters the abbreviated alias-l command.",
+      "tags": [
+        "command-suggestion",
+        "help",
+        "user-interface",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.ps1:alias-git",
+      "type": "function",
+      "name": "alias-git",
+      "filePath": "load.ps1",
+      "lineRange": [
+        104,
+        120
+      ],
+      "summary": "Prints the PowerShell Git alias catalog with command mappings and concise usage descriptions.",
+      "tags": [
+        "help",
+        "git",
+        "command-catalog",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.ps1:alias-k8s",
+      "type": "function",
+      "name": "alias-k8s",
+      "filePath": "load.ps1",
+      "lineRange": [
+        122,
+        139
+      ],
+      "summary": "Prints the PowerShell Kubernetes alias catalog, including resource, log, exec, context, and namespace commands.",
+      "tags": [
+        "help",
+        "kubernetes",
+        "command-catalog",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.ps1:alias-system",
+      "type": "function",
+      "name": "alias-system",
+      "filePath": "load.ps1",
+      "lineRange": [
+        141,
+        153
+      ],
+      "summary": "Prints the PowerShell filesystem, navigation, and profile-reload alias catalog.",
+      "tags": [
+        "help",
+        "system-operations",
+        "command-catalog",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.ps1:alias-ai",
+      "type": "function",
+      "name": "alias-ai",
+      "filePath": "load.ps1",
+      "lineRange": [
+        154,
+        162
+      ],
+      "summary": "Prints the PowerShell AI-agent shortcut catalog for Copilot and Claude command wrappers.",
+      "tags": [
+        "help",
+        "ai-tools",
+        "command-catalog",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.ps1:_ValidateAliasName",
+      "type": "function",
+      "name": "_ValidateAliasName",
+      "filePath": "load.ps1",
+      "lineRange": [
+        168,
+        183
+      ],
+      "summary": "Validates custom names for nonempty content, a 64-character allowlist, and path-traversal or separator characters.",
+      "tags": [
+        "validation",
+        "input-sanitization",
+        "path-traversal",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.ps1:alias-add",
+      "type": "function",
+      "name": "alias-add",
+      "filePath": "load.ps1",
+      "lineRange": [
+        185,
+        271
+      ],
+      "summary": "Validates and creates a PowerShell custom category, rejects duplicate or dangerous command patterns, registers the function for the current session, and persists it in the category file.",
+      "tags": [
+        "alias-management",
+        "validation",
+        "powershell",
+        "user-command"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:load.ps1:alias-remove",
+      "type": "function",
+      "name": "alias-remove",
+      "filePath": "load.ps1",
+      "lineRange": [
+        273,
+        304
+      ],
+      "summary": "Validates a category and alias, removes its persisted PowerShell function definition, and deletes the live session function.",
+      "tags": [
+        "alias-management",
+        "validation",
+        "configuration-cleanup",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.ps1:alias-list",
+      "type": "function",
+      "name": "alias-list",
+      "filePath": "load.ps1",
+      "lineRange": [
+        306,
+        319
+      ],
+      "summary": "Lists PowerShell custom category files with the number of global aliases each category defines.",
+      "tags": [
+        "alias-management",
+        "discovery",
+        "powershell",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:load.ps1:alias-help",
+      "type": "function",
+      "name": "alias-help",
+      "filePath": "load.ps1",
+      "lineRange": [
+        321,
+        349
+      ],
+      "summary": "Displays the PowerShell overview of curated categories, custom-alias management commands, examples, and completion guidance.",
+      "tags": [
+        "help",
+        "command-catalog",
+        "powershell",
+        "user-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aliases/ai.sh",
+      "type": "file",
+      "name": "ai.sh",
+      "filePath": "aliases/ai.sh",
+      "summary": "Defines permissive Copilot and Claude command shortcuts plus an interactive help function that documents the available AI aliases.",
+      "tags": [
+        "shell-aliases",
+        "ai-tools",
+        "productivity",
+        "help-command"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Defines hyphenated Bash function names intended for interactive use after the script is sourced."
+    },
+    {
+      "id": "function:aliases/ai.sh:alias-ai",
+      "type": "function",
+      "name": "alias-ai",
+      "filePath": "aliases/ai.sh",
+      "lineRange": [
+        13,
+        28
+      ],
+      "summary": "Prints a styled reference for the Copilot and Claude shortcuts and their permissive execution flags.",
+      "tags": [
+        "help-command",
+        "ai-tools",
+        "terminal-output"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aliases/git.sh",
+      "type": "file",
+      "name": "git.sh",
+      "filePath": "aliases/git.sh",
+      "summary": "Defines concise Git workflow aliases for staging, committing, branching, synchronization, inspection, and an automated backup sequence, with a formatted help command.",
+      "tags": [
+        "shell-aliases",
+        "git",
+        "productivity",
+        "help-command"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Defines hyphenated Bash function names intended for interactive use after the script is sourced."
+    },
+    {
+      "id": "function:aliases/git.sh:alias-git",
+      "type": "function",
+      "name": "alias-git",
+      "filePath": "aliases/git.sh",
+      "lineRange": [
+        21,
+        44
+      ],
+      "summary": "Prints a styled command reference for the Git aliases, including expected message and branch arguments.",
+      "tags": [
+        "help-command",
+        "git",
+        "terminal-output"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aliases/k8s.sh",
+      "type": "file",
+      "name": "k8s.sh",
+      "filePath": "aliases/k8s.sh",
+      "summary": "Defines Kubernetes shortcuts for applying, deleting, inspecting, executing against, and switching context for cluster resources, with an interactive reference function.",
+      "tags": [
+        "shell-aliases",
+        "kubernetes",
+        "productivity",
+        "help-command"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Defines hyphenated Bash function names intended for interactive use after the script is sourced."
+    },
+    {
+      "id": "function:aliases/k8s.sh:alias-k8s",
+      "type": "function",
+      "name": "alias-k8s",
+      "filePath": "aliases/k8s.sh",
+      "lineRange": [
+        22,
+        46
+      ],
+      "summary": "Prints a styled reference for the kubectl aliases covering resources, logs, execution, contexts, and namespaces.",
+      "tags": [
+        "help-command",
+        "kubernetes",
+        "terminal-output"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aliases/secrets.sh",
+      "type": "file",
+      "name": "secrets.sh",
+      "filePath": "aliases/secrets.sh",
+      "summary": "Implements an interactive local secrets manager that validates names, encrypts values with OpenSSL AES-256-CBC and PBKDF2, retrieves them through clipboard-aware decryption, lists stored entries, and securely removes files. It also detects legacy base64 entries and guides users through migration.",
+      "tags": [
+        "secret-management",
+        "encryption",
+        "security",
+        "shell-utility",
+        "validation"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Passes passwords to OpenSSL through file descriptor 3 to avoid process-list exposure, stores encrypted files with restrictive permissions, and supports Bash process substitution for null-delimited secret enumeration."
+    },
+    {
+      "id": "function:aliases/secrets.sh:_secret_validate_name",
+      "type": "function",
+      "name": "_secret_validate_name",
+      "filePath": "aliases/secrets.sh",
+      "lineRange": [
+        10,
+        26
+      ],
+      "summary": "Rejects empty, oversized, path-like, or otherwise unsafe secret names before they are interpolated into storage paths.",
+      "tags": [
+        "validation",
+        "security",
+        "input-sanitization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aliases/secrets.sh:alias-secret-add",
+      "type": "function",
+      "name": "alias-secret-add",
+      "filePath": "aliases/secrets.sh",
+      "lineRange": [
+        39,
+        90
+      ],
+      "summary": "Validates a secret name, confirms an encryption password, and writes the supplied value as a permission-restricted AES-256-CBC encrypted file using PBKDF2 key derivation.",
+      "tags": [
+        "secret-management",
+        "encryption",
+        "security",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:aliases/secrets.sh:alias-secret-get",
+      "type": "function",
+      "name": "alias-secret-get",
+      "filePath": "aliases/secrets.sh",
+      "lineRange": [
+        93,
+        167
+      ],
+      "summary": "Retrieves a named secret by handling legacy base64 data or password-based OpenSSL decryption, then copies the plaintext to an available clipboard tool or prints it as a fallback.",
+      "tags": [
+        "secret-management",
+        "decryption",
+        "clipboard",
+        "security"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:aliases/secrets.sh:alias-secret-list",
+      "type": "function",
+      "name": "alias-secret-list",
+      "filePath": "aliases/secrets.sh",
+      "lineRange": [
+        170,
+        195
+      ],
+      "summary": "Enumerates stored encrypted files, labels each entry as encrypted or legacy base64, and prints an empty-state message when no secrets are available.",
+      "tags": [
+        "secret-management",
+        "enumeration",
+        "terminal-output"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aliases/secrets.sh:alias-secret-remove",
+      "type": "function",
+      "name": "alias-secret-remove",
+      "filePath": "aliases/secrets.sh",
+      "lineRange": [
+        198,
+        232
+      ],
+      "summary": "Validates and confirms a secret deletion, then uses shred when available or overwrites and removes the file as a portable fallback.",
+      "tags": [
+        "secret-management",
+        "secure-deletion",
+        "security",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aliases/secrets.sh:alias-secrets",
+      "type": "function",
+      "name": "alias-secrets",
+      "filePath": "aliases/secrets.sh",
+      "lineRange": [
+        243,
+        274
+      ],
+      "summary": "Prints a formatted usage guide for adding, retrieving, listing, and removing encrypted secrets.",
+      "tags": [
+        "help-command",
+        "secret-management",
+        "terminal-output"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aliases/system.sh",
+      "type": "file",
+      "name": "system.sh",
+      "filePath": "aliases/system.sh",
+      "summary": "Defines shortcuts for directory listing, navigation, terminal clearing, and shell-specific configuration reloads, together with a formatted system-alias reference.",
+      "tags": [
+        "shell-aliases",
+        "system-operations",
+        "productivity",
+        "help-command"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Selects the reload target at source time based on whether the active shell exposes ZSH_VERSION."
+    },
+    {
+      "id": "function:aliases/system.sh:alias-system",
+      "type": "function",
+      "name": "alias-system",
+      "filePath": "aliases/system.sh",
+      "lineRange": [
+        23,
+        44
+      ],
+      "summary": "Prints a styled reference for filesystem navigation, listing, clearing, and shell reload shortcuts.",
+      "tags": [
+        "help-command",
+        "system-operations",
+        "terminal-output"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.github/PULL_REQUEST_TEMPLATE.md",
+      "type": "document",
+      "name": "PULL_REQUEST_TEMPLATE.md",
+      "filePath": ".github/PULL_REQUEST_TEMPLATE.md",
+      "summary": "Pull request template that standardizes change classification, issue linking, test coverage across supported platforms, and reviewer readiness checks.",
+      "tags": [
+        "documentation",
+        "pull-request",
+        "quality-gates",
+        "cross-platform"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aliases/fish.fish",
+      "type": "file",
+      "name": "fish.fish",
+      "filePath": "aliases/fish.fish",
+      "summary": "Defines Fish shell shortcuts for Git, Kubernetes, system navigation, and AI coding tools, together with user-facing help commands for each alias group.",
+      "tags": [
+        "fish-shell",
+        "shell-aliases",
+        "utility",
+        "command-line"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Fish aliases use quoted command bodies, while globally loaded function blocks provide interactive help commands."
+    },
+    {
+      "id": "function:aliases/fish.fish:alias-help",
+      "type": "function",
+      "name": "alias-help",
+      "filePath": "aliases/fish.fish",
+      "lineRange": [
+        46,
+        65
+      ],
+      "summary": "Prints the installed Hyber Alias version, available alias categories, completion hint, and documentation link.",
+      "tags": [
+        "help-command",
+        "fish-shell",
+        "command-reference"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aliases/fish.fish:alias-git",
+      "type": "function",
+      "name": "alias-git",
+      "filePath": "aliases/fish.fish",
+      "lineRange": [
+        67,
+        83
+      ],
+      "summary": "Prints the Git alias reference, including expected arguments and the commands behind each shortcut.",
+      "tags": [
+        "help-command",
+        "git",
+        "command-reference"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aliases/fish.fish:alias-k8s",
+      "type": "function",
+      "name": "alias-k8s",
+      "filePath": "aliases/fish.fish",
+      "lineRange": [
+        85,
+        102
+      ],
+      "summary": "Prints the Kubernetes alias reference for resource inspection, logs, execution, context, and namespace operations.",
+      "tags": [
+        "help-command",
+        "kubernetes",
+        "command-reference"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aliases/fish.fish:alias-system",
+      "type": "function",
+      "name": "alias-system",
+      "filePath": "aliases/fish.fish",
+      "lineRange": [
+        104,
+        116
+      ],
+      "summary": "Prints the system-navigation and shell-management alias reference for Fish users.",
+      "tags": [
+        "help-command",
+        "system-utilities",
+        "command-reference"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:install.fish",
+      "type": "file",
+      "name": "install.fish",
+      "filePath": "install.fish",
+      "summary": "Installs the Fish integration by detecting the latest release, downloading the Fish alias definitions, persisting shell metadata, and sourcing the installed configuration.",
+      "tags": [
+        "installer",
+        "fish-shell",
+        "bootstrap",
+        "deployment"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "The installer uses Fish command substitution and the `or begin ... end` failure branch to stop after a failed download."
+    },
+    {
+      "id": "file:worker.js",
+      "type": "file",
+      "name": "worker.js",
+      "filePath": "worker.js",
+      "summary": "Cloudflare Worker entry point that discovers the latest GitHub release and proxies stable installation routes to immutable release assets, with main-branch and upstream-error fallbacks.",
+      "tags": [
+        "api-handler",
+        "edge-worker",
+        "routing",
+        "proxy",
+        "entry-point"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Exports a Cloudflare Workers module handler whose fetch method streams upstream response bodies and applies edge-cache directives."
+    },
+    {
+      "id": "function:worker.js:fetch",
+      "type": "function",
+      "name": "fetch",
+      "filePath": "worker.js",
+      "lineRange": [
+        2,
+        94
+      ],
+      "summary": "Handles incoming Worker requests by resolving the current release, serving API guidance at the root route, and proxying recognized installer paths with cache and CORS headers.",
+      "tags": [
+        "api-handler",
+        "routing",
+        "proxy",
+        "github-releases",
+        "error-handling"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "config:.github/ISSUE_TEMPLATE/config.yml",
+      "target": "document:.github/ISSUE_TEMPLATE/bug_report.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:.github/ISSUE_TEMPLATE/config.yml",
+      "target": "document:.github/ISSUE_TEMPLATE/feature_request.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:install-universal.sh",
+      "target": "function:install-universal.sh:detect_active_shell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:install-universal.sh",
+      "target": "function:install-universal.sh:safe_download",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:install.sh",
+      "target": "function:install.sh:detect_active_shell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:install.sh",
+      "target": "function:install.sh:_safe_download",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:_alias_self_update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:_alias_download",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:_alias_validate_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-add",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-remove",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-help",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-a",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-s",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-g",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-k",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-r",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-l",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-git",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-k8s",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-system",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-ai",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:_ValidateAliasName",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-add",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-remove",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-help",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-add",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-remove",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-help",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-a",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-s",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-g",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-k",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-r",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.sh",
+      "target": "function:load.sh:alias-l",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-git",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-k8s",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-system",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-ai",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-add",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-remove",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:load.ps1",
+      "target": "function:load.ps1:alias-help",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:load.sh:alias-add",
+      "target": "function:load.sh:_alias_validate_name",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:load.sh:alias-remove",
+      "target": "function:load.sh:_alias_validate_name",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:load.ps1:alias-add",
+      "target": "function:load.ps1:_ValidateAliasName",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:load.ps1:alias-remove",
+      "target": "function:load.ps1:_ValidateAliasName",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:install-universal.sh",
+      "target": "file:load.sh",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:install.sh",
+      "target": "file:load.sh",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:install.ps1",
+      "target": "file:load.ps1",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:install-universal.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:install.ps1",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:load.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:load.ps1",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:uninstall.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:uninstall.ps1",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "function:load.sh:alias-add",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "function:load.sh:alias-remove",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "function:load.sh:alias-list",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "function:load.sh:alias-help",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "function:load.ps1:alias-add",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "function:load.ps1:alias-remove",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "function:load.ps1:alias-list",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "function:load.ps1:alias-help",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CONTRIBUTING.md",
+      "target": "file:install.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CONTRIBUTING.md",
+      "target": "file:install.ps1",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CONTRIBUTING.md",
+      "target": "file:load.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CONTRIBUTING.md",
+      "target": "file:load.ps1",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CONTRIBUTING.md",
+      "target": "file:uninstall.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CONTRIBUTING.md",
+      "target": "file:uninstall.ps1",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CONTRIBUTING.md",
+      "target": "document:CODE_OF_CONDUCT.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CHANGELOG.md",
+      "target": "file:load.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CHANGELOG.md",
+      "target": "file:load.ps1",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CHANGELOG.md",
+      "target": "file:install-universal.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CHANGELOG.md",
+      "target": "file:install.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CHANGELOG.md",
+      "target": "file:install.ps1",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CHANGELOG.md",
+      "target": "config:wrangler.toml",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:SECURITY.md",
+      "target": "file:install-universal.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:SECURITY.md",
+      "target": "file:install.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:SECURITY.md",
+      "target": "file:install.ps1",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:SECURITY.md",
+      "target": "file:load.sh",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:SECURITY.md",
+      "target": "file:load.ps1",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:aliases/ai.sh",
+      "target": "function:aliases/ai.sh:alias-ai",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/git.sh",
+      "target": "function:aliases/git.sh:alias-git",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/k8s.sh",
+      "target": "function:aliases/k8s.sh:alias-k8s",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/secrets.sh",
+      "target": "function:aliases/secrets.sh:_secret_validate_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/secrets.sh",
+      "target": "function:aliases/secrets.sh:alias-secret-add",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/secrets.sh",
+      "target": "function:aliases/secrets.sh:alias-secret-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/secrets.sh",
+      "target": "function:aliases/secrets.sh:alias-secret-list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/secrets.sh",
+      "target": "function:aliases/secrets.sh:alias-secret-remove",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/secrets.sh",
+      "target": "function:aliases/secrets.sh:alias-secrets",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/system.sh",
+      "target": "function:aliases/system.sh:alias-system",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:aliases/secrets.sh:alias-secret-add",
+      "target": "function:aliases/secrets.sh:_secret_validate_name",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:aliases/secrets.sh:alias-secret-get",
+      "target": "function:aliases/secrets.sh:_secret_validate_name",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:aliases/secrets.sh:alias-secret-remove",
+      "target": "function:aliases/secrets.sh:_secret_validate_name",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:aliases/fish.fish",
+      "target": "function:aliases/fish.fish:alias-help",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/fish.fish",
+      "target": "function:aliases/fish.fish:alias-git",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/fish.fish",
+      "target": "function:aliases/fish.fish:alias-k8s",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aliases/fish.fish",
+      "target": "function:aliases/fish.fish:alias-system",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:install.fish",
+      "target": "file:aliases/fish.fish",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:worker.js",
+      "target": "function:worker.js:fetch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:worker.js",
+      "target": "function:worker.js:fetch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:worker.js",
+      "target": "file:install.fish",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:shell-lifecycle",
+      "name": "Cross-Shell Lifecycle",
+      "description": "Installers, interactive loaders, and uninstallers that provision, source, update, and remove Hyber Alias across POSIX shells, Fish, and PowerShell.",
+      "nodeIds": [
+        "file:install-universal.sh",
+        "file:install.fish",
+        "file:install.ps1",
+        "file:install.sh",
+        "file:load.ps1",
+        "file:load.sh",
+        "file:uninstall.ps1",
+        "file:uninstall.sh"
+      ]
+    },
+    {
+      "id": "layer:alias-catalog",
+      "name": "Alias Command Catalog",
+      "description": "Curated Bash and Fish command collections for Git, Kubernetes, AI tools, system navigation, and encrypted local secrets.",
+      "nodeIds": [
+        "file:aliases/ai.sh",
+        "file:aliases/fish.fish",
+        "file:aliases/git.sh",
+        "file:aliases/k8s.sh",
+        "file:aliases/secrets.sh",
+        "file:aliases/system.sh"
+      ]
+    },
+    {
+      "id": "layer:edge-delivery",
+      "name": "Edge Delivery",
+      "description": "The Cloudflare Worker and Wrangler deployment configuration that map stable installation routes to immutable GitHub release assets.",
+      "nodeIds": [
+        "file:worker.js",
+        "config:wrangler.toml"
+      ]
+    },
+    {
+      "id": "layer:ci-release",
+      "name": "CI and Release Automation",
+      "description": "The GitHub Actions pipeline that validates supported shells and operating systems and gates tag-driven releases.",
+      "nodeIds": [
+        "pipeline:.github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "layer:contribution-workflows",
+      "name": "Contribution and Issue Workflows",
+      "description": "The GitHub issue chooser, bug and feature intake templates, and pull request checklist that route and standardize contributions.",
+      "nodeIds": [
+        "config:.github/ISSUE_TEMPLATE/config.yml",
+        "document:.github/ISSUE_TEMPLATE/bug_report.md",
+        "document:.github/ISSUE_TEMPLATE/feature_request.md",
+        "document:.github/PULL_REQUEST_TEMPLATE.md"
+      ]
+    },
+    {
+      "id": "layer:project-documentation",
+      "name": "Project Documentation and Governance",
+      "description": "The product guide, release history, contribution instructions, security policy, and community conduct rules for Hyber Alias.",
+      "nodeIds": [
+        "document:CHANGELOG.md",
+        "document:CODE_OF_CONDUCT.md",
+        "document:CONTRIBUTING.md",
+        "document:README.md",
+        "document:SECURITY.md"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project Overview",
+      "description": "Begin with the README to learn why Hyber Alias exists: it provides one cross-platform alias system for Bash, Zsh, Fish, and PowerShell. The guide frames installation, customization, security, updates, and removal, so it supplies the vocabulary for every later stop.",
+      "nodeIds": [
+        "document:README.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Cross-Shell Installation",
+      "description": "With the product model established, follow the installer family that turns a release into a working shell setup. The universal and Bash installers detect environments and wire startup files, while the Fish and PowerShell variants download their native definitions, persist metadata, and activate the integration.",
+      "nodeIds": [
+        "file:install.fish",
+        "file:install-universal.sh",
+        "file:install.sh",
+        "file:install.ps1"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Runtime Loaders",
+      "description": "The installed startup hooks converge on the two highest-fan-in runtime files, making the loaders the operational center of the project. The POSIX loader safely updates and sources categorized Bash and Zsh modules, while the PowerShell loader defines equivalent commands and the custom-alias workflow.",
+      "nodeIds": [
+        "file:load.sh",
+        "file:load.ps1"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Curated Alias Catalog",
+      "description": "Once the loaders are active, these modules provide the everyday user-facing command catalog for Git, Kubernetes, system navigation, AI tools, and Fish. Reading them together shows the project's design choice: keep aliases grouped by task and pair each group with discoverable help rather than hiding everything in one monolithic loader.",
+      "nodeIds": [
+        "file:aliases/git.sh",
+        "file:aliases/k8s.sh",
+        "file:aliases/system.sh",
+        "file:aliases/ai.sh",
+        "file:aliases/fish.fish"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Encrypted Secrets",
+      "description": "Beyond convenient shortcuts, secrets.sh adds a stateful, security-sensitive feature for encrypted local values. It validates names, encrypts with OpenSSL AES-256-CBC and PBKDF2, handles legacy entries, and works within the safe-installation and disclosure practices documented by SECURITY.md.",
+      "nodeIds": [
+        "file:aliases/secrets.sh",
+        "document:SECURITY.md"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Clean Removal",
+      "description": "After seeing what installation creates and runtime loading uses, close the local lifecycle with the platform-specific uninstallers. They remove the alias directory and carefully strip startup hooks from POSIX and Fish profiles or the PowerShell profile, showing how the project avoids leaving stale integration behind.",
+      "nodeIds": [
+        "file:uninstall.sh",
+        "file:uninstall.ps1"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Stable Release Delivery",
+      "description": "The installers depend on stable download URLs even as GitHub releases change, and the Cloudflare Worker supplies that indirection. The worker resolves the latest release and proxies known installation routes to immutable assets, while wrangler.toml defines how that edge service is deployed.",
+      "nodeIds": [
+        "file:worker.js",
+        "config:wrangler.toml"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "CI and Release Gates",
+      "description": "The delivery path is guarded by the GitHub Actions workflow, which checks shell syntax, security behavior, cross-platform installation, Fish compatibility, and clean removal before tag-driven releases. CHANGELOG.md then records the compatibility, loader, installer, security, and delivery changes that passed through that process.",
+      "nodeIds": [
+        "pipeline:.github/workflows/ci.yml",
+        "document:CHANGELOG.md"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Contribution Workflow",
+      "description": "To change any part of the system, use the contribution guide and repository intake templates as the final map. They define local cross-platform checks, pull-request readiness, issue routing, reproducible bug reports, and well-scoped feature proposals, tying newcomer work back to the runtime and release lifecycle explored above.",
+      "nodeIds": [
+        "document:CONTRIBUTING.md",
+        "document:.github/PULL_REQUEST_TEMPLATE.md",
+        "config:.github/ISSUE_TEMPLATE/config.yml",
+        "document:.github/ISSUE_TEMPLATE/bug_report.md",
+        "document:.github/ISSUE_TEMPLATE/feature_request.md"
+      ]
+    }
+  ]
+}

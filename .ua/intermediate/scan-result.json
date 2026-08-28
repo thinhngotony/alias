@@ -1,0 +1,203 @@
+{
+  "name": "alias",
+  "description": "Hyber Alias is a cross-platform shell alias manager for Bash, Zsh, Fish, and PowerShell that installs curated productivity aliases for Git, Kubernetes, and system operations.",
+  "languages": [
+    "fish",
+    "javascript",
+    "markdown",
+    "powershell",
+    "shell",
+    "toml",
+    "yaml"
+  ],
+  "frameworks": [],
+  "files": [
+    {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+      "language": "markdown",
+      "sizeLines": 47,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/config.yml",
+      "language": "yaml",
+      "sizeLines": 8,
+      "fileCategory": "config"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+      "language": "markdown",
+      "sizeLines": 42,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "language": "markdown",
+      "sizeLines": 52,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "language": "yaml",
+      "sizeLines": 439,
+      "fileCategory": "infra"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "language": "markdown",
+      "sizeLines": 201,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "CODE_OF_CONDUCT.md",
+      "language": "markdown",
+      "sizeLines": 39,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "language": "markdown",
+      "sizeLines": 240,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 398,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "SECURITY.md",
+      "language": "markdown",
+      "sizeLines": 95,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "aliases/ai.sh",
+      "language": "shell",
+      "sizeLines": 28,
+      "fileCategory": "script"
+    },
+    {
+      "path": "aliases/fish.fish",
+      "language": "fish",
+      "sizeLines": 126,
+      "fileCategory": "code"
+    },
+    {
+      "path": "aliases/git.sh",
+      "language": "shell",
+      "sizeLines": 44,
+      "fileCategory": "script"
+    },
+    {
+      "path": "aliases/k8s.sh",
+      "language": "shell",
+      "sizeLines": 46,
+      "fileCategory": "script"
+    },
+    {
+      "path": "aliases/secrets.sh",
+      "language": "shell",
+      "sizeLines": 274,
+      "fileCategory": "script"
+    },
+    {
+      "path": "aliases/system.sh",
+      "language": "shell",
+      "sizeLines": 44,
+      "fileCategory": "script"
+    },
+    {
+      "path": "install-universal.sh",
+      "language": "shell",
+      "sizeLines": 290,
+      "fileCategory": "script"
+    },
+    {
+      "path": "install.fish",
+      "language": "fish",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "install.ps1",
+      "language": "powershell",
+      "sizeLines": 125,
+      "fileCategory": "script"
+    },
+    {
+      "path": "install.sh",
+      "language": "shell",
+      "sizeLines": 282,
+      "fileCategory": "script"
+    },
+    {
+      "path": "load.ps1",
+      "language": "powershell",
+      "sizeLines": 358,
+      "fileCategory": "script"
+    },
+    {
+      "path": "load.sh",
+      "language": "shell",
+      "sizeLines": 436,
+      "fileCategory": "script"
+    },
+    {
+      "path": "uninstall.ps1",
+      "language": "powershell",
+      "sizeLines": 31,
+      "fileCategory": "script"
+    },
+    {
+      "path": "uninstall.sh",
+      "language": "shell",
+      "sizeLines": 71,
+      "fileCategory": "script"
+    },
+    {
+      "path": "worker.js",
+      "language": "javascript",
+      "sizeLines": 95,
+      "fileCategory": "code"
+    },
+    {
+      "path": "wrangler.toml",
+      "language": "toml",
+      "sizeLines": 4,
+      "fileCategory": "config"
+    }
+  ],
+  "totalFiles": 26,
+  "filteredByIgnore": 7,
+  "estimatedComplexity": "small",
+  "importMap": {
+    ".github/ISSUE_TEMPLATE/bug_report.md": [],
+    ".github/ISSUE_TEMPLATE/config.yml": [],
+    ".github/ISSUE_TEMPLATE/feature_request.md": [],
+    ".github/PULL_REQUEST_TEMPLATE.md": [],
+    ".github/workflows/ci.yml": [],
+    "CHANGELOG.md": [],
+    "CODE_OF_CONDUCT.md": [],
+    "CONTRIBUTING.md": [],
+    "README.md": [],
+    "SECURITY.md": [],
+    "aliases/ai.sh": [],
+    "aliases/fish.fish": [],
+    "aliases/git.sh": [],
+    "aliases/k8s.sh": [],
+    "aliases/secrets.sh": [],
+    "aliases/system.sh": [],
+    "install-universal.sh": [],
+    "install.fish": [],
+    "install.ps1": [],
+    "install.sh": [],
+    "load.ps1": [],
+    "load.sh": [],
+    "uninstall.ps1": [],
+    "uninstall.sh": [],
+    "worker.js": [],
+    "wrangler.toml": []
+  }
+}
