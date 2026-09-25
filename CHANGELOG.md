@@ -7,14 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-25
+
 ### Added
 
-- Search-based `alias-remove <name>` now finds aliases across cached system modules and custom categories, shows the match details, and asks for confirmation.
+- Search-based `alias-remove <name>` now finds aliases across cached system modules and custom categories, shows match details, and asks for confirmation.
 
 ### Changed
 
 - Alias modules reuse cache entries for five minutes instead of downloading all five files on every shell startup.
-- Loader self-update checks are rate-limited to once per hour and interrupted alias-download temp files are cleaned up automatically.
+- Loader self-update checks are rate-limited to once per hour.
+
+### Fixed
+
+- Interrupted alias-download temp files are cleaned up automatically.
 
 ## [1.4.1] - 2026-03-30
 
@@ -196,8 +202,8 @@ curl -sfS https://alias.hyberorbit.com/install | sh
 iwr -useb https://alias.hyberorbit.com/install.ps1 | iex
 ```
 
-[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.4.1...HEAD
-[1.4.1]: https://github.com/thinhngotony/alias/compare/v1.4.0...v1.4.1
+[Unreleased]: https://github.com/thinhngotony/alias/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/thinhngotony/alias/compare/v1.4.1...v1.5.0
 [1.4.0]: https://github.com/thinhngotony/alias/compare/v1.3.7...v1.4.0
 [1.3.7]: https://github.com/thinhngotony/alias/compare/v1.3.6...v1.3.7
 [1.3.6]: https://github.com/thinhngotony/alias/compare/v1.2.0...v1.3.6
