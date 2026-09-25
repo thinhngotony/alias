@@ -267,7 +267,9 @@ _alias_collect_alias_file_matches() {
     [ -d "$directory" ] || return 0
     prefix="alias ${alias_name}="
     while IFS= read -r -d '' file; do
-        [ -f "$file" ] && [ ! -L "$file" ] || continue
+        if [ ! -f "$file" ] || [ -L "$file" ]; then
+            continue
+        fi
         category=$(basename "$file" .sh)
         while IFS= read -r line; do
             case "$line" in
