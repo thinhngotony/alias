@@ -108,7 +108,55 @@ jobs:
           alias-add "good" "bad;name" "echo hi" 2>&1 | grep -q "Error" || { echo "FAIL: metachar not blocked"; exit 1; }
           echo "PASS: bad inputs rejected"
 
+          # Search by alias name and confirm the single match
+          alias-add testcat mysearch "echo search"
+          search_output=$(printf '1\n' | alias-remove mysearch 2>&1)
+          echo "$search_output"
+          echo "$search_output" | grep -q "Found 1 match:" || { echo "FAIL: search did not find alias"; exit 1; }
+          echo "$search_output" | grep -q "Removed alias 'mysearch' from category 'testcat'" || { echo "FAIL: search removal failed"; exit 1; }
+          grep -q "^alias mysearch=" "$HOME/.alias/custom/testcat.sh" && { echo "FAIL: searched alias not removed"; exit 1; }
+          echo "PASS: alias search and removal"
+
           rm -rf "$HOME/.alias/custom/testcat.sh"
+
+      - name: Test alias cache freshness
+        run: |
+          test_home=$(mktemp -d)
+          fake_bin=$(mktemp -d)
+          mkdir -p "$test_home/.alias/cache" "$test_home/.alias/custom"
+          for name in git k8s system secrets ai; do
+            printf "alias cache_%s='true'\n" "$name" > "$test_home/.alias/cache/$name.sh"
+          done
+          printf '%s\n' "stale temp" > "$test_home/.alias/cache/git.sh.CQTeOX"
+          touch -t 200001010000 "$test_home/.alias/cache/git.sh.CQTeOX"
+
+          printf '%s\n' \
+            '#!/bin/sh' \
+            'out=""' \
+            'while [ "$#" -gt 0 ]; do' \
+            '    if [ "$1" = "-o" ]; then' \
+            '        out="$2"' \
+            '        shift 2' \
+            '    else' \
+            '        shift' \
+            '    fi' \
+            'done' \
+            'printf "%s\n" curl >> "$HOME/.alias/curl-count"' \
+            'printf "%s\n" "alias refreshed=\"true\"" > "$out"' \
+            > "$fake_bin/curl"
+          chmod +x "$fake_bin/curl"
+
+          HOME="$test_home" PATH="$fake_bin:$PATH" ALIAS_AUTO_UPDATE=false \
+            bash -c 'source "$GITHUB_WORKSPACE/load.sh"'
+          [ ! -e "$test_home/.alias/cache/git.sh.CQTeOX" ] || { echo "FAIL: stale temp file remains"; exit 1; }
+          [ ! -e "$test_home/.alias/curl-count" ] || { echo "FAIL: fresh cache was downloaded"; exit 1; }
+
+          touch -t 200001010000 "$test_home/.alias/cache/git.sh"
+          HOME="$test_home" PATH="$fake_bin:$PATH" ALIAS_AUTO_UPDATE=false \
+            bash -c 'source "$GITHUB_WORKSPACE/load.sh"'
+          [ "$(wc -l < "$test_home/.alias/curl-count" | tr -d ' ')" -eq 1 ] || { echo "FAIL: stale cache was not refreshed once"; exit 1; }
+          echo "PASS: cache freshness and temp cleanup"
+          rm -rf "$test_home" "$fake_bin"
 
       - name: Test secrets encryption round-trip
         run: |

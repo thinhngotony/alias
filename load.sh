@@ -22,17 +22,86 @@ if [ "$ALIAS_VERSION" != "latest" ]; then
 else
     REPO="${ALIAS_REPO_URL}/main"
 fi
+# Avoid network work on every shell startup.
+_ALIAS_CACHE_TTL=300
+_ALIAS_UPDATE_INTERVAL=3600
+
 
 # =============================================================================
-# Self-update loader (runs in background, completely silent)
+# Self-update loader (runs in background at most once per hour)
 # Uses mktemp for safe temp files and mkdir-based locking to prevent races
 # Set ALIAS_AUTO_UPDATE=false to disable auto-updates
 # =============================================================================
+_alias_file_mtime() {
+    local file="$1"
+    stat -c %Y "$file" 2>/dev/null || stat -f %m "$file" 2>/dev/null
+}
+
+_alias_file_age() {
+    local file="$1"
+    local now mtime
+    [ -f "$file" ] || return 1
+    now=$(date +%s) || return 1
+    mtime=$(_alias_file_mtime "$file") || return 1
+    printf '%s\n' "$((now - mtime))"
+}
+
+_alias_update_check_due() {
+    local marker="$ALIAS_HOME/.update-check"
+    local age
+    if [ ! -f "$marker" ]; then
+        return 0
+    fi
+    age=$(_alias_file_age "$marker") || return 0
+    [ "$age" -ge "$_ALIAS_UPDATE_INTERVAL" ]
+}
+
 _alias_self_update() {
+    local check_lock="$ALIAS_HOME/.update-check.lock"
+    local lock_age
+
     # Allow users to opt-out of auto-updates
     if [ "${ALIAS_AUTO_UPDATE:-true}" = "false" ]; then
         return 0
     fi
+
+    # Rate-limit the background network check and serialize its timestamp.
+    if ! _alias_update_check_due; then
+        return 0
+    fi
+    mkdir -p "$ALIAS_HOME" 2>/dev/null || return 0
+
+    if [ -d "$check_lock" ]; then
+        if [ -f "$check_lock/pid" ]; then
+            lock_age=$(_alias_file_age "$check_lock/pid") || lock_age=0
+            if [ "$lock_age" -gt 120 ]; then
+                rm -rf "$check_lock" 2>/dev/null
+            else
+                return 0
+            fi
+        else
+            rm -rf "$check_lock" 2>/dev/null
+        fi
+    fi
+
+    if ! mkdir "$check_lock" 2>/dev/null; then
+        return 0
+    fi
+    if ! printf '%s\n' "$$" > "$check_lock/pid" 2>/dev/null; then
+        rm -rf "$check_lock" 2>/dev/null
+        return 0
+    fi
+
+    # Re-check after taking the lock so concurrent shells do not all spawn jobs.
+    if ! _alias_update_check_due; then
+        rm -rf "$check_lock" 2>/dev/null
+        return 0
+    fi
+    if ! touch "$ALIAS_HOME/.update-check" 2>/dev/null; then
+        rm -rf "$check_lock" 2>/dev/null
+        return 0
+    fi
+    rm -rf "$check_lock" 2>/dev/null
 
     # Use nohup with full redirection to avoid any job control messages
     # shellcheck disable=SC2016
@@ -86,18 +155,37 @@ _alias_self_update() {
     ' >/dev/null 2>&1 &)
 }
 
-# Run self-update in background
+# Run the self-update check in the background when its hourly interval expires.
 _alias_self_update
+
 
 # =============================================================================
 # Download and cache aliases if online, then source from cache
+# Cached alias modules are refreshed at most every five minutes.
 # =============================================================================
+_alias_cleanup_download_temps() {
+    [ -d "$ALIAS_HOME/cache" ] || return 0
+    # Remove interrupted downloads after active curl processes have timed out.
+    find "$ALIAS_HOME/cache" -maxdepth 1 -type f -name '*.sh.*' -mmin +10 -exec rm -f {} + 2>/dev/null || true
+}
+
 _alias_download() {
-    local name=$1
+    local name="$1"
     local url="$REPO/aliases/${name}.sh"
     local cache="$ALIAS_HOME/cache/${name}.sh"
+    local now mtime
 
     mkdir -p "$ALIAS_HOME/cache"
+
+    if [ -f "$cache" ]; then
+        now=$(date +%s) || now=0
+        mtime=$(_alias_file_mtime "$cache") || mtime=""
+        if [ -n "$mtime" ] && [ "$((now - mtime))" -lt "$_ALIAS_CACHE_TTL" ]; then
+            # shellcheck source=/dev/null
+            source "$cache"
+            return $?
+        fi
+    fi
 
     # Use mktemp for safe temp file
     local tmp
@@ -110,10 +198,12 @@ _alias_download() {
         rm -f "$tmp" 2>/dev/null
     fi
 
-    # Source from cache if exists
+    # Source from cache if exists, including a stale copy when offline.
     # shellcheck source=/dev/null
     [ -f "$cache" ] && source "$cache"
 }
+
+_alias_cleanup_download_temps
 
 # Load default aliases
 _alias_download "git"
@@ -121,6 +211,7 @@ _alias_download "k8s"
 _alias_download "system"
 _alias_download "secrets"
 _alias_download "ai"
+
 
 # =============================================================================
 # Source user custom aliases
@@ -164,6 +255,38 @@ _alias_validate_name() {
     esac
     return 0
 }
+
+# Collect exact alias definitions from cached remote and custom category files.
+_alias_collect_alias_file_matches() {
+    local alias_name="$1"
+    local alias_type="$2"
+    local directory="$3"
+    local output_file="$4"
+    local file category line prefix definition
+
+    [ -d "$directory" ] || return 0
+    prefix="alias ${alias_name}="
+    while IFS= read -r -d '' file; do
+        [ -f "$file" ] && [ ! -L "$file" ] || continue
+        category=$(basename "$file" .sh)
+        while IFS= read -r line; do
+            case "$line" in
+                "$prefix"*)
+                    definition="${line#"$prefix"}"
+                    printf '%s\t%s\t%s\t%s\n' "$alias_type" "$category" "$file" "$definition" >> "$output_file"
+                    ;;
+            esac
+        done < "$file"
+    done < <(find "$directory" -maxdepth 1 -type f -name '*.sh' -print0 2>/dev/null)
+}
+
+_alias_collect_alias_matches() {
+    local alias_name="$1"
+    local output_file="$2"
+    _alias_collect_alias_file_matches "$alias_name" "System" "$ALIAS_HOME/cache" "$output_file"
+    _alias_collect_alias_file_matches "$alias_name" "Custom" "$ALIAS_HOME/custom" "$output_file"
+}
+
 
 # =============================================================================
 # Custom Category Management
@@ -254,50 +377,159 @@ EOF
     echo "Run 'alias-$category' to see all aliases in this category"
 }
 
-# Remove alias from a category: alias-remove <category> <alias-name>
-alias-remove() {
-    local category="$1"
-    local alias_name="$2"
+# Remove an alias definition from a cached or custom category file.
+_alias_remove_alias_line() {
+    local alias_name="$1"
+    local category_file="$2"
+    local tmpfile line
+    local found=0
 
-    if [ -z "$category" ] || [ -z "$alias_name" ]; then
-        echo "Usage: alias-remove <category> <alias-name>"
+    tmpfile=$(mktemp "${category_file}.tmp.XXXXXX") || {
+        echo "Error: failed to create temp file"
         return 1
-    fi
-
-    # Validate inputs
-    _alias_validate_name "$category" "Category" || return 1
-    _alias_validate_name "$alias_name" "Alias name" || return 1
-
-    local category_file="$ALIAS_HOME/custom/${category}.sh"
-
-    if [ ! -f "$category_file" ]; then
-        echo "Category '$category' not found"
-        return 1
-    fi
-
-    if ! grep -q "^alias ${alias_name}=" "$category_file" 2>/dev/null; then
-        echo "Alias '$alias_name' not found in category '$category'"
-        return 1
-    fi
-
-    # Safely remove alias line using line-by-line copy (no sed injection)
-    local tmpfile
-    tmpfile=$(mktemp "$ALIAS_HOME/custom/.tmp.XXXXXX") || { echo "Error: failed to create temp file"; return 1; }
+    }
 
     while IFS= read -r line; do
         case "$line" in
-            "alias ${alias_name}="*) continue ;;
+            "alias ${alias_name}="*)
+                found=1
+                continue
+                ;;
             *) printf '%s\n' "$line" ;;
         esac
     done < "$category_file" > "$tmpfile"
 
-    mv "$tmpfile" "$category_file"
+    if [ "$found" -eq 0 ]; then
+        rm -f "$tmpfile" 2>/dev/null
+        echo "Alias '$alias_name' not found"
+        return 1
+    fi
+    if ! mv "$tmpfile" "$category_file" 2>/dev/null; then
+        rm -f "$tmpfile" 2>/dev/null
+        echo "Error: failed to update '$category_file'"
+        return 1
+    fi
 
-    # Unset the alias
     unalias "$alias_name" 2>/dev/null || true
-
-    echo "Removed alias '$alias_name' from category '$category'"
 }
+
+# Remove an alias from a category, or search all categories when only a name is given.
+alias-remove() {
+    local category="" alias_name="" category_file="" matches="" matches_file="" record="" selected=""
+    local match_type="" match_file="" definition="" selection="" display_file="" tab=""
+    local count=0 index=0
+
+    case "$#" in
+        1)
+            alias_name="$1"
+            case "$alias_name" in
+                ""|*[!a-zA-Z0-9_.-]*|*/*|*\\*)
+                    echo "Error: Alias name must contain only letters, numbers, dots, hyphens, and underscores (max 64 chars)"
+                    return 1
+                    ;;
+            esac
+            echo ""
+            echo "🔍 Searching for '$alias_name' across all aliases..."
+            tab="$(printf '\t')"
+            matches_file=$(mktemp "$ALIAS_HOME/.alias-remove.XXXXXX") || {
+                echo "Error: failed to create search file"
+                return 1
+            }
+            if ! _alias_collect_alias_matches "$alias_name" "$matches_file"; then
+                rm -f "$matches_file" 2>/dev/null
+                echo "Error: failed to search aliases"
+                return 1
+            fi
+            matches=$(cat "$matches_file")
+            rm -f "$matches_file" 2>/dev/null
+            if [ -z "$matches" ]; then
+                echo "No alias '$alias_name' found."
+                return 1
+            fi
+            count=$(printf '%s\n' "$matches" | wc -l | tr -d '[:space:]')
+            if [ "$count" -eq 1 ]; then
+                echo "Found 1 match:"
+            else
+                echo "Found $count matches:"
+            fi
+            index=0
+            while IFS= read -r record; do
+                index=$((index + 1))
+                IFS="$tab" read -r match_type category match_file definition <<< "$record"
+                display_file="$match_file"
+                case "$display_file" in
+                    "$HOME"/*) display_file="~${display_file#"$HOME"}" ;;
+                esac
+                printf "  [%d] %s (%s) - %s\n" "$index" "$alias_name" "$match_type" "$definition"
+                printf "      Category: %s\n" "$category"
+                printf "      File: %s\n" "$display_file"
+            done <<< "$matches"
+
+            echo ""
+            printf "Enter number to confirm removal (or 'q' to cancel): "
+            IFS= read -r selection
+            case "$selection" in
+                q|Q)
+                    echo "Cancelled"
+                    return 0
+                    ;;
+                ''|*[!0-9]*)
+                    echo "Invalid selection"
+                    return 1
+                    ;;
+            esac
+            if [ "$selection" -lt 1 ] || [ "$selection" -gt "$count" ]; then
+                echo "Invalid selection"
+                return 1
+            fi
+
+            index=0
+            while IFS= read -r record; do
+                index=$((index + 1))
+                if [ "$index" -eq "$selection" ]; then
+                    selected="$record"
+                    break
+                fi
+            done <<< "$matches"
+            IFS="$tab" read -r match_type category match_file definition <<< "$selected"
+            _alias_remove_alias_line "$alias_name" "$match_file" || return 1
+            if [ "$match_type" = "System" ]; then
+                echo "Removed alias '$alias_name' from cached system category '$category'"
+                echo "Note: it will return when that cache refreshes."
+            else
+                echo "Removed alias '$alias_name' from category '$category'"
+            fi
+            ;;
+        2)
+            category="$1"
+            alias_name="$2"
+            _alias_validate_name "$category" "Category" || return 1
+            _alias_validate_name "$alias_name" "Alias name" || return 1
+            category_file="$ALIAS_HOME/custom/${category}.sh"
+
+            if [ ! -f "$category_file" ]; then
+                echo "Category '$category' not found"
+                return 1
+            fi
+
+            if ! grep -q "^alias ${alias_name}=" "$category_file" 2>/dev/null; then
+                echo "Alias '$alias_name' not found in category '$category'"
+                return 1
+            fi
+
+            _alias_remove_alias_line "$alias_name" "$category_file" || return 1
+            echo "Removed alias '$alias_name' from category '$category'"
+            ;;
+        *)
+            echo "Usage: alias-remove [category] <alias-name>"
+            echo "Examples:"
+            echo "  alias-remove my-alias"
+            echo "  alias-remove ai my-alias"
+            return 1
+            ;;
+    esac
+}
+
 
 # List all custom categories: alias-list
 alias-list() {
@@ -353,7 +585,8 @@ alias-help() {
     echo -e "  ${BOLD}✨ Custom Aliases${NC}"
     echo ""
     echo -e "      ${GREEN}alias-add${NC} ${DIM}<category> <name> <command>${NC}"
-    echo -e "      ${GREEN}alias-remove${NC} ${DIM}<category> <name>${NC}"
+    echo -e "      ${GREEN}alias-remove${NC} ${DIM}[category] <name>${NC}"
+    echo -e "          ${DIM}Search all aliases when category is omitted${NC}"
     echo -e "      ${GREEN}alias-list${NC}"
     echo ""
     echo -e "${DIM}  ────────────────────────────────────────────────────────────────${NC}"
@@ -392,6 +625,7 @@ alias-() {
     echo -e "      \033[0;36malias-system\033[0m     \033[2mSystem aliases\033[0m"
     echo -e "      \033[0;36malias-secrets\033[0m    \033[2mSecrets management\033[0m"
     echo -e "      \033[0;36malias-add\033[0m        \033[2mAdd custom alias\033[0m"
+    echo -e "      \033[0;36malias-remove\033[0m     \033[2mSearch/remove alias\033[0m"
     echo -e "      \033[0;36malias-list\033[0m       \033[2mList custom categories\033[0m"
     echo ""
 }
@@ -425,7 +659,7 @@ alias-k() {
 
 alias-r() {
     echo -e "\n  \033[0;33m⚠\033[0m  Command '\033[1malias-r\033[0m' not found. Did you mean:\n"
-    echo -e "      \033[0;36malias-remove\033[0m     \033[2mRemove custom alias\033[0m"
+    echo -e "      \033[0;36malias-remove\033[0m     \033[2mSearch/remove alias\033[0m"
     echo ""
 }
 

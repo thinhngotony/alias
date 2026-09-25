@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Search-based `alias-remove <name>` now finds aliases across cached system modules and custom categories, shows the match details, and asks for confirmation.
+
+### Changed
+
+- Alias modules reuse cache entries for five minutes instead of downloading all five files on every shell startup.
+- Loader self-update checks are rate-limited to once per hour and interrupted alias-download temp files are cleaned up automatically.
+
 ## [1.4.1] - 2026-03-30
 
 ### Fixed

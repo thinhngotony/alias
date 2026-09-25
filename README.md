@@ -64,7 +64,7 @@ iwr -useb https://raw.githubusercontent.com/thinhngotony/alias/main/install.ps1 
 | **Zero Config**    | Auto-detects OS, shell, and environment          |
 | **Cross-Platform** | Linux, macOS, Windows, WSL, Docker, Kubernetes   |
 | **Instant Setup**  | Installs in under 5 seconds                      |
-| **Always Fresh**   | Auto-updates on each shell start                 |
+| **Fresh Cache**   | Reuses aliases for 5 minutes; checks loader updates hourly |
 | **Customizable**   | Add your own aliases that persist across updates |
 | **Offline Ready**  | Works without internet after first install       |
 | **Discoverable**   | Type `alias-` + TAB for category autocomplete    |
@@ -83,7 +83,7 @@ alias-k8s       # Kubernetes aliases
 alias-system    # System aliases
 alias-ai        # AI coding agent aliases
 alias-add       # Add custom alias to category
-alias-remove    # Remove custom alias
+alias-remove    # Search and remove an alias
 alias-list      # List custom categories
 ```
 
@@ -183,10 +183,21 @@ alias-ai
 
 # List all custom categories
 alias-list
+```
 
-# Remove an alias
+### Removing aliases
+
+```bash
+# Search cached system aliases and custom categories
+alias-remove gpt
+
+# Choose a numbered match, or cancel with q
+
+# Skip the search when the category is known
 alias-remove ai gpt
 ```
+
+The search shows each match's definition, category, and source file before asking for confirmation. Removing a system alias edits the local cache; it returns when that cache refreshes.
 
 ### Manual Creation
 
@@ -229,7 +240,7 @@ function dps { docker ps $args }
 ```
 1. Install script downloads loader to ~/.alias/
 2. Adds source line to shell config (.bashrc / $PROFILE)
-3. Loader fetches latest aliases on each shell start
+3. Linux/macOS loader reuses cached alias modules for five minutes and checks for loader updates hourly
 4. Custom aliases in ~/.alias/custom/ are loaded last
 ```
 
@@ -251,10 +262,10 @@ function dps { docker ps $args }
 
 Hyber Alias follows security best practices:
 
-- **Input validation**: Category and alias names are restricted to alphanumeric characters, hyphens, and underscores. Path traversal and shell metacharacter injection are blocked.
+- **Input validation**: Custom category and alias names are restricted to alphanumeric characters, hyphens, and underscores. Search-only support for built-in dotted aliases never uses the name as a path.
 - **Encrypted secrets**: Secrets are stored using AES-256-CBC encryption with PBKDF2 key derivation via OpenSSL (not base64).
 - **Atomic file operations**: Downloads and updates use temporary files (`mktemp`) with atomic moves to prevent corruption.
-- **Race condition protection**: Self-updates use directory-based locking to prevent concurrent modification.
+- **Race condition protection**: Self-updates use directory-based locking and hourly rate limiting to prevent concurrent modification.
 - **Symlink protection**: Custom alias loading skips symbolic links to prevent symlink attacks.
 - **Secure deletion**: Secret removal uses `shred` when available for secure file erasure.
 - **No `exec` in installers**: Installation scripts print activation instructions instead of forcing shell replacement.
@@ -263,12 +274,13 @@ Hyber Alias follows security best practices:
 
 ## Updating
 
-Aliases auto-update on each new shell session.
+Linux/macOS aliases refresh from the network at most every five minutes. The loader checks for loader updates once per hour.
 
-**Force update:**
+**Force an alias refresh:**
 
 ```bash
 # Linux/macOS
+rm -rf ~/.alias/cache
 source ~/.alias/load.sh
 
 # Windows
